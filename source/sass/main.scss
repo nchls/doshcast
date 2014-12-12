@@ -1,0 +1,507 @@
+@import "bourbon/bourbon";
+@import "neat/neat";
+
+html,
+button,
+input,
+select,
+textarea {
+	color: #222;
+}
+
+body {
+	font-size: 1em;
+	line-height: 1.4;
+}
+
+::-moz-selection {
+	background: #b3d4fc;
+	text-shadow: none;
+}
+
+::selection {
+	background: #b3d4fc;
+	text-shadow: none;
+}
+
+hr {
+	display: block;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #ccc;
+	margin: 1em 0;
+	padding: 0;
+}
+
+img {
+	vertical-align: middle;
+}
+
+fieldset {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+textarea {
+	resize: vertical;
+}
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+@include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-Regular');
+@include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-It', normal, italic);
+@include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-Bold', bold);
+@include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-Black', 900);
+
+
+/* Global rules */
+
+*:before, *:after {
+	@include box-sizing(border-box);
+}
+html {
+	background-color: #eee;
+}
+html,
+button,
+input,
+select,
+textarea {
+	font-size: 1.1em;
+	font-family: SourceSansPro, sans-serif;
+}
+ul, li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	transform: scale(1.3);
+	margin: 0 0.1em;
+}
+
+.aside {
+	font-size: 85%;
+	color: #666;
+}
+.clickable {
+	cursor: pointer;
+}
+
+/* Globally used elements */
+
+.btn {
+	max-width: 18em;
+	padding: 0.4em 0.7em;
+	border: 0;
+	color: #fff;
+	font-size: 1.2em;
+	font-weight: bold;
+	line-height: 1;
+	text-shadow: 0 0 0.1em #000;
+	@include background-image(
+		linear-gradient(to bottom,
+			rgba(255,255,255,0.1) 0%,
+			rgba(255,255,255,0.1) 50%,
+			rgba(255,255,255,0) 50%,
+			rgba(255,255,255,0) 100%
+		),
+		linear-gradient(to bottom, #44c, #00a)
+	);
+	border-radius: 0.2em;
+	box-shadow:
+		inset 0 -0.03em 0.03em 0.03em rgba(0,0,0,0.4),
+		inset 0 0 1em 0.2em rgba(255,255,255,0.2);
+	//@include transition(all 0.1s);
+	outline: 0;
+
+	&:hover {
+		@include background-image(
+			linear-gradient(to bottom,
+				rgba(255,255,255,0.1) 0%,
+				rgba(255,255,255,0.1) 50%,
+				rgba(255,255,255,0) 50%,
+				rgba(255,255,255,0) 100%
+			),
+			linear-gradient(to bottom, #55e, #008)
+		);
+		box-shadow:
+			inset 0 -0.03em 0.03em 0.03em rgba(0,0,0,0.7),
+			inset 0 0 2em 0.2em rgba(255,255,255,0.25);
+	}
+	&:active {
+		box-shadow: inset 0 0 1em rgba(0,0,0,0.7);
+		@include background-image(
+			linear-gradient(to bottom, #33b, #008)
+		);
+	}
+
+	&.secondary {
+		color: #333;
+		text-shadow: none;
+		@include background-image(
+			linear-gradient(to bottom,
+				rgba(255,255,255,0.1) 0%,
+				rgba(255,255,255,0.1) 50%,
+				rgba(255,255,255,0) 50%,
+				rgba(255,255,255,0) 100%
+			),
+			linear-gradient(to bottom, #eee, #ccc)
+		);
+
+		&:hover {
+			@include background-image(
+				linear-gradient(to bottom,
+					rgba(255,255,255,0.1) 0%,
+					rgba(255,255,255,0.1) 50%,
+					rgba(255,255,255,0) 50%,
+					rgba(255,255,255,0) 100%
+				),
+				linear-gradient(to bottom, #fff, #ddd)
+			);
+		}
+	}
+
+	// FontAwesome icons
+	.fa {
+		margin-right: 0.3em;
+	}
+}
+
+textarea,
+select,
+input:not([type="checkbox"]):not([type="radio"]) {
+	background-color: #fff;
+	border: solid 1px #bbb;
+	color: #333;
+	line-height: 1.4;
+	padding: 0.25em;
+	box-shadow: inset 0.1em 0.1em 0.3em rgba(0, 0, 0, 0.15);
+}
+
+
+/* Utility classes */
+
+.auto-rows {
+	display: inline-block;
+	margin-right: -4px;
+	vertical-align: top;
+}
+
+
+
+.formRow {
+	padding: 0.3em 0 0.8em;
+}
+.formRow:not(.inline) label {
+	display: block;
+}
+
+
+.topbar {
+	padding: 0.7em 1em;
+	.title {
+		float: left;
+		margin: 0;
+		font-weight: 900;
+	}
+	.auth {
+		position: relative;
+		float: right;
+		text-align: right;
+		.panel {
+			position: absolute;
+			right: 0;
+			background: #fff;
+			padding: 1em;
+			text-align: left;
+			button {
+				float: right;
+			}
+		}
+		.loggedInAs {
+			display: inline;
+		}
+	}
+}
+nav {
+	@extend .cf;
+	ul, li {
+		margin: 0;
+		padding: 0;
+	}
+	li {
+		float: left;
+		width: 20%;
+		a {
+			display: block;
+			width: 100%;
+			padding: 0.5em 1em;
+			text-align: center;
+			font-size: 1.2em;
+			text-decoration: none;
+			background: #ddd;
+			.fa {
+				display: block;
+			}
+		}
+	}
+}
+
+.actionBar {
+	padding: 0.5em 0;
+}
+
+.ledger {
+	table {
+		table-layout: fixed;
+		width: 100%;
+		min-width: 100em;
+		background-color: #fff;
+	}
+	th {
+		vertical-align: top;
+		background-color: #559;
+		color: #fff;
+		border-left: solid 1px #77b;
+		border-right: solid 1px #77b;
+		&.stream {
+			font-weight: bold;
+		}
+		&.subStream {
+			font-weight: normal;
+			font-size: 0.8em;
+			border: 0;
+		}
+		&.date {
+			width: 4em;
+		}
+	}
+	th, td {
+		padding: 0.2em;
+		overflow: hidden;
+	}
+	td {
+		border: solid 1px #e5e5e5;
+	}
+}
+
+.accounts {
+	padding: 0 1%;
+
+	.streams-list {
+		h2 {
+			margin: 0.7em 0 0.2em;
+		}
+	}
+
+	.stream-group > ul {
+		display: flex;
+		flex-flow: row wrap;
+		justify-content: flex-start;
+		margin: 0 -1%;
+
+		.item {
+			@extend .clickable;
+			list-style: none;
+			padding: 1%;
+			background: #fff;
+			margin: 0 1% 1em;
+			width: 98%;
+			@include media(30em) {
+				width: 48%;
+			}
+			@include media(45em) {
+				width: 31%;
+			}
+			@include media(70em) {
+				width: 23%;
+			}
+			.streamName {
+				font-size: 115%;
+				font-weight: bold;
+			}
+			.streamType {
+				@extend .aside;
+			}
+		}
+
+	}
+
+	.addStreamPanel {
+
+		.formRow {
+			position: relative;
+		}
+
+		.field {
+			max-width: 18em;
+			width: 100%;
+		}
+		.helpText {
+			margin: 0.2em 0 0;
+			max-width: 24em;
+		}
+
+		input:not([type="checkbox"]):not([type="radio"]),
+		select,
+		textarea {
+			width: 100%;
+		}
+
+		#newStream-intRate::after {
+			content: "%";
+		}
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+
+.ir {
+	background-color: transparent;
+	border: 0;
+	overflow: hidden;
+	*text-indent: -9999px;
+}
+
+.ir:before {
+	content: "";
+	display: block;
+	width: 0;
+	height: 150%;
+}
+
+.hidden {
+	display: none !important;
+	visibility: hidden;
+}
+
+.visuallyhidden {
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+}
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+	clip: auto;
+	height: auto;
+	margin: 0;
+	overflow: visible;
+	position: static;
+	width: auto;
+}
+
+.invisible {
+	visibility: hidden;
+}
+
+.cf:before,
+.cf:after {
+	content: " ";
+	display: table;
+}
+
+.cf:after {
+	clear: both;
+}
+
+.cf {
+	*zoom: 1;
+}
+
+/* ==========================================================================
+   Print styles
+   ========================================================================== */
+
+@media print {
+	* {
+		background: transparent !important;
+		color: #000 !important; /* Black prints faster: h5bp.com/s */
+		box-shadow: none !important;
+		text-shadow: none !important;
+	}
+
+	a,
+	a:visited {
+		text-decoration: underline;
+	}
+
+	a[href]:after {
+		content: " (" attr(href) ")";
+	}
+
+	abbr[title]:after {
+		content: " (" attr(title) ")";
+	}
+
+	/*
+	 * Don't show links for images, or javascript/internal links
+	 */
+
+	.ir a:after,
+	a[href^="javascript:"]:after,
+	a[href^="#"]:after {
+		content: "";
+	}
+
+	pre,
+	blockquote {
+		border: 1px solid #999;
+		page-break-inside: avoid;
+	}
+
+	thead {
+		display: table-header-group; /* h5bp.com/t */
+	}
+
+	tr,
+	img {
+		page-break-inside: avoid;
+	}
+
+	img {
+		max-width: 100% !important;
+	}
+
+	@page {
+		margin: 0.5cm;
+	}
+
+	p,
+	h2,
+	h3 {
+		orphans: 3;
+		widows: 3;
+	}
+
+	h2,
+	h3 {
+		page-break-after: avoid;
+	}
+}

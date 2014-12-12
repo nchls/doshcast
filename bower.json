@@ -1,0 +1,22 @@
+{
+  "name": "DoshCast",
+  "version": "0.1.0",
+  "authors": [
+    "Ian Nicholas <ian@nchls.com>"
+  ],
+  "description": "What",
+  "main": "app.js",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "homepage": "http://doshcast.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "data",
+    "test",
+    "tests"
+  ]
+}
