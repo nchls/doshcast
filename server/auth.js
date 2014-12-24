@@ -1,4 +1,6 @@
-var Stream, User, db, mongoskin, pbkdf2;
+var User, db, mongoskin, pbkdf2, q;
+
+q = require('q');
 
 mongoskin = require('mongoskin');
 
@@ -7,98 +9,11 @@ pbkdf2 = require('easy-pbkdf2')({
   SALT_SIZE: 64
 });
 
-Stream = require('./../../public/js/models/Stream').Stream;
-
-User = require('./../../public/js/models/User').User;
+User = require('./../public/models/User').User;
 
 db = mongoskin.db('mongodb://127.0.0.1:27017/dosh');
 
 module.exports = {
-  sessionMiddleware: function(req, res, next) {
-    var _ref;
-    if ((_ref = req.session) != null ? _ref.user : void 0) {
-      return db.collection('users').findOne({
-        id: req.session.user.id
-      }, function(err, dbUser) {
-        if (err) {
-          res.status(500).send({
-            isError: true,
-            msg: 'Error in session user database.'
-          });
-          return;
-        }
-        if (dbUser) {
-          req.user = {
-            id: dbUser._id,
-            email: dbUser.email
-          };
-          return next();
-        } else {
-          res.status(401).send({
-            isError: true,
-            msg: 'Session user not found.'
-          });
-        }
-      });
-    } else {
-      return next();
-    }
-  },
-  requireLogin: function(req, res, next) {
-    if (!req.user) {
-      res.status(401).send({
-        isError: true,
-        msg: 'You must be logged in.'
-      });
-      return;
-    }
-    return next();
-  },
-  getData: function(req, res) {
-    return db.collection('streams').find({
-      owner: req.user.id
-    }).toArray(function(err, result) {
-      if (err) {
-        res.status(500).send({
-          isError: true,
-          msg: 'Error in stream database.'
-        });
-        return;
-      }
-      return res.status(200).send({
-        isError: false,
-        result: result
-      });
-    });
-  },
-  createStream: function(req, res) {
-    var stream;
-    if (!req.query.stream) {
-      res.status(400).send({
-        isError: true,
-        msg: 'Parameter required: stream.'
-      });
-      return;
-    }
-    stream = req.query.stream;
-    stream = Stream.prototype.jsonToObject(stream);
-    stream.owner = req.user.id;
-    stream.isActive = true;
-    stream.created = new Date();
-    stream.modified = new Date();
-    return db.collection('streams').insert(stream, function(err, result) {
-      if (err) {
-        res.status(500).send({
-          isError: true,
-          msg: 'Error in stream database insert.'
-        });
-        return;
-      }
-      return res.status(200).send({
-        isError: false
-      });
-    });
-  },
   createUser: function(req, res) {
     var user;
     if (!req.query.user) {

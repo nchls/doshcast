@@ -3,7 +3,9 @@ var session = require('express-session');
 
 var appPrivate = require('./app-private');
 
-var api = require('./source/api/api');
+var middleware = require('./server/middleware');
+var auth = require('./server/auth');
+var streams = require('./server/streams');
 
 var app = express();
 
@@ -19,7 +21,7 @@ app.use(session({
 	saveUninitialized: false
 }));
 
-app.use(api.sessionMiddleware);
+app.use(middleware.session);
 
 app.get('/', function(req, res) {
 	var options = {
@@ -29,14 +31,14 @@ app.get('/', function(req, res) {
 	res.sendFile('templates/base.html', options);
 });
 
-app.get('/api/getData', api.requireLogin, api.getData);
+app.get('/api/getData', middleware.requireLogin, streams.getData);
 
 // todo: make these posts
-app.get('/api/createStream', api.requireLogin, api.createStream);
+app.get('/api/createStream', middleware.requireLogin, streams.createStream);
 
-app.get('/api/createUser', api.createUser);
-app.get('/api/loginUser', api.loginUser);
-app.get('/api/logoutUser', api.requireLogin, api.logoutUser);
+app.get('/api/createUser', auth.createUser);
+app.get('/api/loginUser', auth.loginUser);
+app.get('/api/logoutUser', middleware.requireLogin, auth.logoutUser);
 
 app.use(function(req, res, next) {
 	res.status(404).send('404');

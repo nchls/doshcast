@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var coffee = require('gulp-coffee');
+var react = require('gulp-react');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 
@@ -8,7 +9,7 @@ var config = {
 	environment: 'development'
 };
 
-var mainTasks = ['sass', 'coffee', 'concatenate', 'minify'];
+var mainTasks = ['sass', 'coffee', 'jsx', 'concatenate', 'minify'];
 
 gulp.task('watch', function() {
 	gulp.watch('./source/**/*.*', mainTasks);
@@ -16,23 +17,37 @@ gulp.task('watch', function() {
 
 gulp.task('sass', function() {
 	var options = (config.environment !== 'production' ? {} : { outputStyle: 'compressed' });
-	gulp.src('./source/sass/*.scss')
+	gulp.src('./source/style/*.scss')
 		.pipe(sass(options))
-		.pipe(gulp.dest('./public/css/'));
+		.pipe(gulp.dest('./public/style/'));
 });
 
 gulp.task('coffee', function() {
-	var dest = (config.environment !== 'production' ? './public/js/' : './.tmp/js/');
-	gulp.src('./source/coffee/**/*.coffee')
+	var serverDest ='./server/',
+		logicDest = (config.environment !== 'production' ? './public/logic/' : './.tmp/logic/'),
+		modelsDest = (config.environment !== 'production' ? './public/models/' : './.tmp/models/');
+
+	gulp.src('./source/logic/*.coffee')
 		.pipe(coffee())
-		.pipe(gulp.dest(dest));
-	gulp.src('./source/api/*.coffee')
+		.pipe(gulp.dest(logicDest));
+	gulp.src('./source/models/*.coffee')
+		.pipe(coffee())
+		.pipe(gulp.dest(modelsDest));
+	gulp.src('./source/server/*.coffee')
 		.pipe(coffee({bare: true}))
-		.pipe(gulp.dest('./source/api/'));
+		.pipe(gulp.dest(serverDest));
+});
+
+gulp.task('jsx', function() {
+	var dest = (config.environment !== 'production' ? './public/components/' : './.tmp/components/');
+	gulp.src('./source/components/*.jsx')
+		.pipe(react())
+		.pipe(gulp.dest(dest));
 });
 
 gulp.task('concatenate', ['coffee', 'sass'], function() {
 	if (config.environment === 'production') {
+		// TODO: fix
 		gulp.src(
 			[
 				'./public/bower/lodash/dist/lodash.js',
@@ -55,6 +70,7 @@ gulp.task('concatenate', ['coffee', 'sass'], function() {
 
 gulp.task('minify', ['concatenate'], function() {
 	if (config.environment === 'production') {
+		// TODO: fix
 		gulp.src('./.tmp/js/script.js')
 			.pipe(uglify())
 			.pipe(gulp.dest('./public/js/dist/'))

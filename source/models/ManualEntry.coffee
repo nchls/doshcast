@@ -1,7 +1,7 @@
 if exports?
 	global = exports
 	Model = require('./Model').Model
-	_ = require './../../bower/lodash/dist/lodash.min'
+	_ = require './../bower/lodash/dist/lodash.min'
 else
 	window.dosh ?= {}
 	window.dosh.models ?= {}

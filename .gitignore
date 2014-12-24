@@ -1,6 +1,6 @@
 app-private.js
 node_modules
-bower_components
+bower
 .tmp
 data
 dist

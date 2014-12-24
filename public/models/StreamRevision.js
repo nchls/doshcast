@@ -6,7 +6,7 @@
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
     StreamMutable = require('./StreamMutable').StreamMutable;
-    _ = require('./../../bower/lodash/dist/lodash.min');
+    _ = require('./../bower/lodash/dist/lodash.min');
   } else {
     if (window.dosh == null) {
       window.dosh = {};

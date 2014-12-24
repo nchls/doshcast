@@ -1,7 +1,7 @@
 if exports?
 	global = exports
 	StreamMutable = require('./StreamMutable').StreamMutable
-	_ = require './../../bower/lodash/dist/lodash.min'
+	_ = require './../bower/lodash/dist/lodash.min'
 else
 	window.dosh ?= {}
 	window.dosh.models ?= {}
