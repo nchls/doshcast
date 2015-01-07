@@ -6,7 +6,7 @@
 	"homepage": "https://bitbucket.org/aplomb/doshcast",
 	"scripts": {
 		"gulp": "gulp",
-		"server": "nodemon app.js",
+		"server": "nodemon --watch app.js app.js",
 		"db": "mongod --dbpath /Stuff/Dev/DoshCast/data"
 	},
 	"main": "app.js",
@@ -31,6 +31,7 @@
 		"gulp-sass": "*",
 		"gulp-concat": "*",
 		"gulp-uglify": "*",
+		"gulp-cjsx": "*",
 		"bourbon": "*",
 		"neat": "*"
 	},

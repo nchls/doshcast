@@ -23,7 +23,7 @@ app.use(session({
 
 app.use(middleware.session);
 
-app.get('/', function(req, res) {
+app.get('/:page(|dashboard|accounts|ledger|goals|projection)', function(req, res) {
 	var options = {
 		root: __dirname + '/source/',
 		dotfiles: 'deny'

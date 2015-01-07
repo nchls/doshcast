@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var coffee = require('gulp-coffee');
-var react = require('gulp-react');
+var cjsx = require('gulp-cjsx');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 
@@ -9,7 +9,7 @@ var config = {
 	environment: 'development'
 };
 
-var mainTasks = ['sass', 'coffee', 'jsx', 'concatenate', 'minify'];
+var mainTasks = ['sass', 'coffee', 'cjsx', 'concatenate', 'minify'];
 
 gulp.task('watch', function() {
 	gulp.watch('./source/**/*.*', mainTasks);
@@ -38,14 +38,14 @@ gulp.task('coffee', function() {
 		.pipe(gulp.dest(serverDest));
 });
 
-gulp.task('jsx', function() {
-	var dest = (config.environment !== 'production' ? './public/components/' : './.tmp/components/');
-	gulp.src('./source/components/*.jsx')
-		.pipe(react())
-		.pipe(gulp.dest(dest));
+gulp.task('cjsx', function() {
+	gulp.src('./source/components/*.cjsx')
+		.pipe(cjsx({bare: true}))
+		.pipe(concat('components.js'))
+		.pipe(gulp.dest('./public/components/'));
 });
 
-gulp.task('concatenate', ['coffee', 'sass'], function() {
+gulp.task('concatenate', function() {
 	if (config.environment === 'production') {
 		// TODO: fix
 		gulp.src(
@@ -68,7 +68,7 @@ gulp.task('concatenate', ['coffee', 'sass'], function() {
 	}
 });
 
-gulp.task('minify', ['concatenate'], function() {
+gulp.task('minify', function() {
 	if (config.environment === 'production') {
 		// TODO: fix
 		gulp.src('./.tmp/js/script.js')

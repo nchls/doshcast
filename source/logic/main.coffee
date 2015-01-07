@@ -1,13 +1,21 @@
-angular.module('dosh', ['angular.filter', 'ngResource'])
 # http://coolors.co/cfc294-373f4b-e3d297-afbc9d-f54a28
-angular.module('dosh')
 
-.run( ($rootScope) ->
-	$rootScope._ = window._
-	$rootScope.initialData = window.initialData
-)
+renderPage = (component) ->
+	React.render(React.createElement(component, null), document.getElementById('main'))
 
-.service('ledgerService', ($resource, $rootScope) ->
+
+( ->
+
+	if document.location.pathname is '/accounts'
+		renderPage(AccountsPage)
+
+	if document.location.pathname is '/ledger'
+		renderPage(LedgerPage)
+
+)()
+
+
+ledgerService = ->
 
 	timeDeltas =
 		'daily': ['days', 1]
@@ -261,9 +269,8 @@ angular.module('dosh')
 
 	return { getData: getData }
 
-)
 
-.service('accountsService', ($resource) ->
+accountsService = ->
 
 	getData = (callback) ->
 
@@ -282,9 +289,8 @@ angular.module('dosh')
 
 	return { getData: getData }
 
-)
 
-.controller('AuthController', ($rootScope, $scope) ->
+AuthController = ->
 
 	window.authscope = $scope;
 
@@ -345,9 +351,8 @@ angular.module('dosh')
 				$scope.$apply()
 		)
 
-)
 
-.controller('PrimaryNavController', ($rootScope, $scope) ->
+PrimaryNavController = ->
 	$scope.links = [
 		{
 			name: 'Dashboard'
@@ -370,13 +375,9 @@ angular.module('dosh')
 			href: '/projection'
 		}
 	]
-)
 
-.controller('DashboardController', ($rootScope, $scope) ->
-	$scope.message = 'Hello world'
-)
 
-.controller('LedgerController', ($rootScope, $scope, ledgerService) ->
+LedgerController = ->
 
 	window.ledgerScope = $scope
 
@@ -454,9 +455,8 @@ angular.module('dosh')
 
 	init()
 
-)
 
-.controller('AccountsController', ($rootScope, $scope, accountsService) ->
+AccountsController = ->
 
 	window.accountsScope = $scope
 
@@ -597,9 +597,6 @@ angular.module('dosh')
 
 	init()
 
-)
-
-
 
 window.log = ->
   log.history = log.history or []
@@ -622,199 +619,3 @@ window.log = ->
 
 )()
 
-
-
-
-
-###
-
-columns = []
-
-# Format dates in manuals
-for stream, manualList of manuals
-	for manual in manualList
-		manual.date = moment(manual.date)
-
-deltas =
-	'daily': ['days', 1]
-	'weekly': ['weeks', 1]
-	'biweekly': ['weeks', 2]
-	'monthly': ['months', 1]
-	'semiannually': ['months', 6]
-	'annually': ['years', 1]
-
-
-# Start computation at the earliest start date
-
-today = moment()
-accountsStart = today.clone()
-
-
-# First pass through streams -- gather info
-
-streamMeta = {}
-for streamIdx, stream of streams
-
-	# Record start date
-	streamMeta[streamIdx] =
-		start: moment(stream.startDate)
-
-	if streamMeta[streamIdx].start.isBefore(accountsStart)
-		accountsStart = streamMeta[streamIdx].start
-
-	# Is this a "transaction", "balance", or "hybrid" account? Save for later
-	if 'recurrence' of stream
-		streamMeta[streamIdx].class = if 'startBalance' of stream then 'hybrid' else 'transaction'
-	if 'startBalance' of stream
-		streamMeta[streamIdx].class = if 'recurrence' of stream then 'hybrid' else 'balance'
-
-	# How many columns should this stream take up in the ledger header?
-	streams[stream.id].columns = []
-	if streamMeta[streamIdx].class in ['hybrid', 'transaction']
-		streams[stream.id].columns.push('Amount')
-	if 'intRate' of stream
-		streams[stream.id].columns.push('Interest')
-	if streamMeta[streamIdx].class in ['hybrid', 'balance']
-		streams[stream.id].columns.push('Balance')
-
-ledgerStart = today.clone().subtract('days', -startDelta)
-ledgerEnd = today.clone().add('days', endDelta)
-
-calcDates = []
-iterdate = accountsStart
-while iterdate.isBefore(ledgerEnd)
-	iterdate = iterdate.clone()
-	calcDates.push(iterdate)
-	iterdate.add('days', 1)
-
-
-# Populate an object with transaction ids and their recurring dates
-
-transactionDates = {}
-for streamIdx, stream of streams
-	if stream.recurrence
-		# Initialize this stream's list of dates
-		transactionDates[stream.id] = []
-
-		recurrence = stream.recurrence.split('-')[1]
-
-		if recurrence isnt 'irregularly'
-			checkDate = moment(stream.startDate)
-			while checkDate.isBefore(ledgerEnd) or checkDate.isSame(ledgerEnd)
-				checkDate = checkDate.clone()
-				transactionDates[stream.id].push(checkDate)
-				# move to the next transaction date
-				checkDate.add(deltas[recurrence][0], deltas[recurrence][1])
-
-		else
-			undefined # todo: irregular recurrence
-
-
-# Values will change as we move through the ledger, unlike the static stream values
-
-currentValues = {}
-for streamIdx, stream of streams
-	currentValues[stream.id] = {}
-	if 'startBalance' of stream
-		currentValues[stream.id]['balance'] = stream.startBalance
-	if 'recurrence' of stream
-		currentValues[stream.id]['amount'] = stream.amount
-
-
-# Run the simulation, populating a ledger list with dates and transaction/balance notes
-
-rows = []
-for day in calcDates
-
-	if day.isSame(ledgerStart) or day.isAfter(ledgerStart)
-		fullDay = day.format('YYYY-MM-DD')
-		printDay = day.format('MMM D')
-		ledgerEntry = [fullDay, printDay, []]
-	else
-		ledgerEntry = null
-
-	for streamIdx, stream of streams
-
-		streamClass = streamMeta[stream.id].class
-
-		# Transaction columns printed recurringly
-		if streamClass in ['transaction', 'hybrid']
-			note =
-				'name': stream.name
-				'class': streamClass
-				'type': stream.subtype
-				'amount': null
-
-			streamDates = transactionDates[stream.id]
-
-			for streamDate in streamDates
-				if streamDate.isSame(day, 'day')
-					note['amount'] = doshFormat(stream.amount)
-
-					# todo: manual transactions
-					# todo: revisions
-					# todo: balance to 0
-					# todo: interest
-
-					# Modify other streams
-
-					if 'fromAccount' of stream
-						# Subtract from another account
-						currentValues[stream.fromAccount]['balance'] -= stream.amount
-						if streamClass is 'hybrid'
-							# And reduce this stream's balance
-							currentValues[stream.id]['balance'] -= stream.amount
-					if 'toAccount' of stream
-						# Deposit to account
-						currentValues[stream.toAccount]['balance'] += stream.amount
-
-			if ledgerEntry isnt null
-				ledgerEntry[2].push(note)
-
-		# Balance streams, printed every day
-		if streamClass in ['balance', 'hybrid']
-
-			note =
-				'name': stream.name
-				'class': streamClass
-				'type': stream.subtype
-				'balance': 0
-
-			if streamMeta[stream.id].start.isSame(day) or streamMeta[stream.id].start.isBefore(day)
-
-				for manualId, manual of manuals[stream.id]
-					if manual.date.isSame(day, 'day')
-						currentValues[stream.id].balance = manual.amount
-
-				streamValue = currentValues[stream.id].balance
-
-				note.balance = streamValue
-
-				if streamMeta[stream.id].start.isSame(day)
-					note.manual = true
-
-				# Add column for interest rate
-				if 'intRate' of stream and stream.intRate > 0
-					intAmt = ((stream.intRate / 100) / 365.25) * streamValue
-					intNote =
-						name: stream.name
-						class: streamClass
-						type: stream.subtype
-						balance: intAmt
-					intNote.balance = doshFormat(intNote.balance)
-					# todo: Compounding
-					# currentValues[stream.id]['balance'] += intAmt
-					if ledgerEntry isnt null
-						ledgerEntry[2].push(intNote)
-
-			note.balance = doshFormat(note.balance)
-
-			#currentValues[col] = doshRound(currentValues[col] for col of currentValues)
-
-			if ledgerEntry isnt null
-				ledgerEntry[2].push(note)
-
-	if ledgerEntry isnt null
-		rows.push(ledgerEntry)
-
-###

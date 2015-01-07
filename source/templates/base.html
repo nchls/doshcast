@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html ng-app="dosh">
+<html>
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title ng-bind="pageTitle"></title>
-	<meta name="description" content="{{ metaDesc }}">
+	<title>DoshCast</title>
+	<meta name="description" content="Personal finance projections">
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
 
 	<!-- Add to homescreen for Chrome on Android -->
@@ -12,47 +12,45 @@
 
 	<link rel="stylesheet" href="/bower/fontawesome/css/font-awesome.css">
 	<link rel="stylesheet" href="/bower/normalize.css/normalize.css">
-	<link rel="stylesheet" href="/css/main.css">
-
-	<script src="/bower/lodash/dist/lodash.js"></script>
-	<script src="/bower/angular/angular.js"></script>
-	<script src="/bower/angular-filter/dist/angular-filter.js"></script>
-	<script src="/bower/angular-resource/angular-resource.js"></script>
-	<script src="/bower/moment/moment.js"></script>
-	<script src="/bower/snap.svg/dist/snap.svg.js"></script>
-
-	<script src="/js/models/Model.js"></script>
-	<script src="/js/models/User.js"></script>
-	<script src="/js/models/Stream.js"></script>
-	<script src="/js/models/StreamRevision.js"></script>
-	<script src="/js/models/ManualEntry.js"></script>
-	<script src="/js/util.js"></script>
-	<script src="/js/main.js"></script>
+	<link rel="stylesheet" href="/style/main.css">
 </head>
-<body class="page-{{ bodyClass }}">
+<body>
 
-	<nav
-		class="primary"
-		ng-controller="PrimaryNavController"
-	>
-		<a
-			ng-repeat="link in links"
-			href="{{link.href}}"
-		>
-			{{link.name}}
+	<header>
+		<a href="/">
+			<h1>DoshCast</h1>
 		</a>
+	</header>
+
+	<nav id="primary">
+		<a href="/dashboard">Dashboard</a>
+		<a href="/accounts">Accounts</a>
+		<a href="/ledger">Ledger</a>
+		<a href="/goals">Goals</a>
+		<a href="/projection">Projection</a>
 	</nav>
 
-	<div class="main">
+	<nav id="auth">
 
-		<div
-			class="dashboard"
-			ng-controller="DashboardController"
-		>
-			{{message}}
-		</div>
+	</nav>
+
+	<div id="main">
 
 	</div>
 
+	<script src="/bower/lodash/dist/lodash.js"></script>
+	<script src="/bower/qwest/src/qwest.js"></script>
+	<script src="/bower/react/react-with-addons.js"></script>
+	<script src="/bower/moment/moment.js"></script>
+	<script src="/bower/snap.svg/dist/snap.svg.js"></script>
+
+	<script src="/models/Model.js"></script>
+	<script src="/models/User.js"></script>
+	<script src="/models/Stream.js"></script>
+	<script src="/models/StreamRevision.js"></script>
+	<script src="/models/ManualEntry.js"></script>
+	<script src="/components/components.js"></script>
+	<script src="/logic/util.js"></script>
+	<script src="/logic/main.js"></script>
 </body>
 </html>
