@@ -3,9 +3,7 @@ if exports?
 	Model = require('./Model').Model
 	_ = require './../bower/lodash/dist/lodash.min'
 else
-	window.dosh ?= {}
-	window.dosh.models ?= {}
-	global = window.dosh.models
+	global = window.util.namespacer('dosh.models')
 	Model = global.Model
 	_ = window._
 

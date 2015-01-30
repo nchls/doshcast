@@ -3,9 +3,7 @@ if exports?
 	StreamMutable = require('./StreamMutable').StreamMutable
 	_ = require './../bower/lodash/dist/lodash.min'
 else
-	window.dosh ?= {}
-	window.dosh.models ?= {}
-	global = window.dosh.models
+	global = window.util.namespacer('dosh.models')
 	StreamMutable = global.StreamMutable
 	_ = window._
 

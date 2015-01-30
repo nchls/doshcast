@@ -1,23 +1,17 @@
 (function() {
-  var Model, global, _base,
+  var Model, global,
     __hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
   } else {
-    if (window.dosh == null) {
-      window.dosh = {};
-    }
-    if ((_base = window.dosh).models == null) {
-      _base.models = {};
-    }
-    global = window.dosh.models;
+    global = window.util.namespacer('dosh.models');
   }
 
   Model = (function() {
-    function Model(created, modified) {
-      this.created = created;
-      this.modified = modified;
+    function Model(_at_created, _at_modified) {
+      this.created = _at_created;
+      this.modified = _at_modified;
     }
 
     Model.prototype.schema = {

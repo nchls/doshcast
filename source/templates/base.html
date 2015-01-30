@@ -16,41 +16,26 @@
 </head>
 <body>
 
-	<header>
-		<a href="/">
-			<h1>DoshCast</h1>
-		</a>
-	</header>
-
-	<nav id="primary">
-		<a href="/dashboard">Dashboard</a>
-		<a href="/accounts">Accounts</a>
-		<a href="/ledger">Ledger</a>
-		<a href="/goals">Goals</a>
-		<a href="/projection">Projection</a>
-	</nav>
-
-	<nav id="auth">
-
-	</nav>
-
-	<div id="main">
-
-	</div>
+	<div id="app"></div>
 
 	<script src="/bower/lodash/dist/lodash.js"></script>
-	<script src="/bower/qwest/src/qwest.js"></script>
+	<script src="/bower/zeptojs/src/zepto.js"></script>
+	<script src="/bower/zeptojs/src/ajax.js"></script>
+	<script src="/bower/zeptojs/src/callbacks.js"></script>
+	<script src="/bower/zeptojs/src/deferred.js"></script>
+	<script src="/bower/zeptojs/src/event.js"></script>
+	<script src="/bower/zeptojs/src/form.js"></script>
 	<script src="/bower/react/react-with-addons.js"></script>
 	<script src="/bower/moment/moment.js"></script>
 	<script src="/bower/snap.svg/dist/snap.svg.js"></script>
 
+	<script src="/logic/util.js"></script>
+	<script src="/logic/main.js"></script>
 	<script src="/models/Model.js"></script>
 	<script src="/models/User.js"></script>
 	<script src="/models/Stream.js"></script>
 	<script src="/models/StreamRevision.js"></script>
 	<script src="/models/ManualEntry.js"></script>
 	<script src="/components/components.js"></script>
-	<script src="/logic/util.js"></script>
-	<script src="/logic/main.js"></script>
 </body>
 </html>

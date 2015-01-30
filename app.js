@@ -14,7 +14,7 @@ app.use(express.static('public'));
 app.use(session({
 	name: 's',
 	cookie: {
-		maxAge: 1000 * 60 * 15
+		maxAge: 1000 * 60 * 120
 	},
 	secret: appPrivate.secret,
 	resave: false,

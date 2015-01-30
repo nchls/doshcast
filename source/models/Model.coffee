@@ -1,9 +1,7 @@
 if exports?
 	global = exports
 else
-	window.dosh ?= {}
-	window.dosh.models ?= {}
-	global = window.dosh.models
+	global = window.util.namespacer('dosh.models')
 
 class Model
 	constructor: (@created, @modified) ->

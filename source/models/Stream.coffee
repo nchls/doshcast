@@ -3,15 +3,24 @@ if exports?
 	Model = require('./Model').Model
 	_ = require './../bower/lodash/dist/lodash.min'
 else
-	window.dosh ?= {}
-	window.dosh.models ?= {}
-	global = window.dosh.models
+	global = window.util.namespacer('dosh.models')
 	Model = global.Model
 	_ = window._
 
 class StreamMutable extends Model
 	constructor: (created, modified, @orgName, @amount, @recurrence, @balance, @interestRate, @compounding, @creditLimit, @isAlwaysPaidOff, @fromAccount, @toAccount) ->
 		super created, modified
+
+	RECURRENCE_TYPES:
+		RECURRENCE_TYPES = [
+			['recur-daily', 'Daily']
+			['recur-weekly', 'Weekly']
+			['recur-biweekly', 'Every two weeks']
+			['recur-monthly', 'Monthly']
+			['recur-semiannually', 'Every six months']
+			['recur-annually', 'Annually']
+			['recur-irregularly', 'Irregularly']
+		]
 
 	localSchema =
 
@@ -54,15 +63,7 @@ class StreamMutable extends Model
 
 		recurrence:
 			type: 'string'
-			choices: [
-				['recur-daily', 'Daily']
-				['recur-weekly', 'Weekly']
-				['recur-biweekly', 'Every two weeks']
-				['recur-monthly', 'Monthly']
-				['recur-semiannually', 'Every six months']
-				['recur-annually', 'Annually']
-				['recur-irregularly', 'Irregularly']
-			]
+			choices: RECURRENCE_TYPES
 			label: 'Payment recurrence'
 			otherLabels:
 				income: 'Income recurrence'
@@ -171,46 +172,47 @@ class Stream extends StreamMutable
 	constructor: (created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, @name, @owner, @isActive, @order, @streamType, @streamSubtype, @startDate, @firstPaymentDate, @isRegular, @isSeasonal) ->
 		super created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount
 
-	STREAM_TYPES = [
-		['deposit-account', 'Deposit account', [
-			['account-checking', 'Checking account']
-			['account-savings', 'Savings account']
-			['account-cd', 'Certificate of deposit']
-			['account-investment', 'Investment account']
-		]]
-		['line-of-credit', 'Line of credit', [
-			['loc-credit', 'Credit card']
-			['loc-heloc', 'Home equity line of credit']
-		]]
-		['income', 'Income', [
-			['income-salary', 'Paycheck']
-			['income-other', 'Other income']
-		]]
-		['bill', 'Bill', [
-			['bill-rent', 'Rent']
-			['bill-cell', 'Cell phone']
-			['bill-tv', 'TV']
-			['bill-water', 'Water']
-			['bill-electric', 'Electric']
-			['bill-heat', 'Heat']
-			['bill-internet', 'Internet']
-			['bill-insurance-health', 'Health insurance']
-			['bill-insurance-car', 'Car insurance']
-			['bill-insurance-life', 'Life insurance']
-			['bill-other', 'Other bill']
-		]]
-		['loan', 'Loan', [
-			['loan-student', 'Student loan']
-			['loan-auto', 'Auto loan']
-			['loan-health', 'Health loan']
-			['loan-mortgage', 'Mortgage']
-			['loan-personal', 'Personal loan']
-			['loan-other', 'Other loan']
-		]]
-		['transfer', 'Transfer', [
-			['transfer-transfer', 'Transfer']
-		]]
-	]
+	STREAM_TYPES:
+		STREAM_TYPES = [
+			['deposit-account', 'Deposit account', [
+				['account-checking', 'Checking account']
+				['account-savings', 'Savings account']
+				['account-cd', 'Certificate of deposit']
+				['account-investment', 'Investment account']
+			]]
+			['line-of-credit', 'Line of credit', [
+				['loc-credit', 'Credit card']
+				['loc-heloc', 'Home equity line of credit']
+			]]
+			['income', 'Income', [
+				['income-salary', 'Paycheck']
+				['income-other', 'Other income']
+			]]
+			['bill', 'Bill', [
+				['bill-rent', 'Rent']
+				['bill-cell', 'Cell phone']
+				['bill-tv', 'TV']
+				['bill-water', 'Water']
+				['bill-electric', 'Electric']
+				['bill-heat', 'Heat']
+				['bill-internet', 'Internet']
+				['bill-insurance-health', 'Health insurance']
+				['bill-insurance-car', 'Car insurance']
+				['bill-insurance-life', 'Life insurance']
+				['bill-other', 'Other bill']
+			]]
+			['loan', 'Loan', [
+				['loan-student', 'Student loan']
+				['loan-auto', 'Auto loan']
+				['loan-health', 'Health loan']
+				['loan-mortgage', 'Mortgage']
+				['loan-personal', 'Personal loan']
+				['loan-other', 'Other loan']
+			]]
+			['transfer', 'Transfer', [
+				['transfer-transfer', 'Transfer']
+			]]
+		]
 
 	TYPES = []
 	SUBTYPES = []

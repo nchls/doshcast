@@ -1,42 +1,38 @@
 (function() {
-  var Model, Stream, StreamMutable, global, _, _base,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Model, Stream, StreamMutable, global, _,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
     Model = require('./Model').Model;
     _ = require('./../bower/lodash/dist/lodash.min');
   } else {
-    if (window.dosh == null) {
-      window.dosh = {};
-    }
-    if ((_base = window.dosh).models == null) {
-      _base.models = {};
-    }
-    global = window.dosh.models;
+    global = window.util.namespacer('dosh.models');
     Model = global.Model;
     _ = window._;
   }
 
   StreamMutable = (function(_super) {
-    var localSchema;
+    var RECURRENCE_TYPES, localSchema;
 
     __extends(StreamMutable, _super);
 
-    function StreamMutable(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount) {
-      this.orgName = orgName;
-      this.amount = amount;
-      this.recurrence = recurrence;
-      this.balance = balance;
-      this.interestRate = interestRate;
-      this.compounding = compounding;
-      this.creditLimit = creditLimit;
-      this.isAlwaysPaidOff = isAlwaysPaidOff;
-      this.fromAccount = fromAccount;
-      this.toAccount = toAccount;
+    function StreamMutable(created, modified, _at_orgName, _at_amount, _at_recurrence, _at_balance, _at_interestRate, _at_compounding, _at_creditLimit, _at_isAlwaysPaidOff, _at_fromAccount, _at_toAccount) {
+      this.orgName = _at_orgName;
+      this.amount = _at_amount;
+      this.recurrence = _at_recurrence;
+      this.balance = _at_balance;
+      this.interestRate = _at_interestRate;
+      this.compounding = _at_compounding;
+      this.creditLimit = _at_creditLimit;
+      this.isAlwaysPaidOff = _at_isAlwaysPaidOff;
+      this.fromAccount = _at_fromAccount;
+      this.toAccount = _at_toAccount;
       StreamMutable.__super__.constructor.call(this, created, modified);
     }
+
+    StreamMutable.prototype.RECURRENCE_TYPES = RECURRENCE_TYPES = [['recur-daily', 'Daily'], ['recur-weekly', 'Weekly'], ['recur-biweekly', 'Every two weeks'], ['recur-monthly', 'Monthly'], ['recur-semiannually', 'Every six months'], ['recur-annually', 'Annually'], ['recur-irregularly', 'Irregularly']];
 
     localSchema = {
       orgName: {
@@ -68,7 +64,7 @@
       },
       recurrence: {
         type: 'string',
-        choices: [['recur-daily', 'Daily'], ['recur-weekly', 'Weekly'], ['recur-biweekly', 'Every two weeks'], ['recur-monthly', 'Monthly'], ['recur-semiannually', 'Every six months'], ['recur-annually', 'Annually'], ['recur-irregularly', 'Irregularly']],
+        choices: RECURRENCE_TYPES,
         label: 'Payment recurrence',
         otherLabels: {
           income: 'Income recurrence',
@@ -144,21 +140,21 @@
 
     __extends(Stream, _super);
 
-    function Stream(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, name, owner, isActive, order, streamType, streamSubtype, startDate, firstPaymentDate, isRegular, isSeasonal) {
-      this.name = name;
-      this.owner = owner;
-      this.isActive = isActive;
-      this.order = order;
-      this.streamType = streamType;
-      this.streamSubtype = streamSubtype;
-      this.startDate = startDate;
-      this.firstPaymentDate = firstPaymentDate;
-      this.isRegular = isRegular;
-      this.isSeasonal = isSeasonal;
+    function Stream(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, _at_name, _at_owner, _at_isActive, _at_order, _at_streamType, _at_streamSubtype, _at_startDate, _at_firstPaymentDate, _at_isRegular, _at_isSeasonal) {
+      this.name = _at_name;
+      this.owner = _at_owner;
+      this.isActive = _at_isActive;
+      this.order = _at_order;
+      this.streamType = _at_streamType;
+      this.streamSubtype = _at_streamSubtype;
+      this.startDate = _at_startDate;
+      this.firstPaymentDate = _at_firstPaymentDate;
+      this.isRegular = _at_isRegular;
+      this.isSeasonal = _at_isSeasonal;
       Stream.__super__.constructor.call(this, created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount);
     }
 
-    STREAM_TYPES = [['deposit-account', 'Deposit account', [['account-checking', 'Checking account'], ['account-savings', 'Savings account'], ['account-cd', 'Certificate of deposit'], ['account-investment', 'Investment account']]], ['line-of-credit', 'Line of credit', [['loc-credit', 'Credit card'], ['loc-heloc', 'Home equity line of credit']]], ['income', 'Income', [['income-salary', 'Paycheck'], ['income-other', 'Other income']]], ['bill', 'Bill', [['bill-rent', 'Rent'], ['bill-cell', 'Cell phone'], ['bill-tv', 'TV'], ['bill-water', 'Water'], ['bill-electric', 'Electric'], ['bill-heat', 'Heat'], ['bill-internet', 'Internet'], ['bill-insurance-health', 'Health insurance'], ['bill-insurance-car', 'Car insurance'], ['bill-insurance-life', 'Life insurance'], ['bill-other', 'Other bill']]], ['loan', 'Loan', [['loan-student', 'Student loan'], ['loan-auto', 'Auto loan'], ['loan-health', 'Health loan'], ['loan-mortgage', 'Mortgage'], ['loan-personal', 'Personal loan'], ['loan-other', 'Other loan']]], ['transfer', 'Transfer', [['transfer-transfer', 'Transfer']]]];
+    Stream.prototype.STREAM_TYPES = STREAM_TYPES = [['deposit-account', 'Deposit account', [['account-checking', 'Checking account'], ['account-savings', 'Savings account'], ['account-cd', 'Certificate of deposit'], ['account-investment', 'Investment account']]], ['line-of-credit', 'Line of credit', [['loc-credit', 'Credit card'], ['loc-heloc', 'Home equity line of credit']]], ['income', 'Income', [['income-salary', 'Paycheck'], ['income-other', 'Other income']]], ['bill', 'Bill', [['bill-rent', 'Rent'], ['bill-cell', 'Cell phone'], ['bill-tv', 'TV'], ['bill-water', 'Water'], ['bill-electric', 'Electric'], ['bill-heat', 'Heat'], ['bill-internet', 'Internet'], ['bill-insurance-health', 'Health insurance'], ['bill-insurance-car', 'Car insurance'], ['bill-insurance-life', 'Life insurance'], ['bill-other', 'Other bill']]], ['loan', 'Loan', [['loan-student', 'Student loan'], ['loan-auto', 'Auto loan'], ['loan-health', 'Health loan'], ['loan-mortgage', 'Mortgage'], ['loan-personal', 'Personal loan'], ['loan-other', 'Other loan']]], ['transfer', 'Transfer', [['transfer-transfer', 'Transfer']]]];
 
     TYPES = [];
 

@@ -1,5 +1,5 @@
 @import "bourbon/bourbon";
-@import "neat/neat";
+//@import "neat/neat";
 
 html,
 button,
@@ -52,6 +52,12 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+$dark1: #373F4B;
+$light1: #CFC294;
+$light2: #E3D297;
+$light3: #AFBC9D;
+$highlight: #F54A28;
+
 @include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-Regular');
 @include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-It', normal, italic);
 @include font-face(SourceSansPro, 'fonts/SourceSansPro/SourceSansPro-Bold', bold);
@@ -60,11 +66,11 @@ textarea {
 
 /* Global rules */
 
-*:before, *:after {
+*, *:before, *:after {
 	@include box-sizing(border-box);
 }
 html {
-	background-color: #eee;
+	background-color: #fff3ea;
 }
 html,
 button,
@@ -86,15 +92,18 @@ input[type="radio"] {
 	margin: 0 0.1em;
 }
 
-.aside {
-	font-size: 85%;
-	color: #666;
-}
-.clickable {
-	cursor: pointer;
+textarea,
+select,
+input:not([type="checkbox"]):not([type="radio"]) {
+	background-color: #fff;
+	border: solid 1px #bbb;
+	color: #333;
+	line-height: 1.4;
+	padding: 0.25em;
+	box-shadow: inset 0.1em 0.1em 0.3em rgba(0, 0, 0, 0.15);
 }
 
-/* Globally used elements */
+/* Utility classes */
 
 .btn {
 	max-width: 18em;
@@ -135,7 +144,8 @@ input[type="radio"] {
 			inset 0 -0.03em 0.03em 0.03em rgba(0,0,0,0.7),
 			inset 0 0 2em 0.2em rgba(255,255,255,0.25);
 	}
-	&:active {
+	&:active,
+	&.active {
 		box-shadow: inset 0 0 1em rgba(0,0,0,0.7);
 		@include background-image(
 			linear-gradient(to bottom, #33b, #008)
@@ -168,25 +178,29 @@ input[type="radio"] {
 		}
 	}
 
+	&.transparent {
+		background: none;
+	}
+
 	// FontAwesome icons
 	.fa {
 		margin-right: 0.3em;
 	}
 }
 
-textarea,
-select,
-input:not([type="checkbox"]):not([type="radio"]) {
-	background-color: #fff;
-	border: solid 1px #bbb;
-	color: #333;
-	line-height: 1.4;
-	padding: 0.25em;
-	box-shadow: inset 0.1em 0.1em 0.3em rgba(0, 0, 0, 0.15);
+button.close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0.5em;
+	background: 0;
+	border: 0;
+	color: #444;
+	line-height: 1;
+	&:hover {
+		color: #f00;
+	}
 }
-
-
-/* Utility classes */
 
 .auto-rows {
 	display: inline-block;
@@ -194,62 +208,132 @@ input:not([type="checkbox"]):not([type="radio"]) {
 	vertical-align: top;
 }
 
+.aside {
+	font-size: 85%;
+	color: #666;
+}
 
+.clickable {
+	cursor: pointer;
+}
 
 .formRow {
 	padding: 0.3em 0 0.8em;
-}
-.formRow:not(.inline) label {
-	display: block;
-}
-
-
-.topbar {
-	padding: 0.7em 1em;
-	.title {
-		float: left;
-		margin: 0;
-		font-weight: 900;
+	&:not(.inline) label {
+		display: block;
 	}
+}
+
+.loading-mask {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: rgba(0,0,0,0.5);
+	.center-icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		line-height: 1;
+		.fa {
+			font-size: 3em;
+			color: #fff;
+			position: relative;
+			left: -50%;
+			top: -0.5em;
+		}
+	}
+}
+
+
+/* Global elements */
+
+.topBar {
+	@include background-image(
+		linear-gradient(to bottom, #424B59, #2B313A)
+	);
+	box-shadow: 0 -0.75em 0.5em 1em rgba(0,0,0,0.3);
+	padding: 0 1%;
+
+	a {
+		color: #dcb;
+		text-shadow: 0 0.04em 0.1em #000;
+		&:hover {
+			color: #fff;
+			text-shadow: 0 0.1em 0.13em #000;
+		}
+		&.active {
+			box-shadow: inset 0 0 1em rgba(0, 0, 0, 0.3);
+		}
+	}
+
+	header {
+		float: left;
+		line-height: 3em;
+		a {
+			display: block;
+			text-decoration: none;
+			h1 {
+				font-size: 1.8em;
+				margin: 0;
+			}
+		}
+	}
+
+	.primary-nav {
+		float: left;
+		margin: 0 4%;
+		li {
+			display: block;
+			float: left;
+			width: 6em;
+			height: 3em;
+			a {
+				display: block;
+				width: 100%;
+				height: 3em;
+				padding: 0.3em;
+				text-align: center;
+				text-decoration: none;
+				&:hover {
+					box-shadow: inset 0 0 1em rgba(0, 0, 0, 0.15);
+				}
+				span {
+					.fa {
+						display: block;
+					}
+				}
+			}
+			&.active a {
+				box-shadow: inset 0 0 1em rgba(0, 0, 0, 0.4);
+			}
+		}
+	}
+
 	.auth {
 		position: relative;
 		float: right;
 		text-align: right;
+		line-height: 3;
 		.panel {
 			position: absolute;
 			right: 0;
+			width: 17em;
 			background: #fff;
+			box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.3);
 			padding: 1em;
 			text-align: left;
+			line-height: 1.4;
+			input:not([type="checkbox"]):not([type="radio"]) {
+				width: 100%;
+			}
 			button {
 				float: right;
 			}
 		}
-		.loggedInAs {
-			display: inline;
-		}
-	}
-}
-nav {
-	@extend .cf;
-	ul, li {
-		margin: 0;
-		padding: 0;
-	}
-	li {
-		float: left;
-		width: 20%;
-		a {
-			display: block;
-			width: 100%;
-			padding: 0.5em 1em;
-			text-align: center;
-			font-size: 1.2em;
-			text-decoration: none;
-			background: #ddd;
-			.fa {
-				display: block;
-			}
+		.log-in.btn {
+			margin-right: 0.5em;
 		}
 	}
 }
@@ -257,6 +341,9 @@ nav {
 .actionBar {
 	padding: 0.5em 0;
 }
+
+
+/* Page elements */
 
 .ledger {
 	table {
@@ -314,13 +401,13 @@ nav {
 			background: #fff;
 			margin: 0 1% 1em;
 			width: 98%;
-			@include media(30em) {
+			@media screen and (min-width:30em) {
 				width: 48%;
 			}
-			@include media(45em) {
+			@media screen and (min-width:45em) {
 				width: 31%;
 			}
-			@include media(70em) {
+			@media screen and (min-width:70em) {
 				width: 23%;
 			}
 			.streamName {

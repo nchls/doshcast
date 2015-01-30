@@ -18,5 +18,8 @@
     "data",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "zeptojs": "~1.1.6"
+  }
 }

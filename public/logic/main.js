@@ -1,18 +1,15 @@
 (function() {
-  var AccountsController, AuthController, LedgerController, PrimaryNavController, accountsService, ledgerService, renderPage;
+  var AccountsController, AuthController, LedgerController, PrimaryNavController, accountsService, ledgerService;
 
-  renderPage = function(component) {
-    return React.render(React.createElement(component, null), document.getElementById('main'));
-  };
-
-  (function() {
-    if (document.location.pathname === '/accounts') {
-      renderPage(AccountsPage);
-    }
-    if (document.location.pathname === '/ledger') {
-      return renderPage(LedgerPage);
-    }
-  })();
+  util.onReady(function() {
+    var renderPage;
+    renderPage = function(component) {
+      return React.render(React.createElement(component, null), document.getElementById('main'));
+    };
+    window.$document = $(document);
+    React.initializeTouchEvents(true);
+    return React.render(React.createElement(App, null), document.getElementById('app'));
+  });
 
   ledgerService = function() {
     var buildLedger, getData, getDaysInRange, getInitialValues, getLookupLedger, getMutableFields, getStreamsStart, getTransactionDates, setStreamColumns, timeDeltas;
