@@ -1,27 +1,27 @@
 (function() {
-  var StreamMutable, StreamRevision, global, _,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __hasProp = {}.hasOwnProperty;
+  var StreamMutable, StreamRevision, _, global,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
     StreamMutable = require('./StreamMutable').StreamMutable;
-    _ = require('./../bower/lodash/dist/lodash.min');
+    _ = require('./../bower/lodash/lodash.min');
   } else {
     global = window.util.namespacer('dosh.models');
     StreamMutable = global.StreamMutable;
     _ = window._;
   }
 
-  StreamRevision = (function(_super) {
+  StreamRevision = (function(superClass) {
     var localSchema;
 
-    __extends(StreamRevision, _super);
+    extend(StreamRevision, superClass);
 
-    function StreamRevision(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, _at_revised, _at_effectiveDate, _at_isClosed) {
-      this.revised = _at_revised;
-      this.effectiveDate = _at_effectiveDate;
-      this.isClosed = _at_isClosed;
+    function StreamRevision(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, revised, effectiveDate, isClosed) {
+      this.revised = revised;
+      this.effectiveDate = effectiveDate;
+      this.isClosed = isClosed;
       StreamRevision.__super__.constructor.call(this, created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount);
     }
 

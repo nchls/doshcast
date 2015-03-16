@@ -1,38 +1,40 @@
 (function() {
-  var Model, Stream, StreamMutable, global, _,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __hasProp = {}.hasOwnProperty;
+  var Model, Stream, StreamMutable, _, global,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
     Model = require('./Model').Model;
-    _ = require('./../bower/lodash/dist/lodash.min');
+    _ = require('./../bower/lodash/lodash.min');
   } else {
     global = window.util.namespacer('dosh.models');
     Model = global.Model;
     _ = window._;
   }
 
-  StreamMutable = (function(_super) {
-    var RECURRENCE_TYPES, localSchema;
+  StreamMutable = (function(superClass) {
+    var COMPOUNDING_TYPES, RECURRENCE_TYPES, localSchema;
 
-    __extends(StreamMutable, _super);
+    extend(StreamMutable, superClass);
 
-    function StreamMutable(created, modified, _at_orgName, _at_amount, _at_recurrence, _at_balance, _at_interestRate, _at_compounding, _at_creditLimit, _at_isAlwaysPaidOff, _at_fromAccount, _at_toAccount) {
-      this.orgName = _at_orgName;
-      this.amount = _at_amount;
-      this.recurrence = _at_recurrence;
-      this.balance = _at_balance;
-      this.interestRate = _at_interestRate;
-      this.compounding = _at_compounding;
-      this.creditLimit = _at_creditLimit;
-      this.isAlwaysPaidOff = _at_isAlwaysPaidOff;
-      this.fromAccount = _at_fromAccount;
-      this.toAccount = _at_toAccount;
+    function StreamMutable(created, modified, orgName1, amount1, recurrence1, balance1, interestRate1, compounding1, creditLimit1, isAlwaysPaidOff1, fromAccount1, toAccount1) {
+      this.orgName = orgName1;
+      this.amount = amount1;
+      this.recurrence = recurrence1;
+      this.balance = balance1;
+      this.interestRate = interestRate1;
+      this.compounding = compounding1;
+      this.creditLimit = creditLimit1;
+      this.isAlwaysPaidOff = isAlwaysPaidOff1;
+      this.fromAccount = fromAccount1;
+      this.toAccount = toAccount1;
       StreamMutable.__super__.constructor.call(this, created, modified);
     }
 
     StreamMutable.prototype.RECURRENCE_TYPES = RECURRENCE_TYPES = [['recur-daily', 'Daily'], ['recur-weekly', 'Weekly'], ['recur-biweekly', 'Every two weeks'], ['recur-monthly', 'Monthly'], ['recur-semiannually', 'Every six months'], ['recur-annually', 'Annually'], ['recur-irregularly', 'Irregularly']];
+
+    StreamMutable.prototype.COMPOUNDING_TYPES = COMPOUNDING_TYPES = [['compound-none', 'None'], ['compound-daily', 'Daily'], ['compound-monthly', 'Monthly'], ['compound-semianually', 'Every six months'], ['compound-annually', 'Annually']];
 
     localSchema = {
       orgName: {
@@ -96,7 +98,7 @@
       },
       compounding: {
         type: 'string',
-        choices: [['compound-none', 'None'], ['compound-daily', 'Daily'], ['compound-monthly', 'Monthly'], ['compound-semianually', 'Every six months'], ['compound-annually', 'Annually']],
+        choices: COMPOUNDING_TYPES,
         label: 'Compounding',
         showFor: ['deposit-account', 'loan', 'line-of-credit']
       },
@@ -131,37 +133,48 @@
 
     StreamMutable.prototype.schema = _.assign({}, localSchema, Model.prototype.schema);
 
+    StreamMutable.prototype.getCompoundingTypes = function() {
+      return COMPOUNDING_TYPES;
+    };
+
+    StreamMutable.prototype.getRecurrenceTypes = function() {
+      return RECURRENCE_TYPES;
+    };
+
     return StreamMutable;
 
   })(Model);
 
-  Stream = (function(_super) {
-    var STREAM_TYPES, SUBTYPES, TYPES, localSchema, type, _i, _len;
+  Stream = (function(superClass) {
+    var STREAM_TYPES, SUBTYPES, TYPES, i, len, localSchema, ref, type;
 
-    __extends(Stream, _super);
+    extend(Stream, superClass);
 
-    function Stream(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, _at_name, _at_owner, _at_isActive, _at_order, _at_streamType, _at_streamSubtype, _at_startDate, _at_firstPaymentDate, _at_isRegular, _at_isSeasonal) {
-      this.name = _at_name;
-      this.owner = _at_owner;
-      this.isActive = _at_isActive;
-      this.order = _at_order;
-      this.streamType = _at_streamType;
-      this.streamSubtype = _at_streamSubtype;
-      this.startDate = _at_startDate;
-      this.firstPaymentDate = _at_firstPaymentDate;
-      this.isRegular = _at_isRegular;
-      this.isSeasonal = _at_isSeasonal;
+    function Stream(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, name, owner, isActive, order, streamType, streamSubtype, startDate, firstPaymentDate, isRegular, isSeasonal) {
+      this.name = name;
+      this.owner = owner;
+      this.isActive = isActive;
+      this.order = order;
+      this.streamType = streamType;
+      this.streamSubtype = streamSubtype;
+      this.startDate = startDate;
+      this.firstPaymentDate = firstPaymentDate;
+      this.isRegular = isRegular;
+      this.isSeasonal = isSeasonal;
       Stream.__super__.constructor.call(this, created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount);
     }
 
-    Stream.prototype.STREAM_TYPES = STREAM_TYPES = [['deposit-account', 'Deposit account', [['account-checking', 'Checking account'], ['account-savings', 'Savings account'], ['account-cd', 'Certificate of deposit'], ['account-investment', 'Investment account']]], ['line-of-credit', 'Line of credit', [['loc-credit', 'Credit card'], ['loc-heloc', 'Home equity line of credit']]], ['income', 'Income', [['income-salary', 'Paycheck'], ['income-other', 'Other income']]], ['bill', 'Bill', [['bill-rent', 'Rent'], ['bill-cell', 'Cell phone'], ['bill-tv', 'TV'], ['bill-water', 'Water'], ['bill-electric', 'Electric'], ['bill-heat', 'Heat'], ['bill-internet', 'Internet'], ['bill-insurance-health', 'Health insurance'], ['bill-insurance-car', 'Car insurance'], ['bill-insurance-life', 'Life insurance'], ['bill-other', 'Other bill']]], ['loan', 'Loan', [['loan-student', 'Student loan'], ['loan-auto', 'Auto loan'], ['loan-health', 'Health loan'], ['loan-mortgage', 'Mortgage'], ['loan-personal', 'Personal loan'], ['loan-other', 'Other loan']]], ['transfer', 'Transfer', [['transfer-transfer', 'Transfer']]]];
+    STREAM_TYPES = {
+      STREAM_TYPES: [['deposit-account', 'Deposit account', [['account-checking', 'Checking account'], ['account-savings', 'Savings account'], ['account-cd', 'Certificate of deposit'], ['account-investment', 'Investment account']]], ['line-of-credit', 'Line of credit', [['loc-credit', 'Credit card'], ['loc-heloc', 'Home equity line of credit']]], ['income', 'Income', [['income-salary', 'Paycheck'], ['income-other', 'Other income']]], ['bill', 'Bill', [['bill-rent', 'Rent'], ['bill-cell', 'Cell phone'], ['bill-tv', 'TV'], ['bill-water', 'Water'], ['bill-electric', 'Electric'], ['bill-heat', 'Heat'], ['bill-internet', 'Internet'], ['bill-insurance-health', 'Health insurance'], ['bill-insurance-car', 'Car insurance'], ['bill-insurance-life', 'Life insurance'], ['bill-other', 'Other bill']]], ['loan', 'Loan', [['loan-student', 'Student loan'], ['loan-auto', 'Auto loan'], ['loan-health', 'Health loan'], ['loan-mortgage', 'Mortgage'], ['loan-personal', 'Personal loan'], ['loan-other', 'Other loan']]], ['transfer', 'Transfer', [['transfer-transfer', 'Transfer']]]]
+    };
 
     TYPES = [];
 
     SUBTYPES = [];
 
-    for (_i = 0, _len = STREAM_TYPES.length; _i < _len; _i++) {
-      type = STREAM_TYPES[_i];
+    ref = STREAM_TYPES.STREAM_TYPES;
+    for (i = 0, len = ref.length; i < len; i++) {
+      type = ref[i];
       TYPES.push(type.slice(0, 2));
       SUBTYPES = SUBTYPES.concat(type[2]);
     }
@@ -252,6 +265,10 @@
     };
 
     Stream.prototype.schema = _.assign({}, localSchema, StreamMutable.prototype.schema);
+
+    Stream.prototype.getStreamTypes = function() {
+      return STREAM_TYPES;
+    };
 
     return Stream;
 

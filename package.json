@@ -31,7 +31,6 @@
 		"gulp-sass": "*",
 		"gulp-concat": "*",
 		"gulp-uglify": "*",
-		"gulp-cjsx": "*",
 		"bourbon": "*",
 		"neat": "*"
 	},

@@ -1,29 +1,29 @@
 (function() {
-  var Model, User, global, _,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __hasProp = {}.hasOwnProperty;
+  var Model, User, _, global,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
     Model = require('./Model').Model;
-    _ = require('./../bower/lodash/dist/lodash.min');
+    _ = require('./../bower/lodash/lodash.min');
   } else {
     global = window.util.namespacer('dosh.models');
     Model = global.Model;
     _ = window._;
   }
 
-  User = (function(_super) {
+  User = (function(superClass) {
     var localSchema;
 
-    __extends(User, _super);
+    extend(User, superClass);
 
-    function User(created, modified, _at_email, _at_password, _at_registrationIp, _at_isActive, _at_lastLogin) {
-      this.email = _at_email;
-      this.password = _at_password;
-      this.registrationIp = _at_registrationIp;
-      this.isActive = _at_isActive;
-      this.lastLogin = _at_lastLogin;
+    function User(created, modified, email, password, registrationIp, isActive, lastLogin) {
+      this.email = email;
+      this.password = password;
+      this.registrationIp = registrationIp;
+      this.isActive = isActive;
+      this.lastLogin = lastLogin;
       User.__super__.constructor.call(this, created, modified);
     }
 

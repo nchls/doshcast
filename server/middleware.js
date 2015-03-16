@@ -8,8 +8,8 @@ db = mongoskin.db('mongodb://127.0.0.1:27017/dosh');
 
 module.exports = {
   session: function(req, res, next) {
-    var _ref;
-    if ((_ref = req.session) != null ? _ref.user : void 0) {
+    var ref;
+    if ((ref = req.session) != null ? ref.user : void 0) {
       return db.collection('users').findOne({
         id: req.session.user.id
       }, function(err, dbUser) {

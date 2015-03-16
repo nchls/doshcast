@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var coffee = require('gulp-coffee');
-var cjsx = require('gulp-cjsx');
+var react = require('gulp-react');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 
@@ -9,7 +9,7 @@ var config = {
 	environment: 'development'
 };
 
-var mainTasks = ['sass', 'coffee', 'cjsx', 'concatenate', 'minify'];
+var mainTasks = ['sass', 'coffee', 'jsx', 'concatenate', 'minify'];
 
 gulp.task('watch', function() {
 	gulp.watch('./source/**/*.*', mainTasks);
@@ -38,9 +38,9 @@ gulp.task('coffee', function() {
 		.pipe(gulp.dest(serverDest));
 });
 
-gulp.task('cjsx', function() {
-	gulp.src('./source/components/*.cjsx')
-		.pipe(cjsx({bare: true}))
+gulp.task('jsx', function() {
+	gulp.src('./source/components/*.jsx')
+		.pipe(react())
 		.pipe(concat('components.js'))
 		.pipe(gulp.dest('./public/components/'));
 });

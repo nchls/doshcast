@@ -1,7 +1,7 @@
 if exports?
 	global = exports
 	Model = require('./Model').Model
-	_ = require './../bower/lodash/dist/lodash.min'
+	_ = require './../bower/lodash/lodash.min'
 else
 	global = window.util.namespacer('dosh.models')
 	Model = global.Model
@@ -20,6 +20,15 @@ class StreamMutable extends Model
 			['recur-semiannually', 'Every six months']
 			['recur-annually', 'Annually']
 			['recur-irregularly', 'Irregularly']
+		]
+
+	COMPOUNDING_TYPES:
+		COMPOUNDING_TYPES = [
+			['compound-none', 'None']
+			['compound-daily', 'Daily']
+			['compound-monthly', 'Monthly']
+			['compound-semianually', 'Every six months']
+			['compound-annually', 'Annually']
 		]
 
 	localSchema =
@@ -109,13 +118,7 @@ class StreamMutable extends Model
 
 		compounding:
 			type: 'string'
-			choices: [
-				['compound-none', 'None']
-				['compound-daily', 'Daily']
-				['compound-monthly', 'Monthly']
-				['compound-semianually', 'Every six months']
-				['compound-annually', 'Annually']
-			]
+			choices: COMPOUNDING_TYPES
 			label: 'Compounding'
 			showFor: [
 				'deposit-account'
@@ -167,13 +170,18 @@ class StreamMutable extends Model
 
 	schema: _.assign({}, localSchema, Model::schema)
 
+	getCompoundingTypes: ->
+		COMPOUNDING_TYPES
+
+	getRecurrenceTypes: ->
+		RECURRENCE_TYPES
 
 class Stream extends StreamMutable
 	constructor: (created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, @name, @owner, @isActive, @order, @streamType, @streamSubtype, @startDate, @firstPaymentDate, @isRegular, @isSeasonal) ->
 		super created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount
 
-	STREAM_TYPES:
-		STREAM_TYPES = [
+	STREAM_TYPES =
+		STREAM_TYPES: [
 			['deposit-account', 'Deposit account', [
 				['account-checking', 'Checking account']
 				['account-savings', 'Savings account']
@@ -216,7 +224,7 @@ class Stream extends StreamMutable
 
 	TYPES = []
 	SUBTYPES = []
-	for type in STREAM_TYPES
+	for type in STREAM_TYPES.STREAM_TYPES
 		TYPES.push(type[0..1])
 		SUBTYPES = SUBTYPES.concat(type[2])
 
@@ -316,6 +324,10 @@ class Stream extends StreamMutable
 			]
 
 	schema: _.assign({}, localSchema, StreamMutable::schema)
+
+	getStreamTypes: ->
+		STREAM_TYPES
+
 
 global.Stream = Stream
 global.StreamMutable = StreamMutable

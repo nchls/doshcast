@@ -31,6 +31,7 @@ app.get('/:page(|dashboard|accounts|ledger|goals|projection)', function(req, res
 	res.sendFile('templates/base.html', options);
 });
 
+app.get('/api/getInitialData', middleware.requireLogin, streams.getInitialData);
 app.get('/api/getData', middleware.requireLogin, streams.getData);
 
 // todo: make these posts

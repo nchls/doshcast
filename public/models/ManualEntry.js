@@ -1,27 +1,27 @@
 (function() {
-  var ManualEntry, Model, global, _,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __hasProp = {}.hasOwnProperty;
+  var ManualEntry, Model, _, global,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
     Model = require('./Model').Model;
-    _ = require('./../bower/lodash/dist/lodash.min');
+    _ = require('./../bower/lodash/lodash.min');
   } else {
     global = window.util.namespacer('dosh.models');
     Model = global.Model;
     _ = window._;
   }
 
-  ManualEntry = (function(_super) {
+  ManualEntry = (function(superClass) {
     var localSchema;
 
-    __extends(ManualEntry, _super);
+    extend(ManualEntry, superClass);
 
-    function ManualEntry(created, modified, _at_entryDate, _at_amount, _at_stream) {
-      this.entryDate = _at_entryDate;
-      this.amount = _at_amount;
-      this.stream = _at_stream;
+    function ManualEntry(created, modified, entryDate, amount, stream) {
+      this.entryDate = entryDate;
+      this.amount = amount;
+      this.stream = stream;
       ManualEntry.__super__.constructor.call(this, created, modified);
     }
 

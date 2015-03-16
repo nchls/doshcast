@@ -1,6 +1,6 @@
 (function() {
   var Model, global,
-    __hasProp = {}.hasOwnProperty;
+    hasProp = {}.hasOwnProperty;
 
   if (typeof exports !== "undefined" && exports !== null) {
     global = exports;
@@ -9,9 +9,9 @@
   }
 
   Model = (function() {
-    function Model(_at_created, _at_modified) {
-      this.created = _at_created;
-      this.modified = _at_modified;
+    function Model(created, modified) {
+      this.created = created;
+      this.modified = modified;
     }
 
     Model.prototype.schema = {
@@ -33,7 +33,7 @@
       var key, obj, value;
       obj = {};
       for (key in this) {
-        if (!__hasProp.call(this, key)) continue;
+        if (!hasProp.call(this, key)) continue;
         value = this[key];
         obj[key] = value;
       }
@@ -41,14 +41,14 @@
     };
 
     Model.prototype.jsonToObject = function(json) {
-      var key, obj, output, value, _ref;
+      var key, obj, output, ref, value;
       output = {};
       obj = JSON.parse(json);
       for (key in obj) {
-        if (!__hasProp.call(obj, key)) continue;
+        if (!hasProp.call(obj, key)) continue;
         value = obj[key];
         if (key in this.schema) {
-          if ((_ref = this.schema[key].type) === 'date' || _ref === 'dateTime') {
+          if ((ref = this.schema[key].type) === 'date' || ref === 'dateTime') {
             output[key] = new Date(value);
             continue;
           }

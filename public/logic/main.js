@@ -63,18 +63,18 @@
       return output;
     };
     setStreamColumns = function(streams) {
-      var columns, stream, _i, _len, _ref, _ref1, _ref2;
+      var columns, i, len, ref, ref1, ref2, stream;
       perf.start('setStreamColumns');
-      for (_i = 0, _len = streams.length; _i < _len; _i++) {
-        stream = streams[_i];
+      for (i = 0, len = streams.length; i < len; i++) {
+        stream = streams[i];
         columns = [];
-        if ((_ref = stream.type) === 'line-of-credit' || _ref === 'loan' || _ref === 'bill' || _ref === 'income' || _ref === 'transfer') {
+        if ((ref = stream.type) === 'line-of-credit' || ref === 'loan' || ref === 'bill' || ref === 'income' || ref === 'transfer') {
           columns.push(['payment', 'Payment']);
         }
-        if ((_ref1 = stream.type) === 'deposit-account' || _ref1 === 'line-of-credit') {
+        if ((ref1 = stream.type) === 'deposit-account' || ref1 === 'line-of-credit') {
           columns.push(['spending', 'Spending']);
         }
-        if ((_ref2 = stream["class"]) === 'balance' || _ref2 === 'hybrid') {
+        if ((ref2 = stream["class"]) === 'balance' || ref2 === 'hybrid') {
           columns.push(['balance', 'Balance']);
         }
         if (stream.subType === 'loc-credit') {
@@ -90,11 +90,11 @@
       return streams;
     };
     getStreamsStart = function(streams) {
-      var start, stream, streamsStart, _i, _len;
+      var i, len, start, stream, streamsStart;
       perf.start('getStreamsStart');
       streamsStart = moment();
-      for (_i = 0, _len = streams.length; _i < _len; _i++) {
-        stream = streams[_i];
+      for (i = 0, len = streams.length; i < len; i++) {
+        stream = streams[i];
         start = moment(stream.startDate);
         if (start.isBefore(streamsStart)) {
           streamsStart = start;
@@ -154,14 +154,14 @@
       return transactionDates;
     };
     getInitialValues = function(streams, mutableFields) {
-      var field, initialValues, stream, streamIdx, _i, _len;
+      var field, i, initialValues, len, stream, streamIdx;
       perf.start('getInitialValues');
       initialValues = {};
       for (streamIdx in streams) {
         stream = streams[streamIdx];
         initialValues[stream.id] = {};
-        for (_i = 0, _len = mutableFields.length; _i < _len; _i++) {
-          field = mutableFields[_i];
+        for (i = 0, len = mutableFields.length; i < len; i++) {
+          field = mutableFields[i];
           if (field in stream) {
             initialValues[stream.id][field] = stream[field];
           }
@@ -178,11 +178,11 @@
       return output;
     };
     getLookupLedger = function(streams, manuals, revisions, dataDates, transactionDates, currentValues) {
-      var amount, balance, current, day, interest, lookupLedger, manual, manualId, startDate, stream, streamEntry, streamIdx, transDate, ymd, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var amount, balance, current, day, i, interest, j, len, len1, lookupLedger, manual, manualId, ref, ref1, ref2, ref3, ref4, ref5, startDate, stream, streamEntry, streamIdx, transDate, ymd;
       perf.start('getLookupLedger');
       lookupLedger = {};
-      for (_i = 0, _len = dataDates.length; _i < _len; _i++) {
-        day = dataDates[_i];
+      for (i = 0, len = dataDates.length; i < len; i++) {
+        day = dataDates[i];
         ymd = day.format('YYYY-MM-DD');
         lookupLedger[ymd] = {
           moment: day,
@@ -194,11 +194,11 @@
             id: stream.id
           };
           current = currentValues[stream.id];
-          if ((_ref = stream["class"]) === 'transaction' || _ref === 'hybrid') {
+          if ((ref = stream["class"]) === 'transaction' || ref === 'hybrid') {
             amount = null;
-            _ref1 = transactionDates[stream.id];
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              transDate = _ref1[_j];
+            ref1 = transactionDates[stream.id];
+            for (j = 0, len1 = ref1.length; j < len1; j++) {
+              transDate = ref1[j];
               if (transDate[0] === ymd) {
                 amount = current.amount;
                 if ('fromAccount' in stream) {
@@ -213,13 +213,13 @@
               }
             }
           }
-          if ((_ref2 = stream.type) === 'line-of-credit' || _ref2 === 'loan' || _ref2 === 'bill' || _ref2 === 'income' || _ref2 === 'transfer') {
+          if ((ref2 = stream.type) === 'line-of-credit' || ref2 === 'loan' || ref2 === 'bill' || ref2 === 'income' || ref2 === 'transfer') {
             streamEntry.payment = amount != null ? doshFormat(amount) : null;
           }
-          if ((_ref3 = stream.type) === 'deposit-account' || _ref3 === 'line-of-credit') {
+          if ((ref3 = stream.type) === 'deposit-account' || ref3 === 'line-of-credit') {
             streamEntry.spending = null;
           }
-          if ((_ref4 = stream["class"]) === 'balance' || _ref4 === 'hybrid') {
+          if ((ref4 = stream["class"]) === 'balance' || ref4 === 'hybrid') {
             startDate = stream.startDate;
             balance = current.balance;
             interest = 0;
@@ -228,9 +228,9 @@
               streamEntry.carriedBalance = null;
             }
             if (startDate === ymd || startDate < ymd) {
-              _ref5 = manuals[stream.id];
-              for (manualId in _ref5) {
-                manual = _ref5[manualId];
+              ref5 = manuals[stream.id];
+              for (manualId in ref5) {
+                manual = ref5[manualId];
                 if (manual.date.isSame(day)) {
                   current.balance = manual.amount;
                 }
@@ -381,11 +381,11 @@
       }, 1);
     };
     prepLedgerHeader = function(streams) {
-      var columnLabels, stream, subStreams, _i, _len;
+      var columnLabels, i, len, stream, subStreams;
       perf.start('prepLedgerHeader');
       subStreams = [];
-      for (_i = 0, _len = streams.length; _i < _len; _i++) {
-        stream = streams[_i];
+      for (i = 0, len = streams.length; i < len; i++) {
+        stream = streams[i];
         if (stream.columns.length > 1) {
           columnLabels = _.pluck(stream.columns, 1);
           subStreams = subStreams.concat(columnLabels);
@@ -395,7 +395,7 @@
       return subStreams;
     };
     formatLedgerTable = function(lookupLedger) {
-      var data, day, ledger, row, streamEntry, subCol, _i, _j, _len, _len1, _ref;
+      var data, day, i, j, ledger, len, len1, ref, row, streamEntry, subCol;
       perf.start('formatLedgerTable');
       ledger = {};
       for (day in lookupLedger) {
@@ -405,11 +405,11 @@
           fullDate: data.moment.format('dddd, MMMM Do, YYYY')
         };
         row = [];
-        _ref = data.streams;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          streamEntry = _ref[_i];
-          for (_j = 0, _len1 = subColumns.length; _j < _len1; _j++) {
-            subCol = subColumns[_j];
+        ref = data.streams;
+        for (i = 0, len = ref.length; i < len; i++) {
+          streamEntry = ref[i];
+          for (j = 0, len1 = subColumns.length; j < len1; j++) {
+            subCol = subColumns[j];
             if (subCol[0] in streamEntry) {
               row.push({
                 val: streamEntry[subCol[0]]
@@ -449,22 +449,22 @@
       return setTransferStreams();
     };
     $scope.setNewStream = function(type, name) {
-      var field, fields, _i, _len, _results;
+      var field, fields, i, len, results;
       $scope.newStream = {
         type: type,
         name: name
       };
       fields = getFieldsByType(type.typeKey);
-      _results = [];
-      for (_i = 0, _len = fields.length; _i < _len; _i++) {
-        field = fields[_i];
+      results = [];
+      for (i = 0, len = fields.length; i < len; i++) {
+        field = fields[i];
         if (field["default"]) {
-          _results.push($scope.newStream[field.jsName] = field["default"]);
+          results.push($scope.newStream[field.jsName] = field["default"]);
         } else {
-          _results.push(void 0);
+          results.push(void 0);
         }
       }
-      return _results;
+      return results;
     };
     $scope.getSelectOptions = function(type) {
       if (type === 'compounding') {
@@ -535,15 +535,15 @@
       return $scope.addStreamOpen = false;
     };
     getStreamTypes = function() {
-      var streamType, streamTypes, subType, _i, _j, _len, _len1, _ref, _ref1;
+      var i, j, len, len1, ref, ref1, streamType, streamTypes, subType;
       perf.start('getStreamTypes');
       streamTypes = [];
-      _ref = $rootScope.initialData.models.stream.types;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        streamType = _ref[_i];
-        _ref1 = streamType[2];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          subType = _ref1[_j];
+      ref = $rootScope.initialData.models.stream.types;
+      for (i = 0, len = ref.length; i < len; i++) {
+        streamType = ref[i];
+        ref1 = streamType[2];
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          subType = ref1[j];
           streamTypes.push({
             typeName: streamType[1],
             typeKey: streamType[0],
