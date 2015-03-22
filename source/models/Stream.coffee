@@ -22,6 +22,9 @@ class StreamMutable extends Model
 			['recur-irregularly', 'Irregularly']
 		]
 
+	getRecurrenceTypes: ->
+		RECURRENCE_TYPES
+
 	COMPOUNDING_TYPES:
 		COMPOUNDING_TYPES = [
 			['compound-none', 'None']
@@ -31,11 +34,39 @@ class StreamMutable extends Model
 			['compound-annually', 'Annually']
 		]
 
+	getCompoundingTypes: ->
+		COMPOUNDING_TYPES
+
+	FIELD_ORDER:
+		FIELD_ORDER = [
+			"streamSubtype"
+			"name"
+			"orgName"
+			"isActive"
+			"startDate"
+			"firstPaymentDate"
+			"isRegular"
+			"isSeasonal"
+			"amount"
+			"recurrence"
+			"balance"
+			"interestRate"
+			"compounding"
+			"creditLimit"
+			"isAlwaysPaidOff"
+			"fromAccount"
+			"toAccount"
+		]
+
+	getFieldOrder: ->
+		FIELD_ORDER
+
 	localSchema =
 
 		# bill, loan, income, deposit, loc
 		orgName:
 			type: 'string'
+			isMutable: true
 			label: 'Bank name',
 			otherLabels:
 				loan: 'Lender name'
@@ -54,6 +85,7 @@ class StreamMutable extends Model
 		# bill, loan, income, transfer, loc
 		amount:
 			type: 'decimal'
+			isMutable: true
 			label: 'Minimum payment'
 			otherLabels:
 				bill: 'Payment amount'
@@ -73,6 +105,7 @@ class StreamMutable extends Model
 		recurrence:
 			type: 'string'
 			choices: RECURRENCE_TYPES
+			isMutable: true
 			label: 'Payment recurrence'
 			otherLabels:
 				income: 'Income recurrence'
@@ -88,6 +121,7 @@ class StreamMutable extends Model
 		# deposit, loan, loc
 		balance:
 			type: 'decimal'
+			isMutable: true
 			label: 'Starting balance'
 			reviseLabel: 'Balance'
 			showFor: [
@@ -104,6 +138,7 @@ class StreamMutable extends Model
 		# to do: unpredictable return, e.g. stocks
 		interestRate:
 			type: 'decimal'
+			isMutable: true
 			label: 'Interest rate'
 			showFor: [
 				'deposit-account'
@@ -119,6 +154,7 @@ class StreamMutable extends Model
 		compounding:
 			type: 'string'
 			choices: COMPOUNDING_TYPES
+			isMutable: true
 			label: 'Compounding'
 			showFor: [
 				'deposit-account'
@@ -129,6 +165,7 @@ class StreamMutable extends Model
 		# loan, loc
 		creditLimit:
 			type: 'positiveInt'
+			isMutable: true
 			label: 'Credit limit'
 			showFor: [
 				'line-of-credit'
@@ -140,6 +177,7 @@ class StreamMutable extends Model
 		# loan-credit
 		isAlwaysPaidOff:
 			type: 'nullBoolean'
+			isMutable: true
 			label: 'Balance is paid off every period'
 			helpText: 'Check if you do not carry a balance across billing periods.'
 			showFor: [
@@ -150,6 +188,7 @@ class StreamMutable extends Model
 		fromAccount:
 			type: 'foreignKey'
 			model: 'Stream'
+			isMutable: true
 			label: 'Draw from account'
 			showFor: [
 				'loan'
@@ -162,6 +201,7 @@ class StreamMutable extends Model
 		toAccount:
 			type: 'foreignKey'
 			model: 'Stream'
+			isMutable: true
 			label: 'Deposit to account'
 			showFor: [
 				'income'
@@ -169,12 +209,6 @@ class StreamMutable extends Model
 			]
 
 	schema: _.assign({}, localSchema, Model::schema)
-
-	getCompoundingTypes: ->
-		COMPOUNDING_TYPES
-
-	getRecurrenceTypes: ->
-		RECURRENCE_TYPES
 
 class Stream extends StreamMutable
 	constructor: (created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, @name, @owner, @isActive, @order, @streamType, @streamSubtype, @startDate, @firstPaymentDate, @isRegular, @isSeasonal) ->
@@ -221,6 +255,9 @@ class Stream extends StreamMutable
 				['transfer-transfer', 'Transfer']
 			]]
 		]
+
+	getStreamTypes: ->
+		STREAM_TYPES
 
 	TYPES = []
 	SUBTYPES = []
@@ -324,9 +361,6 @@ class Stream extends StreamMutable
 			]
 
 	schema: _.assign({}, localSchema, StreamMutable::schema)
-
-	getStreamTypes: ->
-		STREAM_TYPES
 
 
 global.Stream = Stream

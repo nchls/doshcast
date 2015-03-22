@@ -1,23 +1,6 @@
 var AccountsPage = React.createClass({
 	getInitialState: function() {
-		return {
-			streams: []
-		};
-	},
-
-	componentDidMount: function() {
-		var self = this;
-
-		util.namespacer('dosh.state').streams = [];
-
-		return $.getJSON('/api/getData').done(function(response) {
-			if (self.isMounted()) {
-				self.setState({
-					streams: response.result
-				});
-				dosh.state.streams = response.result;
-			}
-		});
+		return {};
 	},
 
 	handleAddStreamClick: function() {
@@ -39,18 +22,20 @@ var AccountsPage = React.createClass({
 		var self = this,
 			data = {stream: JSON.stringify(dosh.state.newStream)};
 
-		return $.getJSON('/api/createStream', data).done(function(response) {
-			var streamsState = _.clone(self.state.streams);
-			streamsState.push(dosh.state.newStream);
-			dosh.state.streams = streamsState;
+		self.props.addStream(dosh.state.newStream);
+
+		return $.ajax({
+			type: 'POST',
+			url: '/api/createStream',
+			data: data,
+			dataType: 'json'
+		}).done(function(response, status, xhr) {
 			if (self.isMounted()) {
 				self.setState({
-					streams: streamsState,
 					addStreamOpen: false
 				});
 			}
 		});
-
 	},
 
 	render: function() {
@@ -67,7 +52,7 @@ var AccountsPage = React.createClass({
 					</button>
 				)}
 			</div>
-			{this.state.addStreamOpen ? null : <StreamsList streams={this.state.streams}/>}
+			{this.state.addStreamOpen ? null : <StreamsList streams={this.props.streams}/>}
 			{this.state.addStreamOpen ? <AddStream handleSubmit={this.handleAddStreamSubmit} handleCancel={this.handleCloseAddStreamClick} fields={[]}/> : null}
 		</div>;
 	}
@@ -133,7 +118,11 @@ var AddStream = React.createClass({
 
 	statics: {
 		getStreamFields: function() {
-			return _.pairs(dosh.models.Stream.prototype.schema);
+			var fields = _.pairs(dosh.models.Stream.prototype.schema),
+				fieldOrder = dosh.models.Stream.prototype.getFieldOrder();
+			return _.sortBy(fields, function(field) {
+				return fieldOrder.indexOf(field[0]);
+			});
 		},
 
 		getInputType: function(fieldData) {
@@ -257,8 +246,9 @@ var AddStream = React.createClass({
 
 var AddStreamField = React.createClass({
 	getInitialState: function() {
+		var self = this;
 		return {
-			value: ''
+			value: (self.props.fieldData.default !== undefined ? self.props.fieldData.default : '')
 		};
 	},
 
@@ -295,7 +285,7 @@ var AddStreamField = React.createClass({
 				: null}
 
 				{self.props.inputType !== 'select' ?
-						<input type={self.props.inputType} id={'newStream-' + self.props.fieldId} value={value} onChange={self.handleChange} required={self.props.isRequired}/>
+						<input type={self.props.inputType} id={'newStream-' + self.props.fieldId} value={value} checked={value} onChange={self.handleChange} required={self.props.isRequired}/>
 					:
 						<select id={'newStream-' + self.props.fieldId} onChange={self.handleChange} required={self.props.isRequired}>
 							<option value="">--- Choose {self.props.fieldData.label.toLowerCase()} ---</option>
@@ -330,54 +320,3 @@ var AddStreamField = React.createClass({
 		</div>
 	}
 });
-
-/*
-					<select
-						ng-if="field.input.type === 'select' && field.key !== 'stream_subtype'"
-						id="newStream-{{ field.jsName }}"
-						ng-model="newStream[field.jsName]"
-						ng-options="{{ getSelectOptions(field.key) }}"
-						ng-required="field.validation.required"
-					>
-						<option value="">--- Choose {{ field.label | lowercase }} ---</option>
-					</select>
-
-					<select
-						ng-if="field.key === 'stream_subtype'"
-						id="newStream-{{ field.jsName }}"
-						ng-model="newStream[field.jsName]"
-						ng-options="type.subName group by type.typeName for type in streamTypes"
-						ng-required="field.validation.required"
-						ng-change="setNewStream(newStream.type, newStream.name)"
-					>
-						<option value="">--- Choose {{ field.label | lowercase }} ---</option>
-					</select>
-
-				</div>
-
-				<p
-					ng-if="field.helpText"
-					class="helpText aside"
-				>
-					{{ getStreamHelp(field.key, newStream.type.typeKey) }}
-				</p>
-
-			</div>
-
-			<div class="actionBar">
-				<button
-					class="btn secondary"
-					ng-click="closeAddStream()"
-				>
-					Cancel
-				</button>
-
-				<button
-					class="btn"
-				>
-					<i class="fa fa-plus"></i> Add Account
-				</button>
-			</div>
-
-		</form>
- */

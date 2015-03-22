@@ -1,23 +1,6 @@
 var AccountsPage = React.createClass({displayName: "AccountsPage",
 	getInitialState: function() {
-		return {
-			streams: []
-		};
-	},
-
-	componentDidMount: function() {
-		var self = this;
-
-		util.namespacer('dosh.state').streams = [];
-
-		return $.getJSON('/api/getData').done(function(response) {
-			if (self.isMounted()) {
-				self.setState({
-					streams: response.result
-				});
-				dosh.state.streams = response.result;
-			}
-		});
+		return {};
 	},
 
 	handleAddStreamClick: function() {
@@ -39,18 +22,20 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 		var self = this,
 			data = {stream: JSON.stringify(dosh.state.newStream)};
 
-		return $.getJSON('/api/createStream', data).done(function(response) {
-			var streamsState = _.clone(self.state.streams);
-			streamsState.push(dosh.state.newStream);
-			dosh.state.streams = streamsState;
+		self.props.addStream(dosh.state.newStream);
+
+		return $.ajax({
+			type: 'POST',
+			url: '/api/createStream',
+			data: data,
+			dataType: 'json'
+		}).done(function(response, status, xhr) {
 			if (self.isMounted()) {
 				self.setState({
-					streams: streamsState,
 					addStreamOpen: false
 				});
 			}
 		});
-
 	},
 
 	render: function() {
@@ -67,7 +52,7 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 					)
 				)
 			), 
-			this.state.addStreamOpen ? null : React.createElement(StreamsList, {streams: this.state.streams}), 
+			this.state.addStreamOpen ? null : React.createElement(StreamsList, {streams: this.props.streams}), 
 			this.state.addStreamOpen ? React.createElement(AddStream, {handleSubmit: this.handleAddStreamSubmit, handleCancel: this.handleCloseAddStreamClick, fields: []}) : null
 		);
 	}
@@ -133,7 +118,11 @@ var AddStream = React.createClass({displayName: "AddStream",
 
 	statics: {
 		getStreamFields: function() {
-			return _.pairs(dosh.models.Stream.prototype.schema);
+			var fields = _.pairs(dosh.models.Stream.prototype.schema),
+				fieldOrder = dosh.models.Stream.prototype.getFieldOrder();
+			return _.sortBy(fields, function(field) {
+				return fieldOrder.indexOf(field[0]);
+			});
 		},
 
 		getInputType: function(fieldData) {
@@ -257,8 +246,9 @@ var AddStream = React.createClass({displayName: "AddStream",
 
 var AddStreamField = React.createClass({displayName: "AddStreamField",
 	getInitialState: function() {
+		var self = this;
 		return {
-			value: ''
+			value: (self.props.fieldData.default !== undefined ? self.props.fieldData.default : '')
 		};
 	},
 
@@ -295,7 +285,7 @@ var AddStreamField = React.createClass({displayName: "AddStreamField",
 				: null, 
 
 				self.props.inputType !== 'select' ?
-						React.createElement("input", {type: self.props.inputType, id: 'newStream-' + self.props.fieldId, value: value, onChange: self.handleChange, required: self.props.isRequired})
+						React.createElement("input", {type: self.props.inputType, id: 'newStream-' + self.props.fieldId, value: value, checked: value, onChange: self.handleChange, required: self.props.isRequired})
 					:
 						React.createElement("select", {id: 'newStream-' + self.props.fieldId, onChange: self.handleChange, required: self.props.isRequired}, 
 							React.createElement("option", {value: ""}, "--- Choose ", self.props.fieldData.label.toLowerCase(), " ---"), 
@@ -331,61 +321,57 @@ var AddStreamField = React.createClass({displayName: "AddStreamField",
 	}
 });
 
-/*
-					<select
-						ng-if="field.input.type === 'select' && field.key !== 'stream_subtype'"
-						id="newStream-{{ field.jsName }}"
-						ng-model="newStream[field.jsName]"
-						ng-options="{{ getSelectOptions(field.key) }}"
-						ng-required="field.validation.required"
-					>
-						<option value="">--- Choose {{ field.label | lowercase }} ---</option>
-					</select>
-
-					<select
-						ng-if="field.key === 'stream_subtype'"
-						id="newStream-{{ field.jsName }}"
-						ng-model="newStream[field.jsName]"
-						ng-options="type.subName group by type.typeName for type in streamTypes"
-						ng-required="field.validation.required"
-						ng-change="setNewStream(newStream.type, newStream.name)"
-					>
-						<option value="">--- Choose {{ field.label | lowercase }} ---</option>
-					</select>
-
-				</div>
-
-				<p
-					ng-if="field.helpText"
-					class="helpText aside"
-				>
-					{{ getStreamHelp(field.key, newStream.type.typeKey) }}
-				</p>
-
-			</div>
-
-			<div class="actionBar">
-				<button
-					class="btn secondary"
-					ng-click="closeAddStream()"
-				>
-					Cancel
-				</button>
-
-				<button
-					class="btn"
-				>
-					<i class="fa fa-plus"></i> Add Account
-				</button>
-			</div>
-
-		</form>
- */
 var App = React.createClass({displayName: "App",
-	getInitialData: function() {
+	getInitialState: function() {
 		return {
+			user: window.user,
+			streams: [],
+			revisions: [],
+			manuals: [],
 			isBlockingAjaxInProgress: false
 		};
+	},
+
+	componentDidMount: function() {
+		if (this.state.user !== null) {
+			this.getData();
+		}
+	},
+
+	getData: function() {
+		var self = this;
+
+		util.namespacer('dosh.state').streams = [];
+
+		return $.getJSON('/api/getData').done(function(response) {
+			self.setState({
+				streams: response.result
+			});
+			dosh.state.streams = response.result;
+		});
+	},
+
+	addStream: function(stream) {
+		var streamsState = _.clone(this.state.streams);
+		streamsState.push(stream);
+		dosh.state.streams = streamsState;
+		this.setState({
+			streams: streamsState,
+		});
+	},
+
+	handleLogin: function(email) {
+		this.setState({user: email});
+		this.getData();
+	},
+
+	handleLogout: function() {
+		this.setState({
+			user: null,
+			streams: [],
+			revisions: [],
+			manuals: []
+		});
 	},
 
 	render: function() {
@@ -393,17 +379,18 @@ var App = React.createClass({displayName: "App",
 			React.createElement("div", {className: "topBar cf"}, 
 				React.createElement("header", null, 
 					React.createElement("a", {href: "/"}, 
-						React.createElement("h1", null, "DoshCast")
+						React.createElement("h1", null, "DoshCast"), 
+						React.createElement("small", null, "alpha!")
 					)
 				), 
 
 				React.createElement(PrimaryNav, null), 
 
-				React.createElement(AuthControls, null)
+				React.createElement(AuthControls, {handleLogin: this.handleLogin, handleLogout: this.handleLogout, user: this.state.user})
 			), 
 
-			document.location.pathname === '/accounts' ? React.createElement(AccountsPage, null) : null, 
-			document.location.pathname === '/ledger' ? React.createElement(LedgerPage, null) : null
+			document.location.pathname === '/accounts' ? React.createElement(AccountsPage, {streams: this.state.streams, addStream: this.addStream}) : null, 
+			document.location.pathname === '/ledger' ? React.createElement(LedgerPage, {streams: this.state.streams}) : null
 		);
 	}
 });
@@ -422,19 +409,34 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 	handleLoginSubmit: function(evt) {
 		evt.preventDefault();
 		var self = this,
-			data = {}
+			data = {};
 		_.forEach($('.log-in-panel').serializeArray(), function(pair) {
 			data[pair.name] = pair.value;
 		});
-		data = {user: JSON.stringify(data)};
+		payload = {user: JSON.stringify(data)};
 		$.ajax({
+			type: 'POST',
 			url: '/api/loginUser',
-			data: data,
+			data: payload,
 			dataType: 'json'
-		}).done(function(response) {
+		}).done(function(response, status, xhr) {
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
+					self.props.handleLogin(data.email);
+				}
+			}
+		}).fail(function(xhr, errorType, error) {
+			if (self.isMounted()) {
+				var response = {};
+				try {
+					response = JSON.parse(xhr.responseText);
+				} catch(e) {
+					return false;
+				}
+				// User is already logged in
+				if (response.errorCode === 41) {
+					self.props.handleLogin(data.email);
 				}
 			}
 		});
@@ -446,6 +448,51 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 
 	handleRegisterSubmit: function(evt) {
 		evt.preventDefault();
+		var self = this,
+			data = {}
+		_.forEach($('.register-panel').serializeArray(), function(pair) {
+			data[pair.name] = pair.value;
+		});
+		payload = {user: JSON.stringify(data)};
+		$.ajax({
+			type: 'POST',
+			url: '/api/createUser',
+			data: payload,
+			dataType: 'json'
+		}).done(function(response) {
+			if (self.isMounted()) {
+				if (!response.isError) {
+					self.handlePanelDismiss();
+					self.props.handleLogin(data.email);
+				}
+			}
+		});
+	},
+
+	handleLogoutClick: function() {
+		var self = this;
+		$.ajax({
+			type: 'POST',
+			url: '/api/logoutUser',
+			dataType: 'json'
+		}).done(function(response) {
+			if (self.isMounted()) {
+				self.props.handleLogout();
+			}
+		}).fail(function(xhr, errorType, error) {
+			if (self.isMounted()) {
+				var response = {};
+				try {
+					response = JSON.parse(xhr.responseText);
+				} catch(e) {
+					return false;
+				}
+				// User is already logged out
+				if (response.errorCode === 40) {
+					self.props.handleLogout();
+				}
+			}
+		});
 	},
 
 	handlePanelDismiss: function() {
@@ -453,6 +500,12 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 	},
 
 	render: function() {
+		if (this.props.user !== null) {
+			return React.createElement("div", {className: "auth"}, 
+				React.createElement("span", {className: "authed-email"}, this.props.user), 
+				React.createElement(LogoutButton, {clickHandler: this.handleLogoutClick})
+			)
+		}
 		return React.createElement("div", {className: "auth"}, 
 			React.createElement(LoginButton, {clickHandler: this.handleLoginClick, isPanelOpen: this.state.openPanel === 'login'}), 
 			this.state.openPanel === 'login' ? React.createElement(LoginPanel, {submitHandler: this.handleLoginSubmit, dismissHandler: this.handlePanelDismiss}) : null, 
@@ -572,7 +625,7 @@ var RegisterPanel = React.createClass({displayName: "RegisterPanel",
 				React.createElement("label", {htmlFor: "registerPassword2"}, 
 					"Password (again)"
 				), 
-				React.createElement("input", {type: "password", id: "registerPassword2", name: "password"})
+				React.createElement("input", {type: "password", id: "registerPassword2"})
 			), 
 			React.createElement("div", {className: "formRow"}, 
 				React.createElement("button", {className: "btn", type: "submit"}, 
@@ -584,131 +637,174 @@ var RegisterPanel = React.createClass({displayName: "RegisterPanel",
 	}
 });
 
-
-
-/*
-<div
-	class="auth"
-	ng-cloak
-	ng-controller="AuthController"
->
-
-	<button
-		class="log-in btn"
-		ng-click="handleLoginClick()"
-		ng-if="!user.isLoggedIn"
-	>
-		<i class="fa fa-sign-in"></i> Log In
-	</button>
-	<form
-		method="post"
-		data-url="{% url 'api' version="1" method="loginUser" %}"
-		class="panel log-in-panel"
-		ng-if="loginPanelOpen && !user.isLoggedIn"
-		ng-submit="handleLoginSubmit()"
-	>
-		<div class="formRow">
-			<label for="loginUsername">
-				Username
-			</label>
-			<input type="text" id="loginUsername" name="username" autoCorrect="off" autoCapitalize="off">
-		</div>
-		<div class="formRow">
-			<label for="loginPassword">
-				Password
-			</label>
-			<input type="password" id="loginPassword" name="password">
-		</div>
-		<div class="formRow">
-			<label>
-				<input type="checkbox" name="loginRemember">
-				Remember me
-			</label>
-		</div>
-		<div class="formRow">
-			<button
-				class="btn"
-				type="submit"
-			>
-				<i class="fa fa-sign-in"></i> Log In
-			</button>
-		</div>
-	</form>
-
-	<button
-		class="sign-up btn"
-		ng-click="handleSignupClick()"
-		ng-if="!user.isLoggedIn"
-	>
-		<i class="fa fa-user"></i> Sign Up
-	</button>
-	<form
-		method="post"
-		data-url="{% url 'api' version="1" method="createUser" %}"
-		class="panel sign-up-panel"
-		ng-if="signupPanelOpen && !user.isLoggedIn"
-		ng-submit="handleSignupSubmit()"
-	>
-		<div class="formRow">
-			<label for="signupUsername">
-				Username
-			</label>
-			<input type="text" id="signupUsername" name="username" autoComplete="off" autoCorrect="off" autoCapitalize="off">
-		</div>
-		<div class="formRow">
-			<label for="signupEmail">
-				E-mail Address
-			</label>
-			<input type="email" id="signupEmail" name="email" autoComplete="off">
-		</div>
-		<div class="formRow">
-			<label for="signupPassword">
-				Password
-			</label>
-			<input type="password" id="signupPassword" name="password" autoComplete="off">
-		</div>
-		<div class="formRow">
-			<label for="signupRePassword">
-				Password (again)
-			</label>
-			<input type="password" id="signupRePassword" name="" autoComplete="off">
-		</div>
-		<div class="formRow">
-			<button
-				class="btn"
-				type="submit"
-			>
-				<i class="fa fa-user"></i> Sign Up
-			</button>
-		</div>
-	</form>
-
-	<form
-		data-url="{% url 'api' version="1" method="logoutUser" %}"
-		class="log-out"
-		ng-if="user.isLoggedIn"
-	>
-		<p class="loggedInAs">
-			You are logged in as {% verbatim %}{{ user.username }}{% endverbatim %}.
-		</p>
-		<button
-			class="btn"
-			ng-click="handleLogoutClick()"
-		>
-			<i class="fa fa-sign-out fa-flip-horizontal"></i> Log Out
-		</button>
-	</form>
-
-</div>
-*/
-
-var LedgerPage = React.createClass({displayName: "LedgerPage",
+var LogoutButton = React.createClass({displayName: "LogoutButton",
 	render: function() {
-		React.createElement("p", null, "Hello world. I am the ledger.")
+		return React.createElement("button", {className: 'log-out btn transparent', onClick: this.props.clickHandler}, 
+			React.createElement("i", {className: "fa fa-sign-out"}), " Log Out"
+		)
 	}
 });
 
+var LedgerPage = React.createClass({displayName: "LedgerPage",
+	getInitialState: function() {
+		return {};
+	},
+	render: function() {
+		return React.createElement("div", {className: "ledger"}, 
+			React.createElement("h2", null, "Ledger"), 
+			React.createElement("div", {className: "actionBar"}
 
+			), 
+			React.createElement(Ledger, {streams: this.props.streams})
+		)
+	}
+});
+
+var Ledger = React.createClass({displayName: "Ledger",
+	getInitialState: function() {
+		return {
+			ledger: [],
+			manuals: [],
+			revisions: [],
+			streams: [],
+			subStreams: []
+		};
+	},
+
+	componentWillReceiveProps: function(nextProps) {
+		this.setLedgerData(nextProps);
+	},
+
+	setLedgerData: function(props) {
+		var ledgerData = dosh.services.ledger.getLedgerData({ streams: props.streams }),
+			subStreams;
+
+		perf.start('FORMATTING');
+		ledgerData.ledger = this.formatLedgerTable(ledgerData.ledger);
+		subStreams = this.prepLedgerHeader(ledgerData.streams);
+		perf.end('FORMATTING');
+
+		this.setState({
+			ledger: ledgerData.ledger,
+			manuals: ledgerData.manuals,
+			revisions: ledgerData.revisions,
+			streams: ledgerData.streams,
+			subStreams: subStreams
+		});
+	},
+
+	formatLedgerTable: function(ledger) {
+		perf.start('formatLedgerTable');
+
+		var row,
+			subColumns = [
+				['payment', 'Payment'],
+				['spending', 'Spending'],
+				['balance', 'Balance'],
+				['carriedBalance', 'Carried Balance'],
+				['interest', 'Interest'],
+				['accruedInterest', 'Accrued Interest'],
+			];
+
+		_.forEach(ledger, function(dayEntry, index) {
+			ledger[index].printDate = dayEntry.moment.format('MMM D');
+			ledger[index].fullDate = dayEntry.moment.format('dddd, MMMM Do, YYYY');
+			row = [];
+			_.forEach(dayEntry.streams, function(streamEntry) {
+				_.forEach(subColumns, function(subCol) {
+					if (streamEntry.hasOwnProperty(subCol[0])) {
+						row.push({
+							val: streamEntry[subCol[0]]
+						});
+					}
+				});
+			});
+			ledger[index].row = row;
+		});
+
+		perf.end('formatLedgerTable');
+		return ledger;
+	},
+
+	prepLedgerHeader: function(streams) {
+		perf.start('prepLedgerHeader');
+
+		var subStreams = [],
+			columnLabels;
+		_.forEach(streams, function(stream) {
+			if (stream.columns.length > 1) {
+				columnLabels = _.pluck(stream.columns, 1);
+				subStreams = subStreams.concat(columnLabels);
+			}
+		});
+
+		perf.end('prepLedgerHeader');
+		return subStreams;
+	},
+
+	render: function() {
+		if (this.state.streams.length === 0) {
+			return null;
+		}
+		return React.createElement("table", null, 
+			React.createElement("thead", null, 
+				React.createElement("tr", null, 
+					React.createElement("th", {className: "date", rowSpan: "2"}, "Date"), 
+					this.state.streams.map(function(stream) {
+						return React.createElement("th", {className: "stream", key: stream._id, colSpan: stream.columns.length, rowSpan: (stream.columns.length === 1 ? 2 : 1)}, 
+							stream.name
+						)
+					})
+				), 
+				React.createElement("tr", null, 
+					this.state.subStreams.map(function(subStream, index) {
+						return React.createElement("th", {className: "subStream", key: index}, subStream)
+					})
+				)
+			), 
+			React.createElement("tbody", null, 
+				this.state.ledger.map(function(entry) {
+					return React.createElement("tr", {key: entry.ymd}, 
+						React.createElement("td", {className: "date", title: entry.fullDate}, 
+							entry.printDate
+						), 
+						entry.row.map(function(column, index) {
+							return React.createElement("td", {className: "stream", key: index}, 
+								column.val
+							)
+						})
+					)
+				})
+			)
+		)
+	}
+});
+
+/*
+			<table id="ledger-table">
+				<thead>
+				</thead>
+				<tbody>
+					<tr
+						ng-repeat="(date, entry) in ledger track by $index"
+						data-date="{{ date }}"
+					>
+						<td
+							class="date"
+							title="{{ entry.fullDate }}"
+						>
+							{{ entry.printDate }}
+						</td>
+						<td
+							class="stream"
+							ng-repeat="column in entry.row track by $index"
+						>
+							{{ column.val }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+ */
 var PrimaryNav = React.createClass({displayName: "PrimaryNav",
 	render: function() {
 		return React.createElement("nav", {className: "primary-nav"}, 
@@ -759,7 +855,7 @@ var CloseButton = React.createClass({displayName: "CloseButton",
 var LoadingMask = React.createClass({displayName: "LoadingMask",
 	render: function() {
 		return React.createElement("div", {className: "loading-mask"}, 
-			React.createElement("div", {class: "center-icon"}, 
+			React.createElement("div", {className: "center-icon"}, 
 				React.createElement("i", {className: "fa fa-circle-o-notch fa-spin"})
 			)
 		)

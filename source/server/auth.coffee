@@ -12,14 +12,15 @@ module.exports =
 
 	createUser: (req, res) ->
 
-		if not req.query.user
+		if not req.body.user
 			res.status(400).send(
 				isError: true
+				errorCode: 40
 				msg: 'Parameter required: user.'
 			)
 			return
 
-		user = req.query.user
+		user = req.body.user
 		user = User::jsonToObject(user)
 		user.passwordSchema = 1
 		user.registrationIp = req.connection.remoteAddress
@@ -33,6 +34,7 @@ module.exports =
 			if err
 				res.status(500).send(
 					isError: true
+					errorCode: 50
 					msg: 'Error in user hash creation.'
 				)
 				return
@@ -45,6 +47,7 @@ module.exports =
 				if err
 					res.status(500).send(
 						isError: true
+						errorCode: 50
 						msg: 'Error in user database insert.'
 					)
 					return
@@ -60,27 +63,31 @@ module.exports =
 
 	loginUser: (req, res) ->
 
-		if not req.query.user
+		if not req.body.user
 			res.status(400).send(
 				isError: true
+				errorCode: 40
 				msg: 'Parameter required: user.'
 			)
 			return
 
-		if req.user
+		if req.session.user
 			res.status(400).send(
 				isError: true
+				errorCode: 41
 				msg: 'You are already logged in.'
+				email: req.session.user.email
 			)
 			return
 
-		user = User::jsonToObject(req.query.user)
+		user = User::jsonToObject(req.body.user)
 
 		db.collection('users').findOne({email: user.email}, (err, dbUser) ->
 
 			if err
 				res.status(500).send(
 					isError: true
+					errorCode: 50
 					msg: 'Error in user lookup.'
 				)
 				return
@@ -88,6 +95,7 @@ module.exports =
 			if not dbUser
 				res.status(401).send(
 					isError: true
+					errorCode: 42
 					msg: 'User not found.'
 				)
 				return
@@ -97,6 +105,7 @@ module.exports =
 				if err
 					res.status(500).send(
 						isError: true
+						errorCode: 50
 						msg: 'Error in user authentication.'
 					)
 					return
@@ -104,6 +113,7 @@ module.exports =
 				if not valid
 					res.status(401).send(
 						isError: true
+						errorCode: 43
 						msg: 'Incorrect password.'
 					)
 					return

@@ -20,9 +20,14 @@
     "tests"
   ],
   "dependencies": {
-    "zeptojs": "~1.1.6"
-  },
-  "resolutions": {
-    "moment": "~2.9.0"
+    "react": "*",
+    "zeptojs": "*",
+    "cookies-js": "*",
+    "fontawesome": "*",
+    "bourbon": "*",
+    "lodash": "*",
+    "moment": "*",
+    "normalize.css": "*",
+    "snap.svg": "*"
   }
 }

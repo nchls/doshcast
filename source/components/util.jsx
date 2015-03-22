@@ -14,7 +14,7 @@ var CloseButton = React.createClass({
 var LoadingMask = React.createClass({
 	render: function() {
 		return <div className="loading-mask">
-			<div class="center-icon">
+			<div className="center-icon">
 				<i className="fa fa-circle-o-notch fa-spin"></i>
 			</div>
 		</div>

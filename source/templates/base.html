@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<title>DoshCast</title>
-	<meta name="description" content="Personal finance projections">
+	<meta name="description" content="Personal finance projections for your face.">
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
 
 	<!-- Add to homescreen for Chrome on Android -->
@@ -25,12 +25,16 @@
 	<script src="/bower/zeptojs/src/deferred.js"></script>
 	<script src="/bower/zeptojs/src/event.js"></script>
 	<script src="/bower/zeptojs/src/form.js"></script>
+	<script src="/bower/cookies-js/dist/cookies.js"></script>
 	<script src="/bower/react/react-with-addons.js"></script>
 	<script src="/bower/moment/moment.js"></script>
 	<script src="/bower/snap.svg/dist/snap.svg.js"></script>
 
+	<script>window.user = {{user}};</script>
+
 	<script src="/logic/util.js"></script>
 	<script src="/logic/main.js"></script>
+	<script src="/logic/ledger.js"></script>
 	<script src="/models/Model.js"></script>
 	<script src="/models/User.js"></script>
 	<script src="/models/Stream.js"></script>

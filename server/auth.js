@@ -16,14 +16,15 @@ db = mongoskin.db('mongodb://127.0.0.1:27017/dosh');
 module.exports = {
   createUser: function(req, res) {
     var user;
-    if (!req.query.user) {
+    if (!req.body.user) {
       res.status(400).send({
         isError: true,
+        errorCode: 40,
         msg: 'Parameter required: user.'
       });
       return;
     }
-    user = req.query.user;
+    user = req.body.user;
     user = User.prototype.jsonToObject(user);
     user.passwordSchema = 1;
     user.registrationIp = req.connection.remoteAddress;
@@ -33,6 +34,7 @@ module.exports = {
       if (err) {
         res.status(500).send({
           isError: true,
+          errorCode: 50,
           msg: 'Error in user hash creation.'
         });
         return;
@@ -43,6 +45,7 @@ module.exports = {
         if (err) {
           res.status(500).send({
             isError: true,
+            errorCode: 50,
             msg: 'Error in user database insert.'
           });
           return;
@@ -55,27 +58,31 @@ module.exports = {
   },
   loginUser: function(req, res) {
     var user;
-    if (!req.query.user) {
+    if (!req.body.user) {
       res.status(400).send({
         isError: true,
+        errorCode: 40,
         msg: 'Parameter required: user.'
       });
       return;
     }
-    if (req.user) {
+    if (req.session.user) {
       res.status(400).send({
         isError: true,
-        msg: 'You are already logged in.'
+        errorCode: 41,
+        msg: 'You are already logged in.',
+        email: req.session.user.email
       });
       return;
     }
-    user = User.prototype.jsonToObject(req.query.user);
+    user = User.prototype.jsonToObject(req.body.user);
     return db.collection('users').findOne({
       email: user.email
     }, function(err, dbUser) {
       if (err) {
         res.status(500).send({
           isError: true,
+          errorCode: 50,
           msg: 'Error in user lookup.'
         });
         return;
@@ -83,6 +90,7 @@ module.exports = {
       if (!dbUser) {
         res.status(401).send({
           isError: true,
+          errorCode: 42,
           msg: 'User not found.'
         });
         return;
@@ -91,6 +99,7 @@ module.exports = {
         if (err) {
           res.status(500).send({
             isError: true,
+            errorCode: 50,
             msg: 'Error in user authentication.'
           });
           return;
@@ -98,6 +107,7 @@ module.exports = {
         if (!valid) {
           res.status(401).send({
             isError: true,
+            errorCode: 43,
             msg: 'Incorrect password.'
           });
           return;

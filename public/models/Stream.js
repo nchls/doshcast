@@ -14,7 +14,7 @@
   }
 
   StreamMutable = (function(superClass) {
-    var COMPOUNDING_TYPES, RECURRENCE_TYPES, localSchema;
+    var COMPOUNDING_TYPES, FIELD_ORDER, RECURRENCE_TYPES, localSchema;
 
     extend(StreamMutable, superClass);
 
@@ -34,11 +34,26 @@
 
     StreamMutable.prototype.RECURRENCE_TYPES = RECURRENCE_TYPES = [['recur-daily', 'Daily'], ['recur-weekly', 'Weekly'], ['recur-biweekly', 'Every two weeks'], ['recur-monthly', 'Monthly'], ['recur-semiannually', 'Every six months'], ['recur-annually', 'Annually'], ['recur-irregularly', 'Irregularly']];
 
+    StreamMutable.prototype.getRecurrenceTypes = function() {
+      return RECURRENCE_TYPES;
+    };
+
     StreamMutable.prototype.COMPOUNDING_TYPES = COMPOUNDING_TYPES = [['compound-none', 'None'], ['compound-daily', 'Daily'], ['compound-monthly', 'Monthly'], ['compound-semianually', 'Every six months'], ['compound-annually', 'Annually']];
+
+    StreamMutable.prototype.getCompoundingTypes = function() {
+      return COMPOUNDING_TYPES;
+    };
+
+    StreamMutable.prototype.FIELD_ORDER = FIELD_ORDER = ["streamSubtype", "name", "orgName", "isActive", "startDate", "firstPaymentDate", "isRegular", "isSeasonal", "amount", "recurrence", "balance", "interestRate", "compounding", "creditLimit", "isAlwaysPaidOff", "fromAccount", "toAccount"];
+
+    StreamMutable.prototype.getFieldOrder = function() {
+      return FIELD_ORDER;
+    };
 
     localSchema = {
       orgName: {
         type: 'string',
+        isMutable: true,
         label: 'Bank name',
         otherLabels: {
           loan: 'Lender name',
@@ -52,6 +67,7 @@
       },
       amount: {
         type: 'decimal',
+        isMutable: true,
         label: 'Minimum payment',
         otherLabels: {
           bill: 'Payment amount',
@@ -67,6 +83,7 @@
       recurrence: {
         type: 'string',
         choices: RECURRENCE_TYPES,
+        isMutable: true,
         label: 'Payment recurrence',
         otherLabels: {
           income: 'Income recurrence',
@@ -76,6 +93,7 @@
       },
       balance: {
         type: 'decimal',
+        isMutable: true,
         label: 'Starting balance',
         reviseLabel: 'Balance',
         showFor: ['deposit-account', 'loan', 'line-of-credit'],
@@ -86,6 +104,7 @@
       },
       interestRate: {
         type: 'decimal',
+        isMutable: true,
         label: 'Interest rate',
         showFor: ['deposit-account', 'loan', 'line-of-credit'],
         input: {
@@ -99,11 +118,13 @@
       compounding: {
         type: 'string',
         choices: COMPOUNDING_TYPES,
+        isMutable: true,
         label: 'Compounding',
         showFor: ['deposit-account', 'loan', 'line-of-credit']
       },
       creditLimit: {
         type: 'positiveInt',
+        isMutable: true,
         label: 'Credit limit',
         showFor: ['line-of-credit'],
         validation: {
@@ -113,6 +134,7 @@
       },
       isAlwaysPaidOff: {
         type: 'nullBoolean',
+        isMutable: true,
         label: 'Balance is paid off every period',
         helpText: 'Check if you do not carry a balance across billing periods.',
         showFor: ['line-of-credit']
@@ -120,26 +142,20 @@
       fromAccount: {
         type: 'foreignKey',
         model: 'Stream',
+        isMutable: true,
         label: 'Draw from account',
         showFor: ['loan', 'bill', 'line-of-credit', 'transfer']
       },
       toAccount: {
         type: 'foreignKey',
         model: 'Stream',
+        isMutable: true,
         label: 'Deposit to account',
         showFor: ['income', 'transfer']
       }
     };
 
     StreamMutable.prototype.schema = _.assign({}, localSchema, Model.prototype.schema);
-
-    StreamMutable.prototype.getCompoundingTypes = function() {
-      return COMPOUNDING_TYPES;
-    };
-
-    StreamMutable.prototype.getRecurrenceTypes = function() {
-      return RECURRENCE_TYPES;
-    };
 
     return StreamMutable;
 
@@ -166,6 +182,10 @@
 
     STREAM_TYPES = {
       STREAM_TYPES: [['deposit-account', 'Deposit account', [['account-checking', 'Checking account'], ['account-savings', 'Savings account'], ['account-cd', 'Certificate of deposit'], ['account-investment', 'Investment account']]], ['line-of-credit', 'Line of credit', [['loc-credit', 'Credit card'], ['loc-heloc', 'Home equity line of credit']]], ['income', 'Income', [['income-salary', 'Paycheck'], ['income-other', 'Other income']]], ['bill', 'Bill', [['bill-rent', 'Rent'], ['bill-cell', 'Cell phone'], ['bill-tv', 'TV'], ['bill-water', 'Water'], ['bill-electric', 'Electric'], ['bill-heat', 'Heat'], ['bill-internet', 'Internet'], ['bill-insurance-health', 'Health insurance'], ['bill-insurance-car', 'Car insurance'], ['bill-insurance-life', 'Life insurance'], ['bill-other', 'Other bill']]], ['loan', 'Loan', [['loan-student', 'Student loan'], ['loan-auto', 'Auto loan'], ['loan-health', 'Health loan'], ['loan-mortgage', 'Mortgage'], ['loan-personal', 'Personal loan'], ['loan-other', 'Other loan']]], ['transfer', 'Transfer', [['transfer-transfer', 'Transfer']]]]
+    };
+
+    Stream.prototype.getStreamTypes = function() {
+      return STREAM_TYPES;
     };
 
     TYPES = [];
@@ -265,10 +285,6 @@
     };
 
     Stream.prototype.schema = _.assign({}, localSchema, StreamMutable.prototype.schema);
-
-    Stream.prototype.getStreamTypes = function() {
-      return STREAM_TYPES;
-    };
 
     return Stream;
 

@@ -203,10 +203,17 @@ button.close {
     line-height: 3em; }
     .topBar header a {
       display: block;
-      text-decoration: none; }
+      text-decoration: none;
+      position: relative; }
       .topBar header a h1 {
         font-size: 1.8em;
         margin: 0; }
+      .topBar header a small {
+        position: absolute;
+        top: 0.8em;
+        right: -2.5em;
+        transform: rotate(-30deg);
+        color: #F54A28; }
   .topBar .primary-nav {
     float: left;
     margin: 0 4%; }
@@ -244,6 +251,9 @@ button.close {
         float: right; }
     .topBar .auth .log-in.btn {
       margin-right: 0.5em; }
+    .topBar .auth .authed-email {
+      color: #dcb;
+      margin-right: 1em; }
 
 .actionBar {
   padding: 0.5em 0; }
@@ -254,7 +264,6 @@ button.close {
 .ledger table {
   table-layout: fixed;
   width: 100%;
-  min-width: 100em;
   background-color: #fff; }
 .ledger th {
   vertical-align: top;

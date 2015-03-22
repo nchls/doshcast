@@ -1,5 +1,9 @@
+var fs = require('fs');
+var secureFilters = require('secure-filters');
+
 var express = require('express');
 var session = require('express-session');
+var bodyParser = require('body-parser');
 
 var appPrivate = require('./app-private');
 
@@ -8,6 +12,8 @@ var auth = require('./server/auth');
 var streams = require('./server/streams');
 
 var app = express();
+
+var postParser = bodyParser.urlencoded({extended: false});
 
 app.use(express.static('public'));
 
@@ -21,25 +27,21 @@ app.use(session({
 	saveUninitialized: false
 }));
 
-app.use(middleware.session);
-
 app.get('/:page(|dashboard|accounts|ledger|goals|projection)', function(req, res) {
-	var options = {
-		root: __dirname + '/source/',
-		dotfiles: 'deny'
-	};
-	res.sendFile('templates/base.html', options);
+	fs.readFile('source/templates/base.html', {encoding: 'utf8'}, function(err, template) {
+		var user = (req.session.user ?  "'" + secureFilters.js(req.session.user.email) + "'" : null),
+			payload = template.replace('{{user}}', user);
+		res.send(payload);
+	});
 });
 
-app.get('/api/getInitialData', middleware.requireLogin, streams.getInitialData);
 app.get('/api/getData', middleware.requireLogin, streams.getData);
 
-// todo: make these posts
-app.get('/api/createStream', middleware.requireLogin, streams.createStream);
+app.post('/api/createStream', middleware.requireLogin, postParser, streams.createStream);
 
-app.get('/api/createUser', auth.createUser);
-app.get('/api/loginUser', auth.loginUser);
-app.get('/api/logoutUser', middleware.requireLogin, auth.logoutUser);
+app.post('/api/createUser', postParser, auth.createUser);
+app.post('/api/loginUser', postParser, auth.loginUser);
+app.post('/api/logoutUser', middleware.requireLogin, postParser, auth.logoutUser);
 
 app.use(function(req, res, next) {
 	res.status(404).send('404');

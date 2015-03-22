@@ -12,19 +12,34 @@ var AuthControls = React.createClass({
 	handleLoginSubmit: function(evt) {
 		evt.preventDefault();
 		var self = this,
-			data = {}
+			data = {};
 		_.forEach($('.log-in-panel').serializeArray(), function(pair) {
 			data[pair.name] = pair.value;
 		});
-		data = {user: JSON.stringify(data)};
+		payload = {user: JSON.stringify(data)};
 		$.ajax({
+			type: 'POST',
 			url: '/api/loginUser',
-			data: data,
+			data: payload,
 			dataType: 'json'
-		}).done(function(response) {
+		}).done(function(response, status, xhr) {
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
+					self.props.handleLogin(data.email);
+				}
+			}
+		}).fail(function(xhr, errorType, error) {
+			if (self.isMounted()) {
+				var response = {};
+				try {
+					response = JSON.parse(xhr.responseText);
+				} catch(e) {
+					return false;
+				}
+				// User is already logged in
+				if (response.errorCode === 41) {
+					self.props.handleLogin(data.email);
 				}
 			}
 		});
@@ -36,6 +51,51 @@ var AuthControls = React.createClass({
 
 	handleRegisterSubmit: function(evt) {
 		evt.preventDefault();
+		var self = this,
+			data = {}
+		_.forEach($('.register-panel').serializeArray(), function(pair) {
+			data[pair.name] = pair.value;
+		});
+		payload = {user: JSON.stringify(data)};
+		$.ajax({
+			type: 'POST',
+			url: '/api/createUser',
+			data: payload,
+			dataType: 'json'
+		}).done(function(response) {
+			if (self.isMounted()) {
+				if (!response.isError) {
+					self.handlePanelDismiss();
+					self.props.handleLogin(data.email);
+				}
+			}
+		});
+	},
+
+	handleLogoutClick: function() {
+		var self = this;
+		$.ajax({
+			type: 'POST',
+			url: '/api/logoutUser',
+			dataType: 'json'
+		}).done(function(response) {
+			if (self.isMounted()) {
+				self.props.handleLogout();
+			}
+		}).fail(function(xhr, errorType, error) {
+			if (self.isMounted()) {
+				var response = {};
+				try {
+					response = JSON.parse(xhr.responseText);
+				} catch(e) {
+					return false;
+				}
+				// User is already logged out
+				if (response.errorCode === 40) {
+					self.props.handleLogout();
+				}
+			}
+		});
 	},
 
 	handlePanelDismiss: function() {
@@ -43,6 +103,12 @@ var AuthControls = React.createClass({
 	},
 
 	render: function() {
+		if (this.props.user !== null) {
+			return <div className="auth">
+				<span className="authed-email">{this.props.user}</span>
+				<LogoutButton clickHandler={this.handleLogoutClick}/>
+			</div>
+		}
 		return <div className="auth">
 			<LoginButton clickHandler={this.handleLoginClick} isPanelOpen={this.state.openPanel === 'login'}/>
 			{this.state.openPanel === 'login' ? <LoginPanel submitHandler={this.handleLoginSubmit} dismissHandler={this.handlePanelDismiss}/> : null}
@@ -162,7 +228,7 @@ var RegisterPanel = React.createClass({
 				<label htmlFor="registerPassword2">
 					Password (again)
 				</label>
-				<input type="password" id="registerPassword2" name="password"/>
+				<input type="password" id="registerPassword2"/>
 			</div>
 			<div className="formRow">
 				<button className="btn" type="submit">
@@ -174,120 +240,10 @@ var RegisterPanel = React.createClass({
 	}
 });
 
-
-
-/*
-<div
-	class="auth"
-	ng-cloak
-	ng-controller="AuthController"
->
-
-	<button
-		class="log-in btn"
-		ng-click="handleLoginClick()"
-		ng-if="!user.isLoggedIn"
-	>
-		<i class="fa fa-sign-in"></i> Log In
-	</button>
-	<form
-		method="post"
-		data-url="{% url 'api' version="1" method="loginUser" %}"
-		class="panel log-in-panel"
-		ng-if="loginPanelOpen && !user.isLoggedIn"
-		ng-submit="handleLoginSubmit()"
-	>
-		<div class="formRow">
-			<label for="loginUsername">
-				Username
-			</label>
-			<input type="text" id="loginUsername" name="username" autoCorrect="off" autoCapitalize="off">
-		</div>
-		<div class="formRow">
-			<label for="loginPassword">
-				Password
-			</label>
-			<input type="password" id="loginPassword" name="password">
-		</div>
-		<div class="formRow">
-			<label>
-				<input type="checkbox" name="loginRemember">
-				Remember me
-			</label>
-		</div>
-		<div class="formRow">
-			<button
-				class="btn"
-				type="submit"
-			>
-				<i class="fa fa-sign-in"></i> Log In
-			</button>
-		</div>
-	</form>
-
-	<button
-		class="sign-up btn"
-		ng-click="handleSignupClick()"
-		ng-if="!user.isLoggedIn"
-	>
-		<i class="fa fa-user"></i> Sign Up
-	</button>
-	<form
-		method="post"
-		data-url="{% url 'api' version="1" method="createUser" %}"
-		class="panel sign-up-panel"
-		ng-if="signupPanelOpen && !user.isLoggedIn"
-		ng-submit="handleSignupSubmit()"
-	>
-		<div class="formRow">
-			<label for="signupUsername">
-				Username
-			</label>
-			<input type="text" id="signupUsername" name="username" autoComplete="off" autoCorrect="off" autoCapitalize="off">
-		</div>
-		<div class="formRow">
-			<label for="signupEmail">
-				E-mail Address
-			</label>
-			<input type="email" id="signupEmail" name="email" autoComplete="off">
-		</div>
-		<div class="formRow">
-			<label for="signupPassword">
-				Password
-			</label>
-			<input type="password" id="signupPassword" name="password" autoComplete="off">
-		</div>
-		<div class="formRow">
-			<label for="signupRePassword">
-				Password (again)
-			</label>
-			<input type="password" id="signupRePassword" name="" autoComplete="off">
-		</div>
-		<div class="formRow">
-			<button
-				class="btn"
-				type="submit"
-			>
-				<i class="fa fa-user"></i> Sign Up
-			</button>
-		</div>
-	</form>
-
-	<form
-		data-url="{% url 'api' version="1" method="logoutUser" %}"
-		class="log-out"
-		ng-if="user.isLoggedIn"
-	>
-		<p class="loggedInAs">
-			You are logged in as {% verbatim %}{{ user.username }}{% endverbatim %}.
-		</p>
-		<button
-			class="btn"
-			ng-click="handleLogoutClick()"
-		>
-			<i class="fa fa-sign-out fa-flip-horizontal"></i> Log Out
+var LogoutButton = React.createClass({
+	render: function() {
+		return <button className={'log-out btn transparent'} onClick={this.props.clickHandler}>
+			<i className="fa fa-sign-out"></i> Log Out
 		</button>
-	</form>
-
-</div>
-*/
+	}
+});

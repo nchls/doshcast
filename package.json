@@ -17,6 +17,8 @@
 	"dependencies": {
 		"express": "*",
 		"express-session": "*",
+		"body-parser": "*",
+		"secure-filters": "*",
 		"react": "*",
 		"easy-pbkdf2": "*",
 		"mongoskin": "*",

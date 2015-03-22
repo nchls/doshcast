@@ -284,9 +284,17 @@ button.close {
 		a {
 			display: block;
 			text-decoration: none;
+			position: relative;
 			h1 {
 				font-size: 1.8em;
 				margin: 0;
+			}
+			small {
+				position: absolute;
+				top: 0.8em;
+				right: -2.5em;
+				transform: rotate(-30deg);
+				color: $highlight;
 			}
 		}
 	}
@@ -341,6 +349,10 @@ button.close {
 		.log-in.btn {
 			margin-right: 0.5em;
 		}
+		.authed-email {
+			color: #dcb;
+			margin-right: 1em;
+		}
 	}
 }
 
@@ -358,7 +370,6 @@ button.close {
 	table {
 		table-layout: fixed;
 		width: 100%;
-		min-width: 100em;
 		background-color: #fff;
 	}
 	th {
