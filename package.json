@@ -1,40 +1,40 @@
 {
-	"name": "DoshCast",
-	"version": "0.0.1",
-	"description": "Personal finance projections",
-	"author": "Ian Nicholas",
-	"homepage": "https://bitbucket.org/aplomb/doshcast",
-	"scripts": {
-		"gulp": "gulp",
-		"server": "nodemon --watch app.js app.js",
-		"db": "mongod --dbpath /Stuff/Dev/DoshCast/data"
-	},
-	"main": "app.js",
-	"repository": {
-		"type": "git",
-		"url": "https://aplomb@bitbucket.org/aplomb/doshcast.git"
-	},
-	"dependencies": {
-		"express": "*",
-		"express-session": "*",
-		"body-parser": "*",
-		"secure-filters": "*",
-		"react": "*",
-		"easy-pbkdf2": "*",
-		"mongoskin": "*",
-		"lodash": "*",
-		"moment": "*",
-		"q": "*"
-	},
-	"devDependencies": {
-		"gulp": "*",
-		"gulp-coffee": "*",
-		"gulp-react": "*",
-		"gulp-sass": "*",
-		"gulp-concat": "*",
-		"gulp-uglify": "*",
-		"bourbon": "*",
-		"neat": "*"
-	},
-	"private": true
+  "name": "DoshCast",
+  "version": "0.0.1",
+  "description": "Personal finance projections",
+  "author": "Ian Nicholas",
+  "homepage": "https://bitbucket.org/aplomb/doshcast",
+  "scripts": {
+    "gulp": "gulp",
+    "server": "nodemon --watch app.js app.js",
+    "db": "mongod --dbpath /Stuff/Dev/DoshCast/data"
+  },
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://aplomb@bitbucket.org/aplomb/doshcast.git"
+  },
+  "dependencies": {
+    "express": "*",
+    "express-session": "*",
+    "body-parser": "*",
+    "secure-filters": "*",
+    "react": "*",
+    "easy-pbkdf2": "*",
+    "mongoskin": "*",
+    "lodash": "*",
+    "moment": "*",
+    "q": "*"
+  },
+  "devDependencies": {
+    "bourbon": "*",
+    "gulp": "*",
+    "gulp-coffee": "*",
+    "gulp-concat": "*",
+    "gulp-react": "*",
+    "gulp-sass": "*",
+    "gulp-uglify": "*",
+    "neat": "*"
+  },
+  "private": true
 }

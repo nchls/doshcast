@@ -1,18 +1,23 @@
 var AccountsPage = React.createClass({displayName: "AccountsPage",
 	getInitialState: function() {
-		return {};
+		return {
+			openPanel: null,
+			editingStream: null
+		};
 	},
 
-	handleAddStreamClick: function() {
+	handleAddStreamClick: function(evt) {
+		evt.preventDefault();
 		return this.setState({
-			addStreamOpen: true
+			openPanel: 'addStream'
 		});
 	},
 
-	handleCloseAddStreamClick: function(evt) {
+	handleCloseStreamForm: function(evt) {
 		evt.preventDefault();
 		return this.setState({
-			addStreamOpen: false
+			openPanel: null,
+			editingStream: null
 		});
 	},
 
@@ -26,13 +31,43 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 
 		return $.ajax({
 			type: 'POST',
-			url: '/api/createStream',
+			url: '/api/createStreamData',
 			data: data,
 			dataType: 'json'
 		}).done(function(response, status, xhr) {
-			if (self.isMounted()) {
+			if (self.isMounted() && self.state.openPanel === 'addStream') {
 				self.setState({
-					addStreamOpen: false
+					openPanel: null
+				});
+			}
+		});
+	},
+
+	handleStreamClick: function(evt, stream) {
+		evt.preventDefault();
+		return this.setState({
+			openPanel: 'editStream',
+			editingStream: stream
+		});
+	},
+
+	handleEditStreamSubmit: function(evt) {
+		evt.preventDefault();
+
+		var self = this,
+			data = {stream: JSON.stringify(dosh.state.editedStream)};
+
+		self.props.editStream(dosh.state.editedStream);
+
+		return $.ajax({
+			type: 'POST',
+			url: '/api/editStreamData',
+			data: data,
+			dataType: 'json'
+		}).done(function(response, status, xhr) {
+			if (self.isMounted() && self.state.openPanel === 'editStream') {
+				self.setState({
+					openPanel: null
 				});
 			}
 		});
@@ -42,18 +77,20 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 		return React.createElement("div", {className: "accounts"}, 
 			React.createElement("h2", null, "Accounts"), 
 			React.createElement("div", {className: "actionBar"}, 
-				(this.state.addStreamOpen ?
-					React.createElement("button", {className: "btn secondary", onClick: this.handleCloseAddStreamClick}, 
-						React.createElement("i", {className: "fa fa-arrow-left"}), " Accounts"
-					)
-				:
-					React.createElement("button", {className: "btn", onClick: this.handleAddStreamClick}, 
+				this.state.openPanel === null ?
+					React.createElement("a", {className: "btn", onClick: this.handleAddStreamClick, href: "/accounts/add"}, 
 						React.createElement("i", {className: "fa fa-plus"}), " Add Account"
 					)
-				)
+				: null, 
+				_.includes(['addStream', 'editStream'], this.state.openPanel) ?
+					React.createElement("a", {className: "btn secondary", onClick: this.handleCloseStreamForm, href: "/accounts"}, 
+						React.createElement("i", {className: "fa fa-arrow-left"}), " Accounts"
+					)
+				: null
 			), 
-			this.state.addStreamOpen ? null : React.createElement(StreamsList, {streams: this.props.streams}), 
-			this.state.addStreamOpen ? React.createElement(AddStream, {handleSubmit: this.handleAddStreamSubmit, handleCancel: this.handleCloseAddStreamClick, fields: []}) : null
+			this.state.openPanel === null ? React.createElement(StreamsList, {streams: this.props.streams, handleStreamClick: this.handleStreamClick}) : null, 
+			this.state.openPanel === 'addStream' ? React.createElement(StreamForm, {handleSubmit: this.handleAddStreamSubmit, handleCancel: this.handleCloseStreamForm, stream: {}}) : null, 
+			this.state.openPanel === 'editStream' ? React.createElement(StreamForm, {handleSubmit: this.handleEditStreamSubmit, handleCancel: this.handleCloseStreamForm, stream: this.state.editingStream}) : null
 		);
 	}
 });
@@ -78,10 +115,11 @@ var StreamsList = React.createClass({displayName: "StreamsList",
 	},
 
 	render: function() {
-		var streamsByType = _.pairs(_.groupBy(this.props.streams, 'streamType'));
+		var self = this,
+			streamsByType = _.pairs(_.groupBy(this.props.streams, 'streamType'));
 		return React.createElement("ul", {className: "streams-list"}, 
 			streamsByType.map( function(type) {
-				return React.createElement(StreamsGroup, {key: type[0], type: type[0], streams: type[1]})
+				return React.createElement(StreamsGroup, {key: type[0], type: type[0], streams: type[1], handleStreamClick: self.props.handleStreamClick})
 			})
 		);
 	}
@@ -89,11 +127,12 @@ var StreamsList = React.createClass({displayName: "StreamsList",
 
 var StreamsGroup = React.createClass({displayName: "StreamsGroup",
 	render: function() {
+		var self = this;
 		return React.createElement("li", {className: "stream-group"}, 
-			React.createElement("h3", null, StreamsList.getTypeLabel(this.props.type)), 
+			React.createElement("h3", null, StreamsList.getTypeLabel(self.props.type)), 
 			React.createElement("ul", null, 
-				this.props.streams.map( function(stream) {
-					return React.createElement(StreamsListItem, {key: stream._id, id: stream._id, name: stream.name, subtype: stream.streamSubtype})
+				self.props.streams.map( function(stream) {
+					return React.createElement(StreamsListItem, {key: stream._id, stream: stream, handleStreamClick: self.props.handleStreamClick})
 				})
 			)
 		);
@@ -101,18 +140,26 @@ var StreamsGroup = React.createClass({displayName: "StreamsGroup",
 });
 
 var StreamsListItem = React.createClass({displayName: "StreamsListItem",
+	handleStreamClick: function(evt) {
+		evt.preventDefault();
+		this.props.handleStreamClick(evt, this.props.stream);
+	},
+
 	render: function() {
+		var self = this;
 		return React.createElement("li", {className: "item"}, 
-			React.createElement("div", {className: "streamName"}, this.props.name), 
-			React.createElement("div", {className: "streamType"}, StreamsList.getSubtypeLabel(this.props.subtype))
+			React.createElement("a", {href: "/accounts/edit/" + self.props.stream._id, onClick: self.handleStreamClick}, 
+				React.createElement("div", {className: "streamName"}, self.props.stream.name), 
+				React.createElement("div", {className: "streamType"}, StreamsList.getSubtypeLabel(self.props.stream.streamSubtype))
+			)
 		);
 	}
 });
 
-var AddStream = React.createClass({displayName: "AddStream",
+var StreamForm = React.createClass({displayName: "StreamForm",
 	getInitialState: function() {
 		return {
-			newStream: {}
+			stream: this.props.stream
 		};
 	},
 
@@ -197,28 +244,28 @@ var AddStream = React.createClass({displayName: "AddStream",
 	},
 
 	handleStreamUpdate: function(fieldId, value) {
-		var updatedState = _.clone(this.state.newStream);
+		var updatedState = _.clone(this.state.stream);
 		updatedState[fieldId] = value;
 
 		if (fieldId === 'streamSubtype') {
-			updatedState['streamType'] = AddStream.getTypeFromSubtype(value);
+			updatedState['streamType'] = StreamForm.getTypeFromSubtype(value);
 		}
 
-		this.setState({newStream: updatedState});
+		this.setState({stream: updatedState});
 
 		dosh.state.newStream = updatedState;
 	},
 
 	render: function() {
 		var self = this,
-			fields = AddStream.getStreamFields();
-		return React.createElement("form", {className: "addStreamForm", onSubmit: this.props.handleSubmit}, 
+			fields = StreamForm.getStreamFields();
+		return React.createElement("form", {className: "streamForm", onSubmit: this.props.handleSubmit}, 
 			fields.map( function(field) {
 				var fieldId = field[0],
 					fieldData = field[1],
-					inputType = AddStream.getInputType(fieldData),
-					helpText = AddStream.getFieldHelp(fieldId, self.state.newStream.streamType),
-					label = AddStream.getFieldLabel(fieldData, self.state.newStream.streamType),
+					inputType = StreamForm.getInputType(fieldData),
+					helpText = StreamForm.getFieldHelp(fieldId, self.state.stream.streamType),
+					label = StreamForm.getFieldLabel(fieldData, self.state.stream.streamType),
 					isRequired = !!(fieldData.validation && fieldData.validation.required);
 
 				fieldData.fieldId = fieldId;
@@ -226,13 +273,13 @@ var AddStream = React.createClass({displayName: "AddStream",
 				if (!fieldData.label) {
 					return null;
 				} else {
-					if (fieldData.showFor === undefined || _.includes(fieldData.showFor, self.state.newStream.streamType)) {
-						return React.createElement(AddStreamField, {key: fieldId, fieldId: fieldId, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate})
+					if (fieldData.showFor === undefined || _.includes(fieldData.showFor, self.state.stream.streamType)) {
+						return React.createElement(StreamField, {key: fieldId, fieldId: fieldId, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate})
 					}
 				}
 			}), 
 			React.createElement("div", {className: "actionBar"}, 
-				React.createElement("button", {className: "btn secondary", onClick: this.props.handleCancel}, 
+				React.createElement("a", {className: "btn secondary", onClick: this.props.handleCancel, href: "/accounts"}, 
 					"Cancel"
 				), 
 				React.createElement("button", {className: "btn"}, 
@@ -244,7 +291,7 @@ var AddStream = React.createClass({displayName: "AddStream",
 
 });
 
-var AddStreamField = React.createClass({displayName: "AddStreamField",
+var StreamField = React.createClass({displayName: "StreamField",
 	getInitialState: function() {
 		var self = this;
 		return {
@@ -289,7 +336,7 @@ var AddStreamField = React.createClass({displayName: "AddStreamField",
 					:
 						React.createElement("select", {id: 'newStream-' + self.props.fieldId, onChange: self.handleChange, required: self.props.isRequired}, 
 							React.createElement("option", {value: ""}, "--- Choose ", self.props.fieldData.label.toLowerCase(), " ---"), 
-							AddStream.getChoices(self.props.fieldData, dosh.state.streams).map(function(choice) {
+							StreamForm.getChoices(self.props.fieldData, dosh.state.streams).map(function(choice) {
 								if (self.props.fieldId !== 'streamSubtype') {
 									return React.createElement("option", {key: choice[0], value: choice[0]}, choice[1])
 								} else {
@@ -312,7 +359,7 @@ var AddStreamField = React.createClass({displayName: "AddStreamField",
 			), 
 
 			self.props.helpText ?
-				React.createElement("p", {className: "helpText aside"}, 
+				React.createElement("label", {className: "helpText aside", htmlFor: 'newStream-' + self.props.fieldId}, 
 					this.props.helpText
 				)
 			: null
@@ -345,9 +392,13 @@ var App = React.createClass({displayName: "App",
 
 		return $.getJSON('/api/getData').done(function(response) {
 			self.setState({
-				streams: response.result
+				streams: response.result.streams,
+				manuals: response.result.manuals,
+				revisions: response.result.revisions
 			});
-			dosh.state.streams = response.result;
+			dosh.state.streams = response.result.streams;
+			dosh.state.manuals = response.result.manuals;
+			dosh.state.revisions = response.result.revisions;
 		});
 	},
 

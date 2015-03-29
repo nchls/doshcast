@@ -37,7 +37,7 @@ app.get('/:page(|dashboard|accounts|ledger|goals|projection)', function(req, res
 
 app.get('/api/getData', middleware.requireLogin, streams.getData);
 
-app.post('/api/createStream', middleware.requireLogin, postParser, streams.createStream);
+app.post('/api/createStreamData', middleware.requireLogin, postParser, streams.createStreamData);
 
 app.post('/api/createUser', postParser, auth.createUser);
 app.post('/api/loginUser', postParser, auth.loginUser);

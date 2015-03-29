@@ -22,9 +22,13 @@ var App = React.createClass({
 
 		return $.getJSON('/api/getData').done(function(response) {
 			self.setState({
-				streams: response.result
+				streams: response.result.streams,
+				manuals: response.result.manuals,
+				revisions: response.result.revisions
 			});
-			dosh.state.streams = response.result;
+			dosh.state.streams = response.result.streams;
+			dosh.state.manuals = response.result.manuals;
+			dosh.state.revisions = response.result.revisions;
 		});
 	},
 
