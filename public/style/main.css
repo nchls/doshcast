@@ -1,4 +1,8 @@
-html, button, input, select, textarea {
+html,
+button,
+input,
+select,
+textarea {
   color: #222; }
 
 body {
@@ -39,29 +43,29 @@ textarea {
   font-family: SourceSansPro;
   font-weight: normal;
   font-style: normal;
-  src: url('fonts/SourceSansPro/SourceSansPro-Regular.eot');
-  src: url('fonts/SourceSansPro/SourceSansPro-Regular.eot?#iefix') format('embedded-opentype'), url('fonts/SourceSansPro/SourceSansPro-Regular.woff') format('woff'), url('fonts/SourceSansPro/SourceSansPro-Regular.ttf') format('truetype'), url('fonts/SourceSansPro/SourceSansPro-Regular.svg#SourceSansPro') format('svg'); }
+  src: url("fonts/SourceSansPro/SourceSansPro-Regular.eot");
+  src: url("fonts/SourceSansPro/SourceSansPro-Regular.eot?#iefix") format("embedded-opentype"), url("fonts/SourceSansPro/SourceSansPro-Regular.woff") format("woff"), url("fonts/SourceSansPro/SourceSansPro-Regular.ttf") format("truetype"), url("fonts/SourceSansPro/SourceSansPro-Regular.svg#SourceSansPro") format("svg"); }
 
 @font-face {
   font-family: SourceSansPro;
   font-weight: normal;
   font-style: italic;
-  src: url('fonts/SourceSansPro/SourceSansPro-It.eot');
-  src: url('fonts/SourceSansPro/SourceSansPro-It.eot?#iefix') format('embedded-opentype'), url('fonts/SourceSansPro/SourceSansPro-It.woff') format('woff'), url('fonts/SourceSansPro/SourceSansPro-It.ttf') format('truetype'), url('fonts/SourceSansPro/SourceSansPro-It.svg#SourceSansPro') format('svg'); }
+  src: url("fonts/SourceSansPro/SourceSansPro-It.eot");
+  src: url("fonts/SourceSansPro/SourceSansPro-It.eot?#iefix") format("embedded-opentype"), url("fonts/SourceSansPro/SourceSansPro-It.woff") format("woff"), url("fonts/SourceSansPro/SourceSansPro-It.ttf") format("truetype"), url("fonts/SourceSansPro/SourceSansPro-It.svg#SourceSansPro") format("svg"); }
 
 @font-face {
   font-family: SourceSansPro;
   font-weight: bold;
   font-style: normal;
-  src: url('fonts/SourceSansPro/SourceSansPro-Bold.eot');
-  src: url('fonts/SourceSansPro/SourceSansPro-Bold.eot?#iefix') format('embedded-opentype'), url('fonts/SourceSansPro/SourceSansPro-Bold.woff') format('woff'), url('fonts/SourceSansPro/SourceSansPro-Bold.ttf') format('truetype'), url('fonts/SourceSansPro/SourceSansPro-Bold.svg#SourceSansPro') format('svg'); }
+  src: url("fonts/SourceSansPro/SourceSansPro-Bold.eot");
+  src: url("fonts/SourceSansPro/SourceSansPro-Bold.eot?#iefix") format("embedded-opentype"), url("fonts/SourceSansPro/SourceSansPro-Bold.woff") format("woff"), url("fonts/SourceSansPro/SourceSansPro-Bold.ttf") format("truetype"), url("fonts/SourceSansPro/SourceSansPro-Bold.svg#SourceSansPro") format("svg"); }
 
 @font-face {
   font-family: SourceSansPro;
   font-weight: 900;
   font-style: normal;
-  src: url('fonts/SourceSansPro/SourceSansPro-Black.eot');
-  src: url('fonts/SourceSansPro/SourceSansPro-Black.eot?#iefix') format('embedded-opentype'), url('fonts/SourceSansPro/SourceSansPro-Black.woff') format('woff'), url('fonts/SourceSansPro/SourceSansPro-Black.ttf') format('truetype'), url('fonts/SourceSansPro/SourceSansPro-Black.svg#SourceSansPro') format('svg'); }
+  src: url("fonts/SourceSansPro/SourceSansPro-Black.eot");
+  src: url("fonts/SourceSansPro/SourceSansPro-Black.eot?#iefix") format("embedded-opentype"), url("fonts/SourceSansPro/SourceSansPro-Black.woff") format("woff"), url("fonts/SourceSansPro/SourceSansPro-Black.ttf") format("truetype"), url("fonts/SourceSansPro/SourceSansPro-Black.svg#SourceSansPro") format("svg"); }
 
 /* Global rules */
 *, *:before, *:after {
@@ -72,29 +76,42 @@ textarea {
 html {
   background-color: #fff3ea; }
 
-html, button, input, select, textarea {
+html,
+button,
+input,
+select,
+textarea {
   font-size: 1.1em;
-  font-family: SourceSansPro, sans-serif; }
+  font-family: SourceSansPro, sans-serif;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  transition: all 0.1s; }
 
 ul, li {
   margin: 0;
   padding: 0;
   list-style: none; }
 
-input[type="checkbox"], input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
   transform: scale(1.5);
   margin: 0 0.4em 0 0.13em; }
-  input[type="checkbox"]:hover, input[type="radio"]:hover {
+  input[type="checkbox"]:hover,
+  input[type="radio"]:hover {
     transform: scale(1.6); }
 
-textarea, select, input:not([type="checkbox"]):not([type="radio"]) {
+textarea,
+select,
+input:not([type="checkbox"]):not([type="radio"]) {
   background-color: #fff;
   border: solid 1px #bbb;
   color: #333;
   line-height: 1.4;
   padding: 0.25em;
   box-shadow: inset 0.1em 0.1em 0.3em rgba(0, 0, 0, 0.15); }
-  textarea:hover, select:hover, input:not([type="checkbox"]):not([type="radio"]):hover {
+  textarea:hover,
+  select:hover,
+  input:not(  [type="checkbox"]):not(  [type="radio"]):hover {
     border-color: #666; }
 
 /* Utility classes */
@@ -112,12 +129,16 @@ textarea, select, input:not([type="checkbox"]):not([type="radio"]) {
   background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%), -webkit-linear-gradient(top, #44c, #00a);
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%), linear-gradient(to bottom, #44c, #00a);
   border-radius: 0.2em;
-  box-shadow: inset 0 -0.03em 0.03em 0.03em rgba(0, 0, 0, 0.4), inset 0 0 1em 0.2em rgba(255, 255, 255, 0.2), 0 0.03em 0.05em 0.1em rgba(0, 0, 0, 0.1); }
+  box-shadow: inset 0 -0.03em 0.03em 0.03em rgba(0, 0, 0, 0.4), inset 0 0 1em 0.2em rgba(255, 255, 255, 0.2), 0 0.03em 0.05em 0.1em rgba(0, 0, 0, 0.1);
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  transition: all 0.1s; }
   .btn:hover {
     background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%), -webkit-linear-gradient(top, #55e, #008);
     background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%), linear-gradient(to bottom, #55e, #008);
     box-shadow: inset 0 -0.03em 0.03em 0.03em rgba(0, 0, 0, 0.7), inset 0 0 2em 0.2em rgba(255, 255, 255, 0.25), 0 0.03em 0.05em 0.1em rgba(0, 0, 0, 0.13); }
-  .btn:active, .btn.active {
+  .btn:active,
+  .btn.active {
     box-shadow: inset 0 0 1em rgba(0, 0, 0, 0.7);
     background-image: -webkit-linear-gradient(top, #33b, #008);
     background-image: linear-gradient(to bottom, #33b, #008); }
@@ -160,7 +181,7 @@ button.close {
 
 .formRow {
   padding: 0.3em 0 0.8em; }
-  .formRow:not(.inline) label {
+  .formRow:not(  .inline) label {
     display: block; }
 
 .panel {
@@ -250,7 +271,7 @@ button.close {
       width: 17em;
       text-align: left;
       line-height: 1.4; }
-      .topBar .auth .panel input:not([type="checkbox"]):not([type="radio"]) {
+      .topBar .auth .panel input:not(      [type="checkbox"]):not(      [type="radio"]) {
         width: 100%; }
       .topBar .auth .panel button {
         float: right; }
@@ -270,6 +291,7 @@ button.close {
   table-layout: fixed;
   width: 100%;
   background-color: #fff; }
+
 .ledger th {
   vertical-align: top;
   background-color: #559;
@@ -284,51 +306,61 @@ button.close {
     border: 0; }
   .ledger th.date {
     width: 4em; }
+
 .ledger th, .ledger td {
   padding: 0.2em;
   overflow: hidden; }
+
 .ledger td {
   border: solid 1px #e5e5e5; }
 
-.accounts {
-  padding: 0 1%; }
-  .accounts .streams-list h2 {
-    margin: 0.7em 0 0.2em; }
-  .accounts .stream-group > ul {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    margin: 0 -1%; }
-    .accounts .stream-group > ul .item {
-      list-style: none;
-      padding: 1%;
-      background: #fff;
-      margin: 0 1% 1em;
-      width: 98%; }
-      @media screen and (min-width: 30em) {
-        .accounts .stream-group > ul .item {
-          width: 48%; } }
-      @media screen and (min-width: 45em) {
-        .accounts .stream-group > ul .item {
-          width: 31%; } }
-      @media screen and (min-width: 70em) {
-        .accounts .stream-group > ul .item {
-          width: 23%; } }
-      .accounts .stream-group > ul .item .streamName {
-        font-size: 115%;
-        font-weight: bold; }
-  .accounts .streamForm .formRow {
-    position: relative; }
-  .accounts .streamForm .field {
-    max-width: 18em;
-    width: 100%; }
-  .accounts .streamForm .helpText {
-    margin: 0.2em 0 0;
-    max-width: 24em; }
-  .accounts .streamForm input:not([type="checkbox"]):not([type="radio"]), .accounts .streamForm select, .accounts .streamForm textarea {
-    width: 100%; }
-  .accounts .streamForm #newStream-intRate::after {
-    content: "%"; }
+.accounts .streams-list h2 {
+  margin: 0.7em 0 0.2em; }
+
+.accounts .stream-group > ul {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  margin: 0 -1%; }
+  .accounts .stream-group > ul .item {
+    list-style: none;
+    padding: 1%;
+    background: #fff;
+    margin: 0 1% 1em;
+    width: 98%; }
+    @media screen and (min-width: 30em) {
+      .accounts .stream-group > ul .item {
+        width: 48%; } }
+    @media screen and (min-width: 45em) {
+      .accounts .stream-group > ul .item {
+        width: 31%; } }
+    @media screen and (min-width: 70em) {
+      .accounts .stream-group > ul .item {
+        width: 23%; } }
+    .accounts .stream-group > ul .item a {
+      text-decoration: none; }
+    .accounts .stream-group > ul .item .streamName {
+      font-size: 115%;
+      font-weight: bold; }
+
+.accounts .streamForm .formRow {
+  position: relative; }
+
+.accounts .streamForm .field {
+  max-width: 18em;
+  width: 100%; }
+
+.accounts .streamForm .helpText {
+  margin: 0.2em 0 0;
+  max-width: 24em; }
+
+.accounts .streamForm input:not([type="checkbox"]):not([type="radio"]),
+.accounts .streamForm select,
+.accounts .streamForm textarea {
+  width: 100%; }
+
+.accounts .streamForm #newStream-intRate::after {
+  content: "%"; }
 
 /* ==========================================================================
    Helper classes
@@ -359,7 +391,8 @@ button.close {
   position: absolute;
   width: 1px; }
 
-.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus {
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
   clip: auto;
   height: auto;
   margin: 0;
@@ -370,7 +403,8 @@ button.close {
 .invisible {
   visibility: hidden; }
 
-.cf:before, .cf:after {
+.cf:before,
+.cf:after {
   content: " ";
   display: table; }
 
@@ -390,7 +424,8 @@ button.close {
     /* Black prints faster: h5bp.com/s */
     box-shadow: none !important;
     text-shadow: none !important; }
-  a, a:visited {
+  a,
+  a:visited {
     text-decoration: underline; }
   a[href]:after {
     content: " (" attr(href) ")"; }
@@ -399,23 +434,29 @@ button.close {
   /*
 	 * Don't show links for images, or javascript/internal links
 	 */
-  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+  .ir a:after,
+  a[href^="javascript:"]:after,
+  a[href^="#"]:after {
     content: ""; }
-  pre, blockquote {
+  pre,
+  blockquote {
     border: 1px solid #999;
     page-break-inside: avoid; }
   thead {
     display: table-header-group;
     /* h5bp.com/t */ }
-  tr, img {
+  tr,
+  img {
     page-break-inside: avoid; }
   img {
     max-width: 100% !important; }
   @page {
     margin: 0.5cm; }
-
-  p, h2, h3 {
+  p,
+  h2,
+  h3 {
     orphans: 3;
     widows: 3; }
-  h2, h3 {
+  h2,
+  h3 {
     page-break-after: avoid; } }

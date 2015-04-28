@@ -22,25 +22,11 @@ var AccountsPage = React.createClass({
 	},
 
 	handleAddStreamSubmit: function(evt) {
-		evt.preventDefault();
-
-		var self = this,
-			data = {stream: JSON.stringify(dosh.state.newStream)};
-
-		self.props.addStream(dosh.state.newStream);
-
-		return $.ajax({
-			type: 'POST',
-			url: '/api/createStreamData',
-			data: data,
-			dataType: 'json'
-		}).done(function(response, status, xhr) {
-			if (self.isMounted() && self.state.openPanel === 'addStream') {
-				self.setState({
-					openPanel: null
-				});
-			}
-		});
+		if (self.isMounted() && self.state.openPanel === 'addStream') {
+			self.setState({
+				openPanel: null
+			});
+		}
 	},
 
 	handleStreamClick: function(evt, stream) {
@@ -48,28 +34,6 @@ var AccountsPage = React.createClass({
 		return this.setState({
 			openPanel: 'editStream',
 			editingStream: stream
-		});
-	},
-
-	handleEditStreamSubmit: function(evt) {
-		evt.preventDefault();
-
-		var self = this,
-			data = {stream: JSON.stringify(dosh.state.editedStream)};
-
-		self.props.editStream(dosh.state.editedStream);
-
-		return $.ajax({
-			type: 'POST',
-			url: '/api/editStreamData',
-			data: data,
-			dataType: 'json'
-		}).done(function(response, status, xhr) {
-			if (self.isMounted() && self.state.openPanel === 'editStream') {
-				self.setState({
-					openPanel: null
-				});
-			}
 		});
 	},
 
@@ -88,16 +52,18 @@ var AccountsPage = React.createClass({
 					</a>
 				: null}
 			</div>
-			{this.state.openPanel === null ? <StreamsList streams={this.props.streams} handleStreamClick={this.handleStreamClick}/> : null}
-			{this.state.openPanel === 'addStream' ? <StreamForm handleSubmit={this.handleAddStreamSubmit} handleCancel={this.handleCloseStreamForm} stream={{}}/> : null}
-			{this.state.openPanel === 'editStream' ? <StreamForm handleSubmit={this.handleEditStreamSubmit} handleCancel={this.handleCloseStreamForm} stream={this.state.editingStream}/> : null}
+			{this.state.openPanel === null ? <StreamsList handleStreamClick={this.handleStreamClick}/> : null}
+			{this.state.openPanel === 'addStream' ? <StreamForm action="add" handleSubmit={this.handleAddStreamSubmit} handleCancel={this.handleCloseStreamForm} stream={{}}/> : null}
+			{this.state.openPanel === 'editStream' ? <StreamForm action="edit" handleSubmit={this.handleEditStreamSubmit} handleCancel={this.handleCloseStreamForm} stream={this.state.editingStream}/> : null}
 		</div>;
 	}
 });
 
 var StreamsList = React.createClass({
 	getInitialState: function() {
-		return null;
+		return {
+			streams: AppActions.getStreams()
+		};
 	},
 
 	statics: {
@@ -114,12 +80,40 @@ var StreamsList = React.createClass({
 		}
 	},
 
+	componentWillMount: function() {
+		var self = this;
+		self.eventListeners = [];
+		self.addListener('addStream', self.handleDataUpdate);
+		self.addListener('editStream', self.handleDataUpdate);
+		self.addListener('updateData', self.handleDataUpdate);
+	},
+
+	componentWillUnmount: function() {
+		_.forEach(this.eventListeners, function(listener) {
+			events.removeListener(listener.event, listener.callback);
+		});
+	},
+
+	addListener: function(event, callback) {
+		events.addListener(event, callback);
+		this.eventListeners.push({
+			event: event,
+			callback: callback
+		});
+	},
+
+	handleDataUpdate: function() {
+		this.setState({
+			streams: AppActions.getStreams()
+		});
+	},
+
 	render: function() {
 		var self = this,
-			streamsByType = _.pairs(_.groupBy(this.props.streams, 'streamType'));
+			streamsByType = _.pairs(_.groupBy(self.state.streams, 'streamType'));
 		return <ul className="streams-list">
 			{streamsByType.map( function(type) {
-				return <StreamsGroup key={type[0]} type={type[0]} streams={type[1]} handleStreamClick={self.props.handleStreamClick}/>
+				return <StreamsGroup key={type[0]} type={type[0]} streams={type[1]} handleStreamClick={self.props.handleStreamClick}/>;
 			})}
 		</ul>;
 	}
@@ -132,7 +126,7 @@ var StreamsGroup = React.createClass({
 			<h3>{StreamsList.getTypeLabel(self.props.type)}</h3>
 			<ul>
 				{self.props.streams.map( function(stream) {
-					return <StreamsListItem key={stream._id} stream={stream} handleStreamClick={self.props.handleStreamClick}/>
+					return <StreamsListItem key={stream._id} stream={stream} handleStreamClick={self.props.handleStreamClick}/>;
 				})}
 			</ul>
 		</li>;
@@ -205,7 +199,7 @@ var StreamForm = React.createClass({
 				});
 				return _.map(transferStreams, function(stream) {
 					return [stream._id, stream.name];
-				})
+				});
 			}
 		},
 
@@ -248,12 +242,37 @@ var StreamForm = React.createClass({
 		updatedState[fieldId] = value;
 
 		if (fieldId === 'streamSubtype') {
-			updatedState['streamType'] = StreamForm.getTypeFromSubtype(value);
+			updatedState.streamType = StreamForm.getTypeFromSubtype(value);
 		}
 
 		this.setState({stream: updatedState});
+	},
 
-		dosh.state.newStream = updatedState;
+	handleSubmit: function() {
+		evt.preventDefault();
+		var self = this,
+			data = {
+				stream: self.state.stream
+			},
+			endpoint = '/api/createStreamData';
+
+		if (self.props.action === 'edit') {
+			endpoint = '/api/editStreamData';
+		}
+
+		return $.ajax({
+			type: 'POST',
+			url: endpoint,
+			data: data,
+			dataType: 'json'
+		}).done(function(response, status, xhr) {
+			if (self.props.action === 'add') {
+				AppActions.addStream(self.state.stream);
+			} else {
+				AppActions.editStream(self.state.stream);
+			}
+			self.props.handleSubmit();
+		});
 	},
 
 	render: function() {
@@ -274,7 +293,7 @@ var StreamForm = React.createClass({
 					return null;
 				} else {
 					if (fieldData.showFor === undefined || _.includes(fieldData.showFor, self.state.stream.streamType)) {
-						return <StreamField key={fieldId} fieldId={fieldId} fieldData={fieldData} inputType={inputType} helpText={helpText} label={label} isRequired={isRequired} handleStreamUpdate={self.handleStreamUpdate} />
+						return <StreamField key={fieldId} fieldId={fieldId} fieldData={fieldData} inputType={inputType} helpText={helpText} label={label} isRequired={isRequired} handleStreamUpdate={self.handleStreamUpdate} />;
 					}
 				}
 			})}
@@ -320,7 +339,8 @@ var StreamField = React.createClass({
 
 	render: function() {
 		var self = this,
-			value = self.state.value;
+			value = self.state.value,
+			streams = AppActions.getStreams();
 
 		return <div className={'formRow cf ' + (self.props.inputType === 'checkbox' ? 'inline' : '')}>
 			<div className="field">
@@ -336,15 +356,15 @@ var StreamField = React.createClass({
 					:
 						<select id={'newStream-' + self.props.fieldId} onChange={self.handleChange} required={self.props.isRequired}>
 							<option value="">--- Choose {self.props.fieldData.label.toLowerCase()} ---</option>
-							{StreamForm.getChoices(self.props.fieldData, dosh.state.streams).map(function(choice) {
+							{StreamForm.getChoices(self.props.fieldData, streams).map(function(choice) {
 								if (self.props.fieldId !== 'streamSubtype') {
-									return <option key={choice[0]} value={choice[0]}>{choice[1]}</option>
+									return <option key={choice[0]} value={choice[0]}>{choice[1]}</option>;
 								} else {
 									return <optgroup key={choice[0]} label={choice[1]}>
 										{choice[2].map(function(subtypeChoice) {
-											return <option key={subtypeChoice[0]} value={subtypeChoice[0]}>{subtypeChoice[1]}</option>
+											return <option key={subtypeChoice[0]} value={subtypeChoice[0]}>{subtypeChoice[1]}</option>;
 										})}
-									</optgroup>
+									</optgroup>;
 								}
 							})}
 						</select>
@@ -364,6 +384,6 @@ var StreamField = React.createClass({
 				</label>
 			: null}
 
-		</div>
+		</div>;
 	}
 });

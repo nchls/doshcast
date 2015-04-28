@@ -1,8 +1,36 @@
 var AuthControls = React.createClass({
 	getInitialState: function() {
 		return {
+			user: AppActions.getUser(),
 			openPanel: null
 		};
+	},
+
+	componentWillMount: function() {
+		var self = this;
+		self.eventListeners = [];
+		self.addListener('login', self.handleDataUpdate);
+		self.addListener('logout', self.handleDataUpdate);
+	},
+
+	componentWillUnmount: function() {
+		_.forEach(this.eventListeners, function(listener) {
+			events.removeListener(listener.event, listener.callback);
+		});
+	},
+
+	addListener: function(event, callback) {
+		events.addListener(event, callback);
+		this.eventListeners.push({
+			event: event,
+			callback: callback
+		});
+	},
+
+	handleDataUpdate: function() {
+		this.setState({
+			user: AppActions.getUser()
+		});
 	},
 
 	handleLoginClick: function() {
@@ -26,7 +54,8 @@ var AuthControls = React.createClass({
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
-					self.props.handleLogin(data.email);
+					//self.props.handleLogin(data.email);
+					AppActions.login(data.email);
 				}
 			}
 		}).fail(function(xhr, errorType, error) {
@@ -39,7 +68,7 @@ var AuthControls = React.createClass({
 				}
 				// User is already logged in
 				if (response.errorCode === 41) {
-					self.props.handleLogin(data.email);
+					AppActions.login(data.email);
 				}
 			}
 		});
@@ -52,7 +81,7 @@ var AuthControls = React.createClass({
 	handleRegisterSubmit: function(evt) {
 		evt.preventDefault();
 		var self = this,
-			data = {}
+			data = {};
 		_.forEach($('.register-panel').serializeArray(), function(pair) {
 			data[pair.name] = pair.value;
 		});
@@ -66,7 +95,7 @@ var AuthControls = React.createClass({
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
-					self.props.handleLogin(data.email);
+					AppActions.login(data.email);
 				}
 			}
 		});
@@ -80,7 +109,7 @@ var AuthControls = React.createClass({
 			dataType: 'json'
 		}).done(function(response) {
 			if (self.isMounted()) {
-				self.props.handleLogout();
+				AppActions.logout();
 			}
 		}).fail(function(xhr, errorType, error) {
 			if (self.isMounted()) {
@@ -92,7 +121,7 @@ var AuthControls = React.createClass({
 				}
 				// User is already logged out
 				if (response.errorCode === 40) {
-					self.props.handleLogout();
+					AppActions.logout();
 				}
 			}
 		});
@@ -103,18 +132,18 @@ var AuthControls = React.createClass({
 	},
 
 	render: function() {
-		if (this.props.user !== null) {
+		if (this.state.user !== null) {
 			return <div className="auth">
-				<span className="authed-email">{this.props.user}</span>
+				<span className="authed-email">{user}</span>
 				<LogoutButton clickHandler={this.handleLogoutClick}/>
-			</div>
+			</div>;
 		}
 		return <div className="auth">
 			<LoginButton clickHandler={this.handleLoginClick} isPanelOpen={this.state.openPanel === 'login'}/>
 			{this.state.openPanel === 'login' ? <LoginPanel submitHandler={this.handleLoginSubmit} dismissHandler={this.handlePanelDismiss}/> : null}
 			<RegisterButton clickHandler={this.handleRegisterClick} isPanelOpen={this.state.openPanel === 'register'}/>
 			{this.state.openPanel === 'register' ? <RegisterPanel submitHandler={this.handleRegisterSubmit} dismissHandler={this.handlePanelDismiss}/> : null}
-		</div>
+		</div>;
 	}
 });
 
@@ -122,7 +151,7 @@ var LoginButton = React.createClass({
 	render: function() {
 		return <button className={'log-in btn transparent ' + (this.props.isPanelOpen ? 'active' : '')} onClick={this.props.clickHandler}>
 			<i className="fa fa-sign-in"></i> Log In
-		</button>
+		</button>;
 	}
 });
 
@@ -175,7 +204,7 @@ var LoginPanel = React.createClass({
 				</button>
 			</div>
 			<CloseButton closeAction={this.props.dismissHandler}/>
-		</form>
+		</form>;
 	}
 });
 
@@ -183,7 +212,7 @@ var RegisterButton = React.createClass({
 	render: function() {
 		return <button className={'register btn transparent ' + (this.props.isPanelOpen ? 'active' : '')} onClick={this.props.clickHandler}>
 			<i className="fa fa-user"></i> Register
-		</button>
+		</button>;
 	}
 });
 
@@ -236,7 +265,7 @@ var RegisterPanel = React.createClass({
 				</button>
 			</div>
 			<CloseButton closeAction={this.props.dismissHandler}/>
-		</form>
+		</form>;
 	}
 });
 
@@ -244,6 +273,6 @@ var LogoutButton = React.createClass({
 	render: function() {
 		return <button className={'log-out btn transparent'} onClick={this.props.clickHandler}>
 			<i className="fa fa-sign-out"></i> Log Out
-		</button>
+		</button>;
 	}
 });

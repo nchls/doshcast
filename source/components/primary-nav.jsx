@@ -28,6 +28,6 @@ var PrimaryNav = React.createClass({
 					</a>
 				</li>
 			</ul>
-		</nav>
+		</nav>;
 	}
 });

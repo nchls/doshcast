@@ -79,6 +79,7 @@ select,
 textarea {
 	font-size: 1.1em;
 	font-family: SourceSansPro, sans-serif;
+	@include transition(all 0.1s);
 }
 ul, li {
 	margin: 0;
@@ -136,7 +137,7 @@ input:not([type="checkbox"]):not([type="radio"]) {
 		inset 0 -0.03em 0.03em 0.03em rgba(0,0,0,0.4),
 		inset 0 0 1em 0.2em rgba(255,255,255,0.2),
 		0 0.03em 0.05em 0.1em rgba(0,0,0,0.1);
-	//@include transition(all 0.1s);
+	@include transition(all 0.1s);
 
 	&:hover {
 		@include background-image(
@@ -407,7 +408,7 @@ button.close {
 }
 
 .accounts {
-	padding: 0 1%;
+	//padding: 0 1%;
 
 	.streams-list {
 		h2 {
@@ -436,6 +437,10 @@ button.close {
 			}
 			@media screen and (min-width:70em) {
 				width: 23%;
+			}
+
+			a {
+				text-decoration: none;
 			}
 			.streamName {
 				font-size: 115%;

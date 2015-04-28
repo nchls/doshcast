@@ -39,6 +39,8 @@ gulp.task('coffee', function() {
 });
 
 gulp.task('jsx', function() {
+	gulp.src('./source/flux/*.js')
+		.pipe(gulp.dest('./public/flux/'));
 	gulp.src('./source/components/*.jsx')
 		.pipe(react())
 		.pipe(concat('components.js'))

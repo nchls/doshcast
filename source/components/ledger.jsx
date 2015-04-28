@@ -1,15 +1,47 @@
 var LedgerPage = React.createClass({
 	getInitialState: function() {
-		return {};
+		return {
+			streams: AppActions.getStreams()
+		};
 	},
+
+	componentWillMount: function() {
+		var self = this;
+		self.eventListeners = [];
+		self.addListener('addStream', self.handleDataUpdate);
+		self.addListener('editStream', self.handleDataUpdate);
+		self.addListener('updateData', self.handleDataUpdate);
+	},
+
+	componentWillUnmount: function() {
+		_.forEach(this.eventListeners, function(listener) {
+			events.removeListener(listener.event, listener.callback);
+		});
+	},
+
+	addListener: function(event, callback) {
+		events.addListener(event, callback);
+		this.eventListeners.push({
+			event: event,
+			callback: callback
+		});
+	},
+
+	handleDataUpdate: function() {
+		this.setState({
+			streams: AppActions.getStreams()
+		});
+	},
+
 	render: function() {
+		var self = this;
 		return <div className="ledger">
 			<h2>Ledger</h2>
 			<div className="actionBar">
 
 			</div>
-			<Ledger streams={this.props.streams}/>
-		</div>
+			<Ledger streams={self.state.streams}/>
+		</div>;
 	}
 });
 
@@ -106,12 +138,12 @@ var Ledger = React.createClass({
 					{this.state.streams.map(function(stream) {
 						return <th className="stream" key={stream._id} colSpan={stream.columns.length} rowSpan={(stream.columns.length === 1 ? 2 : 1)}>
 							{stream.name}
-						</th>
+						</th>;
 					})}
 				</tr>
 				<tr>
 					{this.state.subStreams.map(function(subStream, index) {
-						return <th className="subStream" key={index}>{subStream}</th>
+						return <th className="subStream" key={index}>{subStream}</th>;
 					})}
 				</tr>
 			</thead>
@@ -124,12 +156,12 @@ var Ledger = React.createClass({
 						{entry.row.map(function(column, index) {
 							return <td className="stream" key={index}>
 								{column.val}
-							</td>
+							</td>;
 						})}
-					</tr>
+					</tr>;
 				})}
 			</tbody>
-		</table>
+		</table>;
 	}
 });
 

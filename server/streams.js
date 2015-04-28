@@ -1,4 +1,4 @@
-var ManualEntry, Stream, StreamRevision, db, moment, mongoskin, q;
+var ManualEntry, Stream, StreamRevision, db, dbq, moment, mongoskin, q;
 
 q = require('q');
 
@@ -14,50 +14,48 @@ StreamRevision = require('./../public/models/StreamRevision').StreamRevision;
 
 db = mongoskin.db('mongodb://127.0.0.1:27017/dosh');
 
+dbq = function(collection, method, criteria) {
+  var deferred;
+  deferred = q.defer();
+  db.collection(collection)[method](criteria).toArray(function(err, result) {
+    if (err) {
+      deferred.reject(err);
+    }
+    return deferred.resolve({
+      collection: collection,
+      result: result
+    });
+  });
+  return deferred.promise;
+};
+
 module.exports = {
   getData: function(req, res) {
-    var collections, userId;
-    collections = ['streams', 'manuals', 'revisions'];
+    var userId;
     userId = mongoskin.helper.toObjectID(req.session.user._id);
-    return db.collection('streams').find({
-      owner: userId
-    }).toArray(function(err, streamsResult) {
-      if (err) {
-        res.status(500).send({
-          isError: true,
-          msg: 'Error in stream database.'
-        });
-        return;
-      }
-      return db.collection('manuals').find({
+    return q.all([
+      dbq('streams', 'find', {
         owner: userId
-      }).toArray(function(err, manualsResult) {
-        if (err) {
-          res.status(500).send({
-            isError: true,
-            msg: 'Error in manuals database.'
-          });
-          return;
-        }
-        return db.collection('revisions').find({
-          owner: userId
-        }).toArray(function(err, revisionsResult) {
-          if (err) {
-            res.status(500).send({
-              isError: true,
-              msg: 'Error in revisions database.'
-            });
-            return;
-          }
-          return res.status(200).send({
-            isError: false,
-            result: {
-              streams: streamsResult,
-              manuals: manualsResult,
-              revisions: revisionsResult
-            }
-          });
-        });
+      }), dbq('manuals', 'find', {
+        owner: userId
+      }), dbq('revisions', 'find', {
+        owner: userId
+      })
+    ]).then(function(responses) {
+      var i, len, output, response;
+      output = {};
+      for (i = 0, len = responses.length; i < len; i++) {
+        response = responses[i];
+        output[response.collection] = response.result;
+      }
+      return res.status(200).send({
+        isError: false,
+        result: output
+      });
+    })["catch"](function(err) {
+      return res.status(500).send({
+        isError: true,
+        msg: 'Error in database select.'
       });
     });
   },

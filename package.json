@@ -7,7 +7,7 @@
   "scripts": {
     "gulp": "gulp",
     "server": "nodemon --watch app.js app.js",
-    "db": "mongod --dbpath /Stuff/Dev/DoshCast/data"
+    "db": "mongod --dbpath /Dev/DoshCast/data"
   },
   "main": "app.js",
   "repository": {

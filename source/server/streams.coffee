@@ -7,54 +7,45 @@ StreamRevision = require('./../public/models/StreamRevision').StreamRevision
 
 db = mongoskin.db('mongodb://127.0.0.1:27017/dosh')
 
+dbq = (collection, method, criteria) ->
+	deferred = q.defer()
+
+	db.collection(collection)[method](criteria).toArray( (err, result) ->
+		if err
+			deferred.reject(err)
+
+		deferred.resolve(
+			collection: collection
+			result: result
+		)
+	)
+
+	return deferred.promise
+
+
 module.exports =
 
 	getData: (req, res) ->
 
-		collections = [
-			'streams'
-			'manuals'
-			'revisions'
-		]
-
 		userId = mongoskin.helper.toObjectID(req.session.user._id)
 
-		db.collection('streams').find({owner: userId}).toArray( (err, streamsResult) ->
-			if err
-				res.status(500).send(
-					isError: true
-					msg: 'Error in stream database.'
-				)
-				return
-
-			db.collection('manuals').find({owner: userId}).toArray( (err, manualsResult) ->
-				if err
-					res.status(500).send(
-						isError: true
-						msg: 'Error in manuals database.'
-					)
-					return
-
-				db.collection('revisions').find({owner: userId}).toArray( (err, revisionsResult) ->
-					if err
-						res.status(500).send(
-							isError: true
-							msg: 'Error in revisions database.'
-						)
-						return
-
-					res.status(200).send(
-						isError: false
-						result:
-							streams: streamsResult
-							manuals: manualsResult
-							revisions: revisionsResult
-					)
-
-				)
-
+		q.all([
+			dbq('streams', 'find', {owner: userId})
+			dbq('manuals', 'find', {owner: userId})
+			dbq('revisions', 'find', {owner: userId})
+		]).then( (responses) ->
+			output = {}
+			for response in responses
+				output[response.collection] = response.result
+			res.status(200).send(
+				isError: false
+				result: output
 			)
-
+		).catch( (err) ->
+			res.status(500).send(
+				isError: true
+				msg: 'Error in database select.'
+			)
 		)
 
 

@@ -7,7 +7,7 @@ var CloseButton = React.createClass({
 	render: function() {
 		return <button className="close" onClick={this.handleClick}>
 			<i className="fa fa-times"></i>
-		</button>
+		</button>;
 	}
 });
 
@@ -17,6 +17,6 @@ var LoadingMask = React.createClass({
 			<div className="center-icon">
 				<i className="fa fa-circle-o-notch fa-spin"></i>
 			</div>
-		</div>
+		</div>;
 	}
 });

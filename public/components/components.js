@@ -22,25 +22,11 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 	},
 
 	handleAddStreamSubmit: function(evt) {
-		evt.preventDefault();
-
-		var self = this,
-			data = {stream: JSON.stringify(dosh.state.newStream)};
-
-		self.props.addStream(dosh.state.newStream);
-
-		return $.ajax({
-			type: 'POST',
-			url: '/api/createStreamData',
-			data: data,
-			dataType: 'json'
-		}).done(function(response, status, xhr) {
-			if (self.isMounted() && self.state.openPanel === 'addStream') {
-				self.setState({
-					openPanel: null
-				});
-			}
-		});
+		if (self.isMounted() && self.state.openPanel === 'addStream') {
+			self.setState({
+				openPanel: null
+			});
+		}
 	},
 
 	handleStreamClick: function(evt, stream) {
@@ -48,28 +34,6 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 		return this.setState({
 			openPanel: 'editStream',
 			editingStream: stream
-		});
-	},
-
-	handleEditStreamSubmit: function(evt) {
-		evt.preventDefault();
-
-		var self = this,
-			data = {stream: JSON.stringify(dosh.state.editedStream)};
-
-		self.props.editStream(dosh.state.editedStream);
-
-		return $.ajax({
-			type: 'POST',
-			url: '/api/editStreamData',
-			data: data,
-			dataType: 'json'
-		}).done(function(response, status, xhr) {
-			if (self.isMounted() && self.state.openPanel === 'editStream') {
-				self.setState({
-					openPanel: null
-				});
-			}
 		});
 	},
 
@@ -88,16 +52,18 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 					)
 				: null
 			), 
-			this.state.openPanel === null ? React.createElement(StreamsList, {streams: this.props.streams, handleStreamClick: this.handleStreamClick}) : null, 
-			this.state.openPanel === 'addStream' ? React.createElement(StreamForm, {handleSubmit: this.handleAddStreamSubmit, handleCancel: this.handleCloseStreamForm, stream: {}}) : null, 
-			this.state.openPanel === 'editStream' ? React.createElement(StreamForm, {handleSubmit: this.handleEditStreamSubmit, handleCancel: this.handleCloseStreamForm, stream: this.state.editingStream}) : null
+			this.state.openPanel === null ? React.createElement(StreamsList, {handleStreamClick: this.handleStreamClick}) : null, 
+			this.state.openPanel === 'addStream' ? React.createElement(StreamForm, {action: "add", handleSubmit: this.handleAddStreamSubmit, handleCancel: this.handleCloseStreamForm, stream: {}}) : null, 
+			this.state.openPanel === 'editStream' ? React.createElement(StreamForm, {action: "edit", handleSubmit: this.handleEditStreamSubmit, handleCancel: this.handleCloseStreamForm, stream: this.state.editingStream}) : null
 		);
 	}
 });
 
 var StreamsList = React.createClass({displayName: "StreamsList",
 	getInitialState: function() {
-		return null;
+		return {
+			streams: AppActions.getStreams()
+		};
 	},
 
 	statics: {
@@ -114,12 +80,40 @@ var StreamsList = React.createClass({displayName: "StreamsList",
 		}
 	},
 
+	componentWillMount: function() {
+		var self = this;
+		self.eventListeners = [];
+		self.addListener('addStream', self.handleDataUpdate);
+		self.addListener('editStream', self.handleDataUpdate);
+		self.addListener('updateData', self.handleDataUpdate);
+	},
+
+	componentWillUnmount: function() {
+		_.forEach(this.eventListeners, function(listener) {
+			events.removeListener(listener.event, listener.callback);
+		});
+	},
+
+	addListener: function(event, callback) {
+		events.addListener(event, callback);
+		this.eventListeners.push({
+			event: event,
+			callback: callback
+		});
+	},
+
+	handleDataUpdate: function() {
+		this.setState({
+			streams: AppActions.getStreams()
+		});
+	},
+
 	render: function() {
 		var self = this,
-			streamsByType = _.pairs(_.groupBy(this.props.streams, 'streamType'));
+			streamsByType = _.pairs(_.groupBy(self.state.streams, 'streamType'));
 		return React.createElement("ul", {className: "streams-list"}, 
 			streamsByType.map( function(type) {
-				return React.createElement(StreamsGroup, {key: type[0], type: type[0], streams: type[1], handleStreamClick: self.props.handleStreamClick})
+				return React.createElement(StreamsGroup, {key: type[0], type: type[0], streams: type[1], handleStreamClick: self.props.handleStreamClick});
 			})
 		);
 	}
@@ -132,7 +126,7 @@ var StreamsGroup = React.createClass({displayName: "StreamsGroup",
 			React.createElement("h3", null, StreamsList.getTypeLabel(self.props.type)), 
 			React.createElement("ul", null, 
 				self.props.streams.map( function(stream) {
-					return React.createElement(StreamsListItem, {key: stream._id, stream: stream, handleStreamClick: self.props.handleStreamClick})
+					return React.createElement(StreamsListItem, {key: stream._id, stream: stream, handleStreamClick: self.props.handleStreamClick});
 				})
 			)
 		);
@@ -205,7 +199,7 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 				});
 				return _.map(transferStreams, function(stream) {
 					return [stream._id, stream.name];
-				})
+				});
 			}
 		},
 
@@ -248,12 +242,37 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 		updatedState[fieldId] = value;
 
 		if (fieldId === 'streamSubtype') {
-			updatedState['streamType'] = StreamForm.getTypeFromSubtype(value);
+			updatedState.streamType = StreamForm.getTypeFromSubtype(value);
 		}
 
 		this.setState({stream: updatedState});
+	},
 
-		dosh.state.newStream = updatedState;
+	handleSubmit: function() {
+		evt.preventDefault();
+		var self = this,
+			data = {
+				stream: self.state.stream
+			},
+			endpoint = '/api/createStreamData';
+
+		if (self.props.action === 'edit') {
+			endpoint = '/api/editStreamData';
+		}
+
+		return $.ajax({
+			type: 'POST',
+			url: endpoint,
+			data: data,
+			dataType: 'json'
+		}).done(function(response, status, xhr) {
+			if (self.props.action === 'add') {
+				AppActions.addStream(self.state.stream);
+			} else {
+				AppActions.editStream(self.state.stream);
+			}
+			self.props.handleSubmit();
+		});
 	},
 
 	render: function() {
@@ -274,7 +293,7 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 					return null;
 				} else {
 					if (fieldData.showFor === undefined || _.includes(fieldData.showFor, self.state.stream.streamType)) {
-						return React.createElement(StreamField, {key: fieldId, fieldId: fieldId, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate})
+						return React.createElement(StreamField, {key: fieldId, fieldId: fieldId, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate});
 					}
 				}
 			}), 
@@ -320,7 +339,8 @@ var StreamField = React.createClass({displayName: "StreamField",
 
 	render: function() {
 		var self = this,
-			value = self.state.value;
+			value = self.state.value,
+			streams = AppActions.getStreams();
 
 		return React.createElement("div", {className: 'formRow cf ' + (self.props.inputType === 'checkbox' ? 'inline' : '')}, 
 			React.createElement("div", {className: "field"}, 
@@ -336,15 +356,15 @@ var StreamField = React.createClass({displayName: "StreamField",
 					:
 						React.createElement("select", {id: 'newStream-' + self.props.fieldId, onChange: self.handleChange, required: self.props.isRequired}, 
 							React.createElement("option", {value: ""}, "--- Choose ", self.props.fieldData.label.toLowerCase(), " ---"), 
-							StreamForm.getChoices(self.props.fieldData, dosh.state.streams).map(function(choice) {
+							StreamForm.getChoices(self.props.fieldData, streams).map(function(choice) {
 								if (self.props.fieldId !== 'streamSubtype') {
-									return React.createElement("option", {key: choice[0], value: choice[0]}, choice[1])
+									return React.createElement("option", {key: choice[0], value: choice[0]}, choice[1]);
 								} else {
 									return React.createElement("optgroup", {key: choice[0], label: choice[1]}, 
 										choice[2].map(function(subtypeChoice) {
-											return React.createElement("option", {key: subtypeChoice[0], value: subtypeChoice[0]}, subtypeChoice[1])
+											return React.createElement("option", {key: subtypeChoice[0], value: subtypeChoice[0]}, subtypeChoice[1]);
 										})
-									)
+									);
 								}
 							})
 						), 
@@ -364,65 +384,17 @@ var StreamField = React.createClass({displayName: "StreamField",
 				)
 			: null
 
-		)
+		);
 	}
 });
 
 var App = React.createClass({displayName: "App",
 	getInitialState: function() {
-		return {
-			user: window.user,
-			streams: [],
-			revisions: [],
-			manuals: [],
-			isBlockingAjaxInProgress: false
-		};
+		return {};
 	},
 
 	componentDidMount: function() {
-		if (this.state.user !== null) {
-			this.getData();
-		}
-	},
-
-	getData: function() {
-		var self = this;
-
-		util.namespacer('dosh.state').streams = [];
-
-		return $.getJSON('/api/getData').done(function(response) {
-			self.setState({
-				streams: response.result.streams,
-				manuals: response.result.manuals,
-				revisions: response.result.revisions
-			});
-			dosh.state.streams = response.result.streams;
-			dosh.state.manuals = response.result.manuals;
-			dosh.state.revisions = response.result.revisions;
-		});
-	},
-
-	addStream: function(stream) {
-		var streamsState = _.clone(this.state.streams);
-		streamsState.push(stream);
-		dosh.state.streams = streamsState;
-		this.setState({
-			streams: streamsState,
-		});
-	},
-
-	handleLogin: function(email) {
-		this.setState({user: email});
-		this.getData();
-	},
-
-	handleLogout: function() {
-		this.setState({
-			user: null,
-			streams: [],
-			revisions: [],
-			manuals: []
-		});
+		AppActions.updateData();
 	},
 
 	render: function() {
@@ -437,11 +409,11 @@ var App = React.createClass({displayName: "App",
 
 				React.createElement(PrimaryNav, null), 
 
-				React.createElement(AuthControls, {handleLogin: this.handleLogin, handleLogout: this.handleLogout, user: this.state.user})
+				React.createElement(AuthControls, null)
 			), 
 
-			document.location.pathname === '/accounts' ? React.createElement(AccountsPage, {streams: this.state.streams, addStream: this.addStream}) : null, 
-			document.location.pathname === '/ledger' ? React.createElement(LedgerPage, {streams: this.state.streams}) : null
+			document.location.pathname === '/accounts' ? React.createElement(AccountsPage, null) : null, 
+			document.location.pathname === '/ledger' ? React.createElement(LedgerPage, null) : null
 		);
 	}
 });
@@ -449,8 +421,36 @@ var App = React.createClass({displayName: "App",
 var AuthControls = React.createClass({displayName: "AuthControls",
 	getInitialState: function() {
 		return {
+			user: AppActions.getUser(),
 			openPanel: null
 		};
+	},
+
+	componentWillMount: function() {
+		var self = this;
+		self.eventListeners = [];
+		self.addListener('login', self.handleDataUpdate);
+		self.addListener('logout', self.handleDataUpdate);
+	},
+
+	componentWillUnmount: function() {
+		_.forEach(this.eventListeners, function(listener) {
+			events.removeListener(listener.event, listener.callback);
+		});
+	},
+
+	addListener: function(event, callback) {
+		events.addListener(event, callback);
+		this.eventListeners.push({
+			event: event,
+			callback: callback
+		});
+	},
+
+	handleDataUpdate: function() {
+		this.setState({
+			user: AppActions.getUser()
+		});
 	},
 
 	handleLoginClick: function() {
@@ -474,7 +474,8 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
-					self.props.handleLogin(data.email);
+					//self.props.handleLogin(data.email);
+					AppActions.login(data.email);
 				}
 			}
 		}).fail(function(xhr, errorType, error) {
@@ -487,7 +488,7 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 				}
 				// User is already logged in
 				if (response.errorCode === 41) {
-					self.props.handleLogin(data.email);
+					AppActions.login(data.email);
 				}
 			}
 		});
@@ -500,7 +501,7 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 	handleRegisterSubmit: function(evt) {
 		evt.preventDefault();
 		var self = this,
-			data = {}
+			data = {};
 		_.forEach($('.register-panel').serializeArray(), function(pair) {
 			data[pair.name] = pair.value;
 		});
@@ -514,7 +515,7 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
-					self.props.handleLogin(data.email);
+					AppActions.login(data.email);
 				}
 			}
 		});
@@ -528,7 +529,7 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 			dataType: 'json'
 		}).done(function(response) {
 			if (self.isMounted()) {
-				self.props.handleLogout();
+				AppActions.logout();
 			}
 		}).fail(function(xhr, errorType, error) {
 			if (self.isMounted()) {
@@ -540,7 +541,7 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 				}
 				// User is already logged out
 				if (response.errorCode === 40) {
-					self.props.handleLogout();
+					AppActions.logout();
 				}
 			}
 		});
@@ -551,18 +552,18 @@ var AuthControls = React.createClass({displayName: "AuthControls",
 	},
 
 	render: function() {
-		if (this.props.user !== null) {
+		if (this.state.user !== null) {
 			return React.createElement("div", {className: "auth"}, 
-				React.createElement("span", {className: "authed-email"}, this.props.user), 
+				React.createElement("span", {className: "authed-email"}, user), 
 				React.createElement(LogoutButton, {clickHandler: this.handleLogoutClick})
-			)
+			);
 		}
 		return React.createElement("div", {className: "auth"}, 
 			React.createElement(LoginButton, {clickHandler: this.handleLoginClick, isPanelOpen: this.state.openPanel === 'login'}), 
 			this.state.openPanel === 'login' ? React.createElement(LoginPanel, {submitHandler: this.handleLoginSubmit, dismissHandler: this.handlePanelDismiss}) : null, 
 			React.createElement(RegisterButton, {clickHandler: this.handleRegisterClick, isPanelOpen: this.state.openPanel === 'register'}), 
 			this.state.openPanel === 'register' ? React.createElement(RegisterPanel, {submitHandler: this.handleRegisterSubmit, dismissHandler: this.handlePanelDismiss}) : null
-		)
+		);
 	}
 });
 
@@ -570,7 +571,7 @@ var LoginButton = React.createClass({displayName: "LoginButton",
 	render: function() {
 		return React.createElement("button", {className: 'log-in btn transparent ' + (this.props.isPanelOpen ? 'active' : ''), onClick: this.props.clickHandler}, 
 			React.createElement("i", {className: "fa fa-sign-in"}), " Log In"
-		)
+		);
 	}
 });
 
@@ -623,7 +624,7 @@ var LoginPanel = React.createClass({displayName: "LoginPanel",
 				)
 			), 
 			React.createElement(CloseButton, {closeAction: this.props.dismissHandler})
-		)
+		);
 	}
 });
 
@@ -631,7 +632,7 @@ var RegisterButton = React.createClass({displayName: "RegisterButton",
 	render: function() {
 		return React.createElement("button", {className: 'register btn transparent ' + (this.props.isPanelOpen ? 'active' : ''), onClick: this.props.clickHandler}, 
 			React.createElement("i", {className: "fa fa-user"}), " Register"
-		)
+		);
 	}
 });
 
@@ -684,7 +685,7 @@ var RegisterPanel = React.createClass({displayName: "RegisterPanel",
 				)
 			), 
 			React.createElement(CloseButton, {closeAction: this.props.dismissHandler})
-		)
+		);
 	}
 });
 
@@ -692,22 +693,67 @@ var LogoutButton = React.createClass({displayName: "LogoutButton",
 	render: function() {
 		return React.createElement("button", {className: 'log-out btn transparent', onClick: this.props.clickHandler}, 
 			React.createElement("i", {className: "fa fa-sign-out"}), " Log Out"
-		)
+		);
 	}
 });
 
-var LedgerPage = React.createClass({displayName: "LedgerPage",
+var DashboardPage = React.createClass({displayName: "DashboardPage",
 	getInitialState: function() {
 		return {};
 	},
 	render: function() {
+		return React.createElement("div", {className: "dashboard"}, 
+			React.createElement("h2", null, "Dashboard"), 
+			React.createElement("div", {className: "actionBar"}
+
+			)
+		);
+	}
+});
+var LedgerPage = React.createClass({displayName: "LedgerPage",
+	getInitialState: function() {
+		return {
+			streams: AppActions.getStreams()
+		};
+	},
+
+	componentWillMount: function() {
+		var self = this;
+		self.eventListeners = [];
+		self.addListener('addStream', self.handleDataUpdate);
+		self.addListener('editStream', self.handleDataUpdate);
+		self.addListener('updateData', self.handleDataUpdate);
+	},
+
+	componentWillUnmount: function() {
+		_.forEach(this.eventListeners, function(listener) {
+			events.removeListener(listener.event, listener.callback);
+		});
+	},
+
+	addListener: function(event, callback) {
+		events.addListener(event, callback);
+		this.eventListeners.push({
+			event: event,
+			callback: callback
+		});
+	},
+
+	handleDataUpdate: function() {
+		this.setState({
+			streams: AppActions.getStreams()
+		});
+	},
+
+	render: function() {
+		var self = this;
 		return React.createElement("div", {className: "ledger"}, 
 			React.createElement("h2", null, "Ledger"), 
 			React.createElement("div", {className: "actionBar"}
 
 			), 
-			React.createElement(Ledger, {streams: this.props.streams})
-		)
+			React.createElement(Ledger, {streams: self.state.streams})
+		);
 	}
 });
 
@@ -804,12 +850,12 @@ var Ledger = React.createClass({displayName: "Ledger",
 					this.state.streams.map(function(stream) {
 						return React.createElement("th", {className: "stream", key: stream._id, colSpan: stream.columns.length, rowSpan: (stream.columns.length === 1 ? 2 : 1)}, 
 							stream.name
-						)
+						);
 					})
 				), 
 				React.createElement("tr", null, 
 					this.state.subStreams.map(function(subStream, index) {
-						return React.createElement("th", {className: "subStream", key: index}, subStream)
+						return React.createElement("th", {className: "subStream", key: index}, subStream);
 					})
 				)
 			), 
@@ -822,12 +868,12 @@ var Ledger = React.createClass({displayName: "Ledger",
 						entry.row.map(function(column, index) {
 							return React.createElement("td", {className: "stream", key: index}, 
 								column.val
-							)
+							);
 						})
-					)
+					);
 				})
 			)
-		)
+		);
 	}
 });
 
@@ -886,9 +932,35 @@ var PrimaryNav = React.createClass({displayName: "PrimaryNav",
 					)
 				)
 			)
-		)
+		);
 	}
 });
+
+(function(global) {
+
+	global.Router = global.ReactRouter;
+	global.DefaultRoute = global.Router.DefaultRoute;
+	global.Link = global.Router.Link;
+	global.Route = global.Router.Route;
+	global.RouteHandler = global.Router.RouteHandler;
+	global.NotFoundRoute = global.Router.NotFoundRoute;
+	
+	var routes = (
+		React.createElement(Route, {handler: App, path: "/"}, 
+			React.createElement(DefaultRoute, {handler: DashboardPage}), 
+			React.createElement(Route, {name: "dashboard", handler: DashboardPage}), 
+			React.createElement(Route, {name: "accounts", handler: AccountsPage}), 
+			React.createElement(Route, {name: "ledger", handler: LedgerPage})
+		)
+	);
+
+	/*
+	Router.run(routes, Router.HistoryLocation, function(Handler) {
+		React.render(<Handler/>, document.getElementById('app'));
+	});
+*/
+
+}(window));
 
 var CloseButton = React.createClass({displayName: "CloseButton",
 	handleClick: function(evt) {
@@ -899,7 +971,7 @@ var CloseButton = React.createClass({displayName: "CloseButton",
 	render: function() {
 		return React.createElement("button", {className: "close", onClick: this.handleClick}, 
 			React.createElement("i", {className: "fa fa-times"})
-		)
+		);
 	}
 });
 
@@ -909,6 +981,6 @@ var LoadingMask = React.createClass({displayName: "LoadingMask",
 			React.createElement("div", {className: "center-icon"}, 
 				React.createElement("i", {className: "fa fa-circle-o-notch fa-spin"})
 			)
-		)
+		);
 	}
 });
