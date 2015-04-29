@@ -96,9 +96,7 @@ module.exports =
 				console.log('message: ', err.errmsg)
 				return
 
-			res.status(200).send(
-				isError: false
-			)
+			res.status(200).send(result[0])
 
 		)
 

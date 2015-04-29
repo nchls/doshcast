@@ -15,24 +15,3 @@ util.onReady( ->
 )
 
 
-window.log = ->
-  log.history = log.history or []
-  log.history.push(arguments)
-  if this.console
-    console.log( Array.prototype.slice.call(arguments) )
-
-
-( ->
-
-	metrics = {}
-
-	window.perf = {
-		start: (evtName) ->
-			metrics[evtName] = window.performance.now()
-		end: (evtName) ->
-			duration = window.performance.now() - metrics[evtName]
-			log(evtName + ': ' + duration.toFixed(2) + ' ms')
-	}
-
-)()
-

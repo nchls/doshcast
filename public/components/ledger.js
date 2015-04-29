@@ -19,19 +19,19 @@ var LedgerPage = React.createClass(_.merge(EventListenerMixin, {
 
 	render: function() {
 		var self = this;
-		return <div className="ledger">
-			<div className="padded">
-				<h2>Ledger</h2>
-				<div className="actionBar">
+		return React.createElement("div", {className: "ledger"}, 
+			React.createElement("div", {className: "padded"}, 
+				React.createElement("h2", null, "Ledger"), 
+				React.createElement("div", {className: "actionBar"}
 
-				</div>
-			</div>
-			<Ledger streams={self.state.streams}/>
-		</div>;
+				)
+			), 
+			React.createElement(Ledger, {streams: self.state.streams})
+		);
 	}
 }));
 
-var Ledger = React.createClass({
+var Ledger = React.createClass({displayName: "Ledger",
 	getInitialState: function() {
 		return {
 			ledger: [],
@@ -123,37 +123,37 @@ var Ledger = React.createClass({
 		if (this.state.streams.length === 0) {
 			return null;
 		}
-		return <table>
-			<thead>
-				<tr>
-					<th className="date" rowSpan="2">Date</th>
-					{this.state.streams.map(function(stream) {
-						return <th className="stream" key={stream._id} colSpan={stream.columns.length} rowSpan={(stream.columns.length === 1 ? 2 : 1)}>
-							{stream.name}
-						</th>;
-					})}
-				</tr>
-				<tr>
-					{this.state.subStreams.map(function(subStream, index) {
-						return <th className="subStream" key={index}>{subStream}</th>;
-					})}
-				</tr>
-			</thead>
-			<tbody>
-				{this.state.ledger.map(function(entry) {
-					return <tr key={entry.ymd}>
-						<td className="date" title={entry.fullDate}>
-							{entry.printDate}
-						</td>
-						{entry.row.map(function(column, index) {
-							return <td className="stream" key={index}>
-								{column.val}
-							</td>;
-						})}
-					</tr>;
-				})}
-			</tbody>
-		</table>;
+		return React.createElement("table", null, 
+			React.createElement("thead", null, 
+				React.createElement("tr", null, 
+					React.createElement("th", {className: "date", rowSpan: "2"}, "Date"), 
+					this.state.streams.map(function(stream) {
+						return React.createElement("th", {className: "stream", key: stream._id, colSpan: stream.columns.length, rowSpan: (stream.columns.length === 1 ? 2 : 1)}, 
+							stream.name
+						);
+					})
+				), 
+				React.createElement("tr", null, 
+					this.state.subStreams.map(function(subStream, index) {
+						return React.createElement("th", {className: "subStream", key: index}, subStream);
+					})
+				)
+			), 
+			React.createElement("tbody", null, 
+				this.state.ledger.map(function(entry) {
+					return React.createElement("tr", {key: entry.ymd}, 
+						React.createElement("td", {className: "date", title: entry.fullDate}, 
+							entry.printDate
+						), 
+						entry.row.map(function(column, index) {
+							return React.createElement("td", {className: "stream", key: index}, 
+								column.val
+							);
+						})
+					);
+				})
+			)
+		);
 	}
 });
 

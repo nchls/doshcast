@@ -9,7 +9,7 @@ var config = {
 	environment: 'development'
 };
 
-var mainTasks = ['sass', 'coffee', 'jsx', 'concatenate', 'minify'];
+var mainTasks = ['sass', 'coffee', 'js', 'jsx', 'concatenate', 'minify'];
 
 gulp.task('watch', function() {
 	gulp.watch('./source/**/*.*', mainTasks);
@@ -23,7 +23,7 @@ gulp.task('sass', function() {
 });
 
 gulp.task('coffee', function() {
-	var serverDest ='./server/',
+	var serverDest ='./api/',
 		logicDest = (config.environment !== 'production' ? './public/logic/' : './.tmp/logic/'),
 		modelsDest = (config.environment !== 'production' ? './public/models/' : './.tmp/models/');
 
@@ -33,17 +33,21 @@ gulp.task('coffee', function() {
 	gulp.src('./source/models/*.coffee')
 		.pipe(coffee())
 		.pipe(gulp.dest(modelsDest));
-	gulp.src('./source/server/*.coffee')
+	gulp.src('./source/api/*.coffee')
 		.pipe(coffee({bare: true}))
 		.pipe(gulp.dest(serverDest));
 });
 
+gulp.task('js', function() {
+	var logicDest = (config.environment !== 'production' ? './public/logic/' : './.tmp/logic/');
+
+	gulp.src('./source/logic/*.js')
+		.pipe(gulp.dest(logicDest));
+})
+
 gulp.task('jsx', function() {
-	gulp.src('./source/flux/*.js')
-		.pipe(gulp.dest('./public/flux/'));
-	gulp.src('./source/components/*.jsx')
+	gulp.src('./source/components/**/*.jsx')
 		.pipe(react())
-		.pipe(concat('components.js'))
 		.pipe(gulp.dest('./public/components/'));
 });
 

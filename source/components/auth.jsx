@@ -1,50 +1,40 @@
-var AuthControls = React.createClass({
+var AuthControls = React.createClass(_.merge(EventListenerMixin, {
 	getInitialState: function() {
 		return {
-			user: AppActions.getUser(),
+			user: dosh.state.user,
 			openPanel: null
 		};
 	},
 
 	componentWillMount: function() {
-		var self = this;
-		self.eventListeners = [];
-		self.addListener('login', self.handleDataUpdate);
-		self.addListener('logout', self.handleDataUpdate);
-	},
-
-	componentWillUnmount: function() {
-		_.forEach(this.eventListeners, function(listener) {
-			events.removeListener(listener.event, listener.callback);
-		});
-	},
-
-	addListener: function(event, callback) {
-		events.addListener(event, callback);
-		this.eventListeners.push({
-			event: event,
-			callback: callback
-		});
+		this.addPropListener('user', this.handleDataUpdate);
 	},
 
 	handleDataUpdate: function() {
 		this.setState({
-			user: AppActions.getUser()
+			user: dosh.state.user
 		});
 	},
 
 	handleLoginClick: function() {
-		this.setState({openPanel: 'login'});
+		this.setState({
+			openPanel: 'login'
+		});
 	},
 
 	handleLoginSubmit: function(evt) {
 		evt.preventDefault();
 		var self = this,
 			data = {};
+
 		_.forEach($('.log-in-panel').serializeArray(), function(pair) {
 			data[pair.name] = pair.value;
 		});
-		payload = {user: JSON.stringify(data)};
+
+		payload = {
+			user: JSON.stringify(data)
+		};
+
 		$.ajax({
 			type: 'POST',
 			url: '/api/loginUser',
@@ -54,8 +44,9 @@ var AuthControls = React.createClass({
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
-					//self.props.handleLogin(data.email);
-					AppActions.login(data.email);
+					dosh.store.set({
+						user: data.email
+					});
 				}
 			}
 		}).fail(function(xhr, errorType, error) {
@@ -68,14 +59,18 @@ var AuthControls = React.createClass({
 				}
 				// User is already logged in
 				if (response.errorCode === 41) {
-					AppActions.login(data.email);
+					dosh.store.set({
+						user: data.email
+					});
 				}
 			}
 		});
 	},
 
 	handleRegisterClick: function() {
-		this.setState({openPanel: 'register'});
+		this.setState({
+			openPanel: 'register'
+		});
 	},
 
 	handleRegisterSubmit: function(evt) {
@@ -85,7 +80,9 @@ var AuthControls = React.createClass({
 		_.forEach($('.register-panel').serializeArray(), function(pair) {
 			data[pair.name] = pair.value;
 		});
-		payload = {user: JSON.stringify(data)};
+		payload = {
+			user: JSON.stringify(data)
+		};
 		$.ajax({
 			type: 'POST',
 			url: '/api/createUser',
@@ -95,7 +92,9 @@ var AuthControls = React.createClass({
 			if (self.isMounted()) {
 				if (!response.isError) {
 					self.handlePanelDismiss();
-					AppActions.login(data.email);
+					dosh.store.set({
+						user: data.email
+					});
 				}
 			}
 		});
@@ -109,7 +108,9 @@ var AuthControls = React.createClass({
 			dataType: 'json'
 		}).done(function(response) {
 			if (self.isMounted()) {
-				AppActions.logout();
+				dosh.store.set({
+					user: null
+				});
 			}
 		}).fail(function(xhr, errorType, error) {
 			if (self.isMounted()) {
@@ -121,14 +122,18 @@ var AuthControls = React.createClass({
 				}
 				// User is already logged out
 				if (response.errorCode === 40) {
-					AppActions.logout();
+					dosh.store.set({
+						user: null
+					});
 				}
 			}
 		});
 	},
 
 	handlePanelDismiss: function() {
-		this.setState({openPanel: null});
+		this.setState({
+			openPanel: null
+		});
 	},
 
 	render: function() {
@@ -145,7 +150,7 @@ var AuthControls = React.createClass({
 			{this.state.openPanel === 'register' ? <RegisterPanel submitHandler={this.handleRegisterSubmit} dismissHandler={this.handlePanelDismiss}/> : null}
 		</div>;
 	}
-});
+}));
 
 var LoginButton = React.createClass({
 	render: function() {
@@ -157,19 +162,17 @@ var LoginButton = React.createClass({
 
 var LoginPanel = React.createClass({
 	getInitialState: function() {
-		return {
-			clickHandler: null
-		};
+		return {};
 	},
 
 	componentWillMount: function() {
 		var self = this;
-		this.state.clickHandler = function(evt) {
+		self.clickHandler = function(evt) {
 			if ($(evt.target).closest('.log-in-panel').length === 0) {
 				self.props.dismissHandler();
 			}
 		};
-		window.$document.on('click', this.state.clickHandler);
+		window.$document.on('click', self.clickHandler);
 	},
 
 	componentDidMount: function() {
@@ -177,7 +180,7 @@ var LoginPanel = React.createClass({
 	},
 
 	componentWillUnmount: function() {
-		window.$document.off('click', this.state.clickHandler);
+		window.$document.off('click', this.clickHandler);
 	},
 
 	render: function() {
@@ -218,19 +221,17 @@ var RegisterButton = React.createClass({
 
 var RegisterPanel = React.createClass({
 	getInitialState: function() {
-		return {
-			clickHandler: null
-		};
+		return {};
 	},
 
 	componentWillMount: function() {
 		var self = this;
-		this.state.clickHandler = function(evt) {
+		self.clickHandler = function(evt) {
 			if ($(evt.target).closest('.register-panel').length === 0) {
 				self.props.dismissHandler();
 			}
 		};
-		window.$document.on('click', this.state.clickHandler);
+		window.$document.on('click', self.clickHandler);
 	},
 
 	componentDidMount: function() {
@@ -238,7 +239,7 @@ var RegisterPanel = React.createClass({
 	},
 
 	componentWillUnmount: function() {
-		window.$document.off('click', this.state.clickHandler);
+		window.$document.off('click', this.clickHandler);
 	},
 
 	render: function() {

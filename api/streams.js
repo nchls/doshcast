@@ -99,9 +99,7 @@ module.exports = {
         console.log('message: ', err.errmsg);
         return;
       }
-      return res.status(200).send({
-        isError: false
-      });
+      return res.status(200).send(result[0]);
     });
   }
 };

@@ -27,4 +27,13 @@
 		doshFormat: (fig) ->
 			fig = (fig.toFixed 2) + ''
 
+	metrics = {}
+
+	global.perf =
+		start: (evtName) ->
+			metrics[evtName] = global.performance.now()
+		end: (evtName) ->
+			duration = global.performance.now() - metrics[evtName]
+			global.util.log(evtName + ': ' + duration.toFixed(2) + ' ms')
+
 )(window)

@@ -33,22 +33,22 @@ var App = React.createClass(_.merge(EventListenerMixin, {
 	},
 
 	render: function() {
-		return <div>
-			<div className="topBar cf">
-				<header>
-					<a href="/">
-						<h1>DoshCast</h1>
-						<small>alpha!</small>
-					</a>
-				</header>
+		return React.createElement("div", null, 
+			React.createElement("div", {className: "topBar cf"}, 
+				React.createElement("header", null, 
+					React.createElement("a", {href: "/"}, 
+						React.createElement("h1", null, "DoshCast"), 
+						React.createElement("small", null, "alpha!")
+					)
+				), 
 
-				<PrimaryNav/>
+				React.createElement(PrimaryNav, null), 
 
-				<AuthControls/>
-			</div>
+				React.createElement(AuthControls, null)
+			), 
 
-			{document.location.pathname === '/accounts' ? <AccountsPage/> : null}
-			{document.location.pathname === '/ledger' ? <LedgerPage/> : null}
-		</div>;
+			document.location.pathname === '/accounts' ? React.createElement(AccountsPage, null) : null, 
+			document.location.pathname === '/ledger' ? React.createElement(LedgerPage, null) : null
+		);
 	}
 }));

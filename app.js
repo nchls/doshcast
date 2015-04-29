@@ -7,9 +7,9 @@ var bodyParser = require('body-parser');
 
 var appPrivate = require('./app-private');
 
-var middleware = require('./server/middleware');
-var auth = require('./server/auth');
-var streams = require('./server/streams');
+var middleware = require('./api/middleware');
+var auth = require('./api/auth');
+var streams = require('./api/streams');
 
 var app = express();
 
