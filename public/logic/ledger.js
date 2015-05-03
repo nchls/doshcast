@@ -9,8 +9,11 @@
       'semiannually': [6, 'months'],
       'annually': [1, 'years']
     };
-    getLedgerData = function(data, endDelta) {
-      var currentValues, dataDates, dataEnd, dataStart, ledger, manuals, mutableFields, output, revisions, streams, transactionDates;
+    getLedgerData = function(data, indexDate, endDelta) {
+      var currentValues, dataDates, dataEnd, dataStart, foundIndex, ledger, ledgerOutput, manuals, mutableFields, output, revisions, streams, transactionDates;
+      if (indexDate == null) {
+        indexDate = void 0;
+      }
       if (endDelta == null) {
         endDelta = 90;
       }
@@ -27,12 +30,15 @@
       transactionDates = getTransactionDates(streams, dataEnd);
       mutableFields = getMutableFields();
       currentValues = getInitialValues(streams, mutableFields);
-      ledger = getLedger(streams, manuals, revisions, dataDates, transactionDates, currentValues);
+      ledgerOutput = getLedger(streams, manuals, revisions, dataDates, transactionDates, currentValues, indexDate);
+      ledger = ledgerOutput.ledger;
+      foundIndex = ledgerOutput.foundIndex;
       output = {
         ledger: ledger,
         manuals: manuals,
         revisions: revisions,
-        streams: streams
+        streams: streams,
+        foundIndex: foundIndex
       };
       perf.end('PROCESSING');
       return output;
@@ -174,10 +180,12 @@
       perf.end('getMutableFields');
       return output;
     };
-    getLedger = function(streams, manuals, revisions, dataDates, transactionDates, currentValues) {
-      var amount, balance, current, day, i, interest, j, ledger, len, len1, manual, manualId, ref, ref1, ref2, ref3, ref4, startDate, stream, streamEntry, streamIdx, streamsData, transDate, ymd;
+    getLedger = function(streams, manuals, revisions, dataDates, transactionDates, currentValues, indexDate) {
+      var amount, balance, current, day, foundIndex, i, interest, j, ledger, len, len1, manual, manualId, output, ref, ref1, ref2, ref3, ref4, startDate, stream, streamEntry, streamIdx, streamsData, transDate, ymd;
       perf.start('getLedger');
       ledger = [];
+      indexDate = indexDate.format('YYYY-MM-DD');
+      foundIndex = false;
       for (i = 0, len = dataDates.length; i < len; i++) {
         day = dataDates[i];
         ymd = day.format('YYYY-MM-DD');
@@ -245,14 +253,23 @@
           }
           streamsData.push(streamEntry);
         }
+        if ((indexDate && !foundIndex) && ymd === indexDate) {
+          foundIndex = ledger.length;
+        }
         ledger.push({
           ymd: ymd,
           moment: day,
           streams: streamsData
         });
       }
+      output = {
+        ledger: ledger
+      };
+      if (indexDate) {
+        output.foundIndex = foundIndex;
+      }
       perf.end('getLedger');
-      return ledger;
+      return output;
     };
     return util.namespacer('dosh.services').ledger = {
       getLedgerData: getLedgerData

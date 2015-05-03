@@ -1,4 +1,4 @@
-( (global) ->
+( (global, performance) ->
 
 	global.util =
 
@@ -31,9 +31,9 @@
 
 	global.perf =
 		start: (evtName) ->
-			metrics[evtName] = global.performance.now()
+			metrics[evtName] = performance.now()
 		end: (evtName) ->
-			duration = global.performance.now() - metrics[evtName]
+			duration = performance.now() - metrics[evtName]
 			global.util.log(evtName + ': ' + duration.toFixed(2) + ' ms')
 
-)(window)
+)(window, window.performance)

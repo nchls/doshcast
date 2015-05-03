@@ -3,29 +3,29 @@ var PrimaryNav = React.createClass({
 		return <nav className="primary-nav">
 			<ul className="cf">
 				<li className={document.location.pathname === '/dashboard' ? 'active' : ''}>
-					<a href="/dashboard">
+					<Link to="dashboard">
 						<span><i className="fa fa-tasks"></i> Dashboard</span>
-					</a>
+					</Link>
 				</li>
 				<li className={document.location.pathname === '/accounts' ? 'active' : ''}>
-					<a href="/accounts">
+					<Link to="accounts">
 						<span><i className="fa fa-bank"></i> Accounts</span>
-					</a>
+					</Link>
 				</li>
 				<li className={document.location.pathname === '/ledger' ? 'active' : ''}>
-					<a href="/ledger">
+					<Link to="ledger">
 						<span><i className="fa fa-calendar"></i> Ledger</span>
-					</a>
+					</Link>
 				</li>
 				<li className={document.location.pathname === '/goals' ? 'active' : ''}>
-					<a href="/goals">
+					<Link to="goals">
 						<span><i className="fa fa-rocket"></i> Goals</span>
-					</a>
+					</Link>
 				</li>
 				<li className={document.location.pathname === '/projections' ? 'active' : ''}>
-					<a href="/projection">
+					<Link to="projection">
 						<span><i className="fa fa-line-chart"></i> Projection</span>
-					</a>
+					</Link>
 				</li>
 			</ul>
 		</nav>;

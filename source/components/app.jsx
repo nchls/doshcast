@@ -1,3 +1,10 @@
+var Router = ReactRouter,
+
+	DefaultRoute = Router.DefaultRoute,
+	Link = Router.Link,
+	Route = Router.Route,
+	RouteHandler = Router.RouteHandler;
+
 var App = React.createClass(_.merge(EventListenerMixin, {
 	getInitialState: function() {
 		return {};
@@ -47,8 +54,28 @@ var App = React.createClass(_.merge(EventListenerMixin, {
 				<AuthControls/>
 			</div>
 
-			{document.location.pathname === '/accounts' ? <AccountsPage/> : null}
-			{document.location.pathname === '/ledger' ? <LedgerPage/> : null}
+			<RouteHandler/>
 		</div>;
 	}
 }));
+
+util.onReady(function() {
+	var routes = (
+		<Route handler={App}>
+			<DefaultRoute handler={DashboardPage}/>
+			<Route name="dashboard" path="dashboard" handler={DashboardPage}/>
+			<Route name="accounts" path="accounts" handler={AccountsPage}/>
+			<Route name="accounts-add" path="accounts/add" handler={AddStream}/>
+			<Route name="accounts-edit" path="accounts/edit/:streamId" handler={EditStream}/>
+			<Route name="accounts-revise" path="accounts/revise/:streamId" handler={AddStreamRevision}/>
+			<Route name="accounts-history" path="accounts/history/:streamId" handler={ViewStreamHistory}/>
+			<Route name="ledger" path="ledger" handler={LedgerPage}/>
+			<Route name="goals" path="goals" handler={GoalsPage}/>
+			<Route name="projection" path="projection" handler={ProjectionPage}/>
+		</Route>
+	);
+
+	Router.run(routes, Router.HistoryLocation, function(Handler) {
+		React.render(<Handler/>, document.getElementById('app'));
+	});
+});

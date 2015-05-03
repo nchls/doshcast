@@ -27,14 +27,6 @@ app.use(session({
 	saveUninitialized: false
 }));
 
-app.get('/:page(|dashboard|accounts|ledger|goals|projection)', function(req, res) {
-	fs.readFile('source/templates/base.html', {encoding: 'utf8'}, function(err, template) {
-		var user = (req.session.user ?  "'" + secureFilters.js(req.session.user.email) + "'" : null),
-			payload = template.replace('{{user}}', user);
-		res.send(payload);
-	});
-});
-
 app.get('/api/getData', middleware.requireLogin, streams.getData);
 
 app.post('/api/createStreamData', middleware.requireLogin, postParser, streams.createStreamData);
@@ -42,6 +34,14 @@ app.post('/api/createStreamData', middleware.requireLogin, postParser, streams.c
 app.post('/api/createUser', postParser, auth.createUser);
 app.post('/api/loginUser', postParser, auth.loginUser);
 app.post('/api/logoutUser', middleware.requireLogin, postParser, auth.logoutUser);
+
+app.get('\/*', function(req, res) {
+	fs.readFile('source/templates/base.html', {encoding: 'utf8'}, function(err, template) {
+		var user = (req.session.user ?  "'" + secureFilters.js(req.session.user.email) + "'" : null),
+			payload = template.replace('{{user}}', user);
+		res.send(payload);
+	});
+});
 
 app.use(function(req, res, next) {
 	res.status(404).send('404');

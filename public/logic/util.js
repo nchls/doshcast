@@ -1,5 +1,5 @@
 (function() {
-  (function(global) {
+  (function(global, performance) {
     var metrics;
     global.util = {
       onReady: function(fn) {
@@ -35,14 +35,14 @@
     metrics = {};
     return global.perf = {
       start: function(evtName) {
-        return metrics[evtName] = global.performance.now();
+        return metrics[evtName] = performance.now();
       },
       end: function(evtName) {
         var duration;
-        duration = global.performance.now() - metrics[evtName];
+        duration = performance.now() - metrics[evtName];
         return global.util.log(evtName + ': ' + duration.toFixed(2) + ' ms');
       }
     };
-  })(window);
+  })(window, window.performance);
 
 }).call(this);

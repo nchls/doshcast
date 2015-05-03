@@ -1,3 +1,10 @@
+var Router = ReactRouter,
+
+	DefaultRoute = Router.DefaultRoute,
+	Link = Router.Link,
+	Route = Router.Route,
+	RouteHandler = Router.RouteHandler;
+
 var App = React.createClass(_.merge(EventListenerMixin, {
 	getInitialState: function() {
 		return {};
@@ -47,8 +54,28 @@ var App = React.createClass(_.merge(EventListenerMixin, {
 				React.createElement(AuthControls, null)
 			), 
 
-			document.location.pathname === '/accounts' ? React.createElement(AccountsPage, null) : null, 
-			document.location.pathname === '/ledger' ? React.createElement(LedgerPage, null) : null
+			React.createElement(RouteHandler, null)
 		);
 	}
 }));
+
+util.onReady(function() {
+	var routes = (
+		React.createElement(Route, {handler: App}, 
+			React.createElement(DefaultRoute, {handler: DashboardPage}), 
+			React.createElement(Route, {name: "dashboard", path: "dashboard", handler: DashboardPage}), 
+			React.createElement(Route, {name: "accounts", path: "accounts", handler: AccountsPage}), 
+			React.createElement(Route, {name: "accounts-add", path: "accounts/add", handler: AddStream}), 
+			React.createElement(Route, {name: "accounts-edit", path: "accounts/edit/:streamId", handler: EditStream}), 
+			React.createElement(Route, {name: "accounts-revise", path: "accounts/revise/:streamId", handler: AddStreamRevision}), 
+			React.createElement(Route, {name: "accounts-history", path: "accounts/history/:streamId", handler: ViewStreamHistory}), 
+			React.createElement(Route, {name: "ledger", path: "ledger", handler: LedgerPage}), 
+			React.createElement(Route, {name: "goals", path: "goals", handler: GoalsPage}), 
+			React.createElement(Route, {name: "projection", path: "projection", handler: ProjectionPage})
+		)
+	);
+
+	Router.run(routes, Router.HistoryLocation, function(Handler) {
+		React.render(React.createElement(Handler, null), document.getElementById('app'));
+	});
+});

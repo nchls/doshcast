@@ -9,7 +9,7 @@
 		'annually': [1, 'years']
 
 
-	getLedgerData = (data, endDelta = 90) ->
+	getLedgerData = (data, indexDate = undefined, endDelta = 90) ->
 
 		perf.start 'PROCESSING'
 
@@ -30,13 +30,16 @@
 		mutableFields = getMutableFields()
 		currentValues = getInitialValues(streams, mutableFields)
 
-		ledger = getLedger(streams, manuals, revisions, dataDates, transactionDates, currentValues)
+		ledgerOutput = getLedger(streams, manuals, revisions, dataDates, transactionDates, currentValues, indexDate)
+		ledger = ledgerOutput.ledger
+		foundIndex = ledgerOutput.foundIndex
 
 		output =
 			ledger: ledger
 			manuals: manuals
 			revisions: revisions
 			streams: streams
+			foundIndex: foundIndex
 
 		perf.end 'PROCESSING'
 
@@ -169,10 +172,12 @@
 		return output
 
 
-	getLedger = (streams, manuals, revisions, dataDates, transactionDates, currentValues) ->
+	getLedger = (streams, manuals, revisions, dataDates, transactionDates, currentValues, indexDate) ->
 		perf.start 'getLedger'
 
 		ledger = []
+		indexDate = indexDate.format('YYYY-MM-DD')
+		foundIndex = false
 
 		for day in dataDates
 
@@ -246,14 +251,24 @@
 
 				streamsData.push(streamEntry)
 
+			# Mark position of reference date
+			if (indexDate and not foundIndex) and ymd is indexDate
+				foundIndex = ledger.length
+
 			ledger.push(
 				ymd: ymd
 				moment: day
 				streams: streamsData
 			)
 
+		output = 
+			ledger: ledger
+		
+		if indexDate
+			output.foundIndex = foundIndex
+
 		perf.end 'getLedger'
-		return ledger
+		return output
 
 
 	util.namespacer('dosh.services').ledger =

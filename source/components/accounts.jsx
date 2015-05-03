@@ -1,66 +1,17 @@
 var AccountsPage = React.createClass({
 	getInitialState: function() {
-		return {
-			openPanel: null,
-			editingStream: null
-		};
-	},
-
-	handleAddStreamClick: function(evt) {
-		evt.preventDefault();
-		return this.setState({
-			openPanel: 'addStream'
-		});
-	},
-
-	handleCloseStreamForm: function(evt) {
-		evt.preventDefault();
-		return this.setState({
-			openPanel: null,
-			editingStream: null
-		});
-	},
-
-	handleAddStreamSubmit: function(evt) {
-		var self = this;
-		if (self.isMounted() && self.state.openPanel === 'addStream') {
-			self.setState({
-				openPanel: null
-			});
-		}
-	},
-
-	handleStreamClick: function(evt, stream) {
-		evt.preventDefault();
-		return this.setState({
-			openPanel: 'editStream',
-			editingStream: stream
-		});
+		return {};
 	},
 
 	render: function() {
 		return <div className="accounts padded">
 			<h2>Accounts</h2>
 			<div className="actionBar">
-				{this.state.openPanel === null ?
-					<a className="btn" onClick={this.handleAddStreamClick} href="/accounts/add">
-						<i className="fa fa-plus"></i> Add Account
-					</a>
-				: null}
-				{_.includes(['addStream', 'editStream'], this.state.openPanel) ?
-					<div>
-						<a className="btn secondary" onClick={this.handleCloseStreamForm} href="/accounts">
-							<i className="fa fa-arrow-left"></i> Accounts
-						</a>
-						<button className="btn tertiary small">
-							<i className="fa fa-trash-o"></i> Delete Account
-						</button>
-					</div>
-				: null}
+				<Link className="btn" to="accounts-add" params={{mode:'add'}}>
+					<i className="fa fa-plus"></i> Add Account
+				</Link>
 			</div>
-			{this.state.openPanel === null ? <StreamsList handleStreamClick={this.handleStreamClick}/> : null}
-			{this.state.openPanel === 'addStream' ? <StreamForm action="add" handleSubmit={this.handleAddStreamSubmit} handleCancel={this.handleCloseStreamForm} stream={{}}/> : null}
-			{this.state.openPanel === 'editStream' ? <StreamForm action="edit" handleSubmit={this.handleEditStreamSubmit} handleCancel={this.handleCloseStreamForm} stream={this.state.editingStream}/> : null}
+			<StreamsList/>
 		</div>;
 	}
 });
@@ -115,7 +66,7 @@ var StreamsGroup = React.createClass({
 			<h3>{StreamsList.getTypeLabel(self.props.type)}</h3>
 			<ul>
 				{self.props.streams.map( function(stream) {
-					return <StreamsListItem key={stream._id} stream={stream} handleStreamClick={self.props.handleStreamClick}/>;
+					return <StreamsListItem key={stream._id} stream={stream}/>;
 				})}
 			</ul>
 		</li>;
@@ -123,24 +74,151 @@ var StreamsGroup = React.createClass({
 });
 
 var StreamsListItem = React.createClass({
-	handleStreamClick: function(evt) {
-		evt.preventDefault();
-		this.props.handleStreamClick(evt, this.props.stream);
-	},
-
 	render: function() {
 		var self = this;
 		return <li className="item">
-			<a href={"/accounts/edit/" + self.props.stream._id} onClick={self.handleStreamClick}>
+			<Link to="accounts-edit" params={{streamId: self.props.stream._id}}>
 				<div className="streamName">{self.props.stream.name}</div>
 				<div className="streamType">{StreamsList.getSubtypeLabel(self.props.stream.streamSubtype)}</div>
-				<a href={"/accounts/edit/" + self.props.stream._id} onClick={self.handleStreamClick}>Edit <small>base data</small></a>
-				<a href={"/accounts/revise/" + self.props.stream._id}>Add <small>revision</small></a>
-				<a href={"/accounts/revise/" + self.props.stream._id}>Another <small>action</small></a>
-			</a>
+			</Link>
+			<ul className="stream-options">
+				<Link to="accounts-edit" params={{streamId: self.props.stream._id}}>
+					Edit base data
+				</Link>
+				<Link to="accounts-revise" params={{streamId: self.props.stream._id}}>
+					Add revision
+				</Link>
+				<Link to="accounts-history" params={{streamId: self.props.stream._id}}>
+					View history
+				</Link>
+			</ul>
 		</li>;
 	}
 });
+
+var AddStream = React.createClass(_.merge(EventListenerMixin, {
+	getInitialState: function() {
+		return {
+			mode: 'add',
+			params: {},
+			stream: {}
+		};
+	},
+
+	handleSubmit: function() {
+		// redirect to accounts
+	},
+
+	render: function() {
+		return <div className="accounts-form padded">
+			<h2>{this.state.mode === 'add' ? 'Add' : 'Edit'} Account</h2>
+			<div className="actionBar">
+				<div>
+					<Link className="btn secondary" to="accounts">
+						<i className="fa fa-arrow-left"></i> Accounts
+					</Link>
+					{(this.state.mode !== 'add' ?
+						<button className="btn tertiary small">
+							<i className="fa fa-trash-o"></i> Delete Account
+						</button>
+					: null)}
+				</div>
+			</div>
+			<StreamForm action="add" handleSubmit={this.handleSubmit} stream={this.state.stream}/>
+		</div>;
+	}
+}));
+
+var EditStream = React.createClass(_.merge(EventListenerMixin, {
+	contextTypes: {
+		router: React.PropTypes.func
+	},
+
+	getInitialState: function() {
+		var params = this.context.router.getCurrentParams();
+		return {
+			mode: 'edit',
+			params: params,
+			stream: _.find(dosh.state.streams, {_id: params.streamId})
+		};
+	},
+
+	componentDidMount: function() {
+		this.addPropListener('streams', this.handleStreamsUpdate);
+	},
+
+	handleStreamsUpdate: function() {
+		this.setState({
+			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
+		});
+	},
+
+	render: function() {
+		return <div className="accounts-form padded">
+			<h2>Edit Account</h2>
+			<div className="actionBar">
+				<div>
+					<Link className="btn secondary" to="accounts">
+						<i className="fa fa-arrow-left"></i> Accounts
+					</Link>
+					<button className="btn tertiary small">
+						<i className="fa fa-trash-o"></i> Delete Account
+					</button>
+				</div>
+			</div>
+			{(this.state.stream ? 
+				<StreamForm action="edit" handleSubmit={this.handleSubmit} stream={this.state.stream}/>
+			: null)}
+		</div>;
+	}
+}));
+
+var AddStreamRevision = React.createClass(_.merge(EventListenerMixin, {
+	contextTypes: {
+		router: React.PropTypes.func
+	},
+
+	getInitialState: function() {
+		var params = this.context.router.getCurrentParams();
+		return {
+			mode: 'revise',
+			params: params,
+			stream: _.find(dosh.state.streams, {_id: params.streamId})
+		};
+	},
+
+	componentDidMount: function() {
+		this.addPropListener('streams', this.handleStreamsUpdate);
+	},
+
+	handleStreamsUpdate: function() {
+		this.setState({
+			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
+		});
+	},
+
+	render: function() {
+		return <div className="accounts-form padded">
+			<h2>Add Account Revision</h2>
+			<div className="actionBar">
+				<div>
+					<Link className="btn secondary" to="accounts">
+						<i className="fa fa-arrow-left"></i> Accounts
+					</Link>
+				</div>
+			</div>
+			{(this.state.stream ? 
+				<StreamForm action="revise" handleSubmit={this.handleSubmit} stream={this.state.stream}/>
+			: null)}
+		</div>;
+	}
+}));
+
+var ViewStreamHistory = React.createClass(_.merge(EventListenerMixin, {
+	render: function() {
+		return <p>History!</p>;
+	}
+}));
 
 var StreamForm = React.createClass({
 	getInitialState: function() {
@@ -222,8 +300,8 @@ var StreamForm = React.createClass({
 			return type;
 		},
 
-		getTransferStreams: function() {
-			return _.filter($scope.streams, function(stream) {
+		getTransferStreams: function(streams) {
+			return _.filter(streams, function(stream) {
 				return _.includes(['deposit-account', 'line-of-credit'], stream.type);
 			});
 		}
@@ -258,7 +336,7 @@ var StreamForm = React.createClass({
 		}).done(function(response, status, xhr) {
 			if (status === 'success') {
 				if (self.props.action === 'add') {
-					Store.push('streams', response);
+					dosh.store.push('streams', response);
 				} else {
 					// TODO: edit action
 				}
@@ -272,10 +350,11 @@ var StreamForm = React.createClass({
 	render: function() {
 		var self = this,
 			fields = StreamForm.getStreamFields();
-		return <form className="streamForm" onSubmit={this.handleSubmit}>
+		return <form className="streamForm" onSubmit={self.handleSubmit}>
 			{fields.map( function(field) {
 				var fieldId = field[0],
 					fieldData = field[1],
+					fieldValue = self.state.stream[fieldId];
 					inputType = StreamForm.getInputType(fieldData),
 					helpText = StreamForm.getFieldHelp(fieldId, self.state.stream.streamType),
 					label = StreamForm.getFieldLabel(fieldData, self.state.stream.streamType),
@@ -287,7 +366,7 @@ var StreamForm = React.createClass({
 					return null;
 				} else {
 					if (fieldData.showFor === undefined || _.includes(fieldData.showFor, self.state.stream.streamType)) {
-						return <StreamField key={fieldId} fieldId={fieldId} fieldData={fieldData} inputType={inputType} helpText={helpText} label={label} isRequired={isRequired} handleStreamUpdate={self.handleStreamUpdate} />;
+						return <StreamField key={fieldId} fieldId={fieldId} value={fieldValue} fieldData={fieldData} inputType={inputType} helpText={helpText} label={label} isRequired={isRequired} handleStreamUpdate={self.handleStreamUpdate} />;
 					}
 				}
 			})}
@@ -306,10 +385,13 @@ var StreamForm = React.createClass({
 
 var StreamField = React.createClass({
 	getInitialState: function() {
-		var self = this;
-		return {
-			value: (self.props.fieldData.default !== undefined ? self.props.fieldData.default : '')
-		};
+		var output = {};
+		if (this.props.value === undefined) {
+			output.value = (this.props.fieldData.default !== undefined ? this.props.fieldData.default : '');
+		} else {
+			output.value = this.props.value;
+		}
+		return output;
 	},
 
 	handleChange: function(evt) {
@@ -348,7 +430,7 @@ var StreamField = React.createClass({
 				{self.props.inputType !== 'select' ?
 						<input type={self.props.inputType} id={'newStream-' + self.props.fieldId} value={value} checked={value} onChange={self.handleChange} required={self.props.isRequired}/>
 					:
-						<select id={'newStream-' + self.props.fieldId} onChange={self.handleChange} required={self.props.isRequired}>
+						<select id={'newStream-' + self.props.fieldId} value={value} onChange={self.handleChange} required={self.props.isRequired}>
 							<option value="">--- Choose {self.props.fieldData.label.toLowerCase()} ---</option>
 							{StreamForm.getChoices(self.props.fieldData, streams).map(function(choice) {
 								if (self.props.fieldId !== 'streamSubtype') {

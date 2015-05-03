@@ -1,7 +1,9 @@
 var LedgerPage = React.createClass(_.merge(EventListenerMixin, {
 	getInitialState: function() {
 		return {
-			streams: dosh.state.streams
+			streams: dosh.state.streams,
+			revisions: dosh.state.revisions,
+			manuals: dosh.state.manuals
 		};
 	},
 
@@ -42,6 +44,10 @@ var Ledger = React.createClass({
 		};
 	},
 
+	componentWillMount: function() {
+		this.setLedgerData(this.props);
+	},
+
 	componentWillReceiveProps: function(nextProps) {
 		this.setLedgerData(nextProps);
 	},
@@ -49,8 +55,12 @@ var Ledger = React.createClass({
 	setLedgerData: function(props) {
 		var ledgerData = dosh.services.ledger.getLedgerData({
 				streams: props.streams 
-			}),
+			}, moment().subtract(7, 'days')),
 			subStreams;
+
+		if (ledgerData.foundIndex) {
+			ledgerData.ledger = ledgerData.ledger.slice(ledgerData.foundIndex);
+		}
 
 		perf.start('FORMATTING');
 		ledgerData.ledger = this.formatLedgerTable(ledgerData.ledger);
