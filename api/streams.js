@@ -59,8 +59,16 @@ module.exports = {
       });
     });
   },
-  createStreamData: function(req, res) {
-    var collection, data, model, obj, ymd;
+  setStreamData: function(req, res) {
+    var collection, data, mode, model, obj, streamId, userId, ymd;
+    mode = req.body.mode;
+    if (['add', 'edit'].indexOf(mode) === -1) {
+      res.status(400).send({
+        isError: true,
+        msg: 'Parameter required: mode.'
+      });
+      return;
+    }
     if (req.body.stream) {
       data = req.body.stream;
       collection = 'streams';
@@ -80,26 +88,65 @@ module.exports = {
       });
       return;
     }
+    userId = mongoskin.helper.toObjectID(req.session.user._id);
     obj = model.prototype.jsonToObject(data);
-    obj.owner = mongoskin.helper.toObjectID(req.session.user._id);
     ymd = moment().format('YYYY-MM-DD');
-    obj.created = ymd;
     obj.modified = ymd;
-    if (collection === 'streams') {
-      obj.isActive = true;
-    }
-    return db.collection(collection).insert(obj, function(err, result) {
-      if (err) {
-        res.status(500).send({
-          isError: true,
-          errorCode: 50,
-          msg: 'Error in database insert.'
-        });
-        console.log('data: ', data);
-        console.log('message: ', err.errmsg);
-        return;
+    if (mode === 'add') {
+      obj.created = ymd;
+      obj.owner = userId;
+      if (collection === 'streams') {
+        obj.isActive = true;
       }
-      return res.status(200).send(result[0]);
-    });
+    } else {
+      streamId = mongoskin.helper.toObjectID(obj._id);
+      delete obj._id;
+      delete obj.owner;
+      delete obj.created;
+    }
+    if (mode === 'add') {
+      return db.collection('streams').insert(obj, function(err, result) {
+        if (err) {
+          res.status(500).send({
+            isError: true,
+            errorCode: 50,
+            msg: 'Error in database insert.'
+          });
+          console.log('data: ', data);
+          console.log('message: ', err.errmsg);
+          return;
+        }
+        return res.status(200).send(result[0]);
+      });
+    } else {
+      return db.collection('streams').update({
+        _id: streamId,
+        owner: userId
+      }, {
+        $set: obj
+      }, function(err, result) {
+        if (err) {
+          res.status(500).send({
+            isError: true,
+            errorCode: 50,
+            msg: 'Error in database update.'
+          });
+          console.log('data: ', data);
+          console.log('message: ', err.errmsg);
+          return;
+        }
+        if (result !== 1) {
+          res.status(500).send({
+            isError: true,
+            errorCode: 51,
+            msg: 'Error in database update.'
+          });
+          return;
+        }
+        return res.status(200).send({
+          isError: false
+        });
+      });
+    }
   }
 };

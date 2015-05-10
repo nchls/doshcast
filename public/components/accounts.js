@@ -221,6 +221,8 @@ var ViewStreamHistory = React.createClass(_.merge(EventListenerMixin, {
 }));
 
 var StreamForm = React.createClass({displayName: "StreamForm",
+	mixins: [ReactRouter.Navigation],
+
 	getInitialState: function() {
 		return {
 			stream: this.props.stream
@@ -324,21 +326,32 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 		evt.preventDefault();
 		var self = this,
 			data = {
-				stream: JSON.stringify(self.state.stream)
+				mode: self.props.action
 			},
-			endpoint = (self.props.action === 'add' ? '/api/createStreamData' : '/api/editStreamData');
+			streamObj = _.clone(self.state.stream);
+
+		delete streamObj.created;
+		delete streamObj.modified;
+		delete streamObj.owner;
+
+		data.stream = JSON.stringify(streamObj);
 
 		return $.ajax({
 			type: 'POST',
-			url: endpoint,
+			url: '/api/setStreamData',
 			data: data,
 			dataType: 'json'
 		}).done(function(response, status, xhr) {
+			var newStreams;
 			if (status === 'success') {
 				if (self.props.action === 'add') {
 					dosh.store.push('streams', response);
 				} else {
-					// TODO: edit action
+					// Replace stream in state
+					newStreams = _.cloneDeep(dosh.state.streams);
+					newStreams[_.findIndex(newStreams, {_id: self.state.stream._id})] = self.state.stream;
+					dosh.store.set({streams: newStreams});
+					self.transitionTo('accounts');
 				}
 				self.props.handleSubmit();
 			} else {
@@ -362,20 +375,30 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 
 				fieldData.fieldId = fieldId;
 
-				if (!fieldData.label) {
+				if (fieldData.label === undefined) {
 					return null;
-				} else {
-					if (fieldData.showFor === undefined || _.includes(fieldData.showFor, self.state.stream.streamType)) {
-						return React.createElement(StreamField, {key: fieldId, fieldId: fieldId, value: fieldValue, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate});
-					}
 				}
+				if (fieldData.showFor !== undefined && !_.includes(fieldData.showFor, self.state.stream.streamType)) {
+					return null;
+				}
+				if (self.props.action === 'edit' && fieldId === 'streamSubtype') {
+					return null;
+				}
+
+				return React.createElement(StreamField, {key: fieldId, fieldId: fieldId, value: fieldValue, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate});
 			}), 
 			React.createElement("div", {className: "actionBar"}, 
-				React.createElement("a", {className: "btn secondary", onClick: this.props.handleCancel, href: "/accounts"}, 
+				React.createElement(Link, {className: "btn secondary", to: "accounts"}, 
 					"Cancel"
 				), 
-				React.createElement("button", {className: "btn"}, 
-					React.createElement("i", {className: "fa fa-plus"}), " Add Account"
+				(self.props.action === 'add' ? 
+					React.createElement("button", {className: "btn"}, 
+						React.createElement("i", {className: "fa fa-plus"}), " Add Account"
+					)
+				: 
+					React.createElement("button", {className: "btn"}, 
+						React.createElement("i", {className: "fa fa-floppy-o"}), " Save Changes"
+					)
 				)
 			)
 		);

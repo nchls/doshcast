@@ -49,7 +49,16 @@ module.exports =
 		)
 
 
-	createStreamData: (req, res) ->
+	setStreamData: (req, res) ->
+
+		mode = req.body.mode
+
+		if ['add', 'edit'].indexOf(mode) is -1
+			res.status(400).send(
+				isError: true
+				msg: 'Parameter required: mode.'
+			)
+			return
 
 		if req.body.stream
 			data = req.body.stream
@@ -73,30 +82,75 @@ module.exports =
 			)
 			return
 
+		userId = mongoskin.helper.toObjectID(req.session.user._id)
+
 		obj = model::jsonToObject(data)
-		obj.owner = mongoskin.helper.toObjectID(req.session.user._id);
+
 		ymd = moment().format('YYYY-MM-DD')
-		obj.created = ymd
 		obj.modified = ymd
+
+		if mode is 'add'
+			obj.created = ymd
+			obj.owner = userId
+
+			if collection is 'streams'
+				obj.isActive = true
+
+		else
+			streamId = mongoskin.helper.toObjectID(obj._id)
+
+			# Don't trust these from the client
+			delete obj._id
+			delete obj.owner
+			delete obj.created
 
 		# todo: validate
 
-		if collection is 'streams'
-			obj.isActive = true
+		if mode is 'add'
 
-		db.collection(collection).insert(obj, (err, result) ->
+			db.collection('streams').insert(obj, (err, result) ->
 
-			if err
-				res.status(500).send(
-					isError: true
-					errorCode: 50
-					msg: 'Error in database insert.'
+				if err
+					res.status(500).send(
+						isError: true
+						errorCode: 50
+						msg: 'Error in database insert.'
+					)
+					console.log('data: ', data)
+					console.log('message: ', err.errmsg)
+					return
+
+				res.status(200).send(result[0])
+
+			)
+
+		else
+
+			db.collection('streams').update({_id: streamId, owner: userId}, {$set: obj}, (err, result) ->
+
+				if err
+					res.status(500).send(
+						isError: true
+						errorCode: 50
+						msg: 'Error in database update.'
+					)
+					console.log('data: ', data)
+					console.log('message: ', err.errmsg)
+					return
+
+				if result isnt 1
+					res.status(500).send(
+						isError: true
+						errorCode: 51
+						msg: 'Error in database update.'
+					)
+					return
+
+				res.status(200).send(
+					isError: false
 				)
-				console.log('data: ', data)
-				console.log('message: ', err.errmsg)
-				return
 
-			res.status(200).send(result[0])
+			)
 
-		)
+
 

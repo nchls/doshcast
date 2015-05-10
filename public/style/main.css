@@ -121,7 +121,7 @@ input:not([type="checkbox"]):not([type="radio"]) {
   box-shadow: inset 0.1em 0.1em 0.3em rgba(0, 0, 0, 0.15); }
   textarea:hover,
   select:hover,
-  input:not(  [type="checkbox"]):not(  [type="radio"]):hover {
+  input:not([type="checkbox"]):not([type="radio"]):hover {
     border-color: #666; }
 
 /* Utility classes */
@@ -230,7 +230,7 @@ button.close {
 
 .formRow {
   padding: 0.3em 0 0.8em; }
-  .formRow:not(  .inline) label {
+  .formRow:not(.inline) label {
     display: block; }
 
 .panel {
@@ -320,7 +320,7 @@ button.close {
       width: 17em;
       text-align: left;
       line-height: 1.4; }
-      .topBar .auth .panel input:not(      [type="checkbox"]):not(      [type="radio"]) {
+      .topBar .auth .panel input:not([type="checkbox"]):not([type="radio"]) {
         width: 100%; }
       .topBar .auth .panel button {
         float: right; }

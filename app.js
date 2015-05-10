@@ -29,7 +29,7 @@ app.use(session({
 
 app.get('/api/getData', middleware.requireLogin, streams.getData);
 
-app.post('/api/createStreamData', middleware.requireLogin, postParser, streams.createStreamData);
+app.post('/api/setStreamData', middleware.requireLogin, postParser, streams.setStreamData);
 
 app.post('/api/createUser', postParser, auth.createUser);
 app.post('/api/loginUser', postParser, auth.loginUser);
