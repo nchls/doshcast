@@ -16,7 +16,7 @@ var AccountsPage = React.createClass({
 	}
 });
 
-var StreamsList = React.createClass(_.merge(EventListenerMixin, {
+var StreamsList = React.createClass(_.merge({}, EventListenerMixin, {
 	getInitialState: function() {
 		return {
 			streams: dosh.state.streams
@@ -96,7 +96,7 @@ var StreamsListItem = React.createClass({
 	}
 });
 
-var AddStream = React.createClass(_.merge(EventListenerMixin, {
+var AddStream = React.createClass(_.merge({}, EventListenerMixin, {
 	getInitialState: function() {
 		return {
 			mode: 'add',
@@ -129,7 +129,7 @@ var AddStream = React.createClass(_.merge(EventListenerMixin, {
 	}
 }));
 
-var EditStream = React.createClass(_.merge(EventListenerMixin, {
+var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 	contextTypes: {
 		router: React.PropTypes.func
 	},
@@ -173,7 +173,7 @@ var EditStream = React.createClass(_.merge(EventListenerMixin, {
 	}
 }));
 
-var AddStreamRevision = React.createClass(_.merge(EventListenerMixin, {
+var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 	contextTypes: {
 		router: React.PropTypes.func
 	},
@@ -214,7 +214,7 @@ var AddStreamRevision = React.createClass(_.merge(EventListenerMixin, {
 	}
 }));
 
-var ViewStreamHistory = React.createClass(_.merge(EventListenerMixin, {
+var ViewStreamHistory = React.createClass(_.merge({}, EventListenerMixin, {
 	render: function() {
 		return <p>History!</p>;
 	}

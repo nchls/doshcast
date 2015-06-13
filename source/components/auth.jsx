@@ -1,4 +1,4 @@
-var AuthControls = React.createClass(_.merge(EventListenerMixin, {
+var AuthControls = React.createClass(_.merge({}, EventListenerMixin, {
 	getInitialState: function() {
 		return {
 			user: dosh.state.user,
@@ -139,7 +139,7 @@ var AuthControls = React.createClass(_.merge(EventListenerMixin, {
 	render: function() {
 		if (this.state.user !== null) {
 			return <div className="auth">
-				<span className="authed-email">{user}</span>
+				<span className="authed-email">{this.state.user}</span>
 				<LogoutButton clickHandler={this.handleLogoutClick}/>
 			</div>;
 		}

@@ -1,4 +1,4 @@
-var LedgerPage = React.createClass(_.merge(EventListenerMixin, {
+var LedgerPage = React.createClass(_.merge({}, EventListenerMixin, {
 	getInitialState: function() {
 		return {
 			streams: dosh.state.streams,

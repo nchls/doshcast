@@ -5,7 +5,7 @@ var Router = ReactRouter,
 	Route = Router.Route,
 	RouteHandler = Router.RouteHandler;
 
-var App = React.createClass(_.merge(EventListenerMixin, {
+var App = React.createClass(_.merge({}, EventListenerMixin, {
 	getInitialState: function() {
 		return {};
 	},

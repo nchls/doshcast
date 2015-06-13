@@ -33,10 +33,14 @@ module.exports =
 			dbq('streams', 'find', {owner: userId})
 			dbq('manuals', 'find', {owner: userId})
 			dbq('revisions', 'find', {owner: userId})
+			dbq('users', 'find', {_id: userId})
 		]).then( (responses) ->
 			output = {}
 			for response in responses
-				output[response.collection] = response.result
+				if response.collection isnt 'users'
+					output[response.collection] = response.result
+				else
+					output.user = response.result[0].email
 			res.status(200).send(
 				isError: false
 				result: output

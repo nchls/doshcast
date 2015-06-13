@@ -18,9 +18,9 @@
         endDelta = 90;
       }
       perf.start('PROCESSING');
-      manuals = data.manuals;
-      revisions = data.revisions;
-      streams = data.streams;
+      manuals = _.clone(data.manuals);
+      revisions = _.clone(data.revisions);
+      streams = _.clone(data.streams);
       streams = _.sortBy(streams, ['order', 'class', 'streamType', 'streamSubtype', '_id']);
       streams = classifyStreams(streams);
       streams = setStreamColumns(streams);

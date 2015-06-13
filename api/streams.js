@@ -40,13 +40,19 @@ module.exports = {
         owner: userId
       }), dbq('revisions', 'find', {
         owner: userId
+      }), dbq('users', 'find', {
+        _id: userId
       })
     ]).then(function(responses) {
       var i, len, output, response;
       output = {};
       for (i = 0, len = responses.length; i < len; i++) {
         response = responses[i];
-        output[response.collection] = response.result;
+        if (response.collection !== 'users') {
+          output[response.collection] = response.result;
+        } else {
+          output.user = response.result[0].email;
+        }
       }
       return res.status(200).send({
         isError: false,
