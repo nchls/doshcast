@@ -153,6 +153,10 @@ var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 		});
 	},
 
+	handleSubmit: function() {
+		// redirect to accounts
+	},
+
 	render: function() {
 		return React.createElement("div", {className: "accounts-form padded"}, 
 			React.createElement("h2", null, "Edit Account"), 
@@ -195,6 +199,10 @@ var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 		this.setState({
 			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
 		});
+	},
+
+	handleSubmit: function() {
+		// redirect to accounts
 	},
 
 	render: function() {

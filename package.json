@@ -1,6 +1,6 @@
 {
   "name": "DoshCast",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Personal finance projections",
   "author": "Ian Nicholas",
   "homepage": "https://bitbucket.org/aplomb/doshcast",
@@ -15,16 +15,17 @@
     "url": "https://aplomb@bitbucket.org/aplomb/doshcast.git"
   },
   "dependencies": {
+    "body-parser": "*",
+    "easy-pbkdf2": "*",
     "express": "*",
     "express-session": "*",
-    "body-parser": "*",
-    "secure-filters": "*",
-    "react": "*",
-    "easy-pbkdf2": "*",
-    "mongoskin": "*",
     "lodash": "*",
     "moment": "*",
-    "q": "*"
+    "mongodb": "~1.4",
+    "mongoskin": "~1.4",
+    "q": "*",
+    "react": "*",
+    "secure-filters": "*"
   },
   "devDependencies": {
     "bourbon": "*",

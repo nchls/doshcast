@@ -374,7 +374,10 @@ button.close {
   .stream-group > ul .item {
     list-style: none;
     margin: 0 1% 1em;
-    width: 98%; }
+    width: 98%;
+    border: solid 0.2em #ccc; }
+    .stream-group > ul .item:hover {
+      border-color: #aaa; }
     @media screen and (min-width: 30em) {
       .stream-group > ul .item {
         width: 48%; } }

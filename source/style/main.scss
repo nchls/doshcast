@@ -476,6 +476,10 @@ button.close {
 		list-style: none;
 		margin: 0 1% 1em;
 		width: 98%;
+		border: solid 0.2em #ccc;
+		&:hover {
+			border-color: #aaa;
+		}
 		@media screen and (min-width:30em) {
 			width: 48%;
 		}
