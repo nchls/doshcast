@@ -247,19 +247,19 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 		},
 
 		getInputType: function(fieldData) {
-			if (fieldData.type === 'nullBoolean' || fieldData.type === 'boolean') {
+			if (fieldData.type === 'boolean') {
 				return 'checkbox';
 			}
-			if (fieldData.choices || fieldData.type === 'foreignKey') {
+			if (fieldData.choices || fieldData.foreignModel !== undefined) {
 				return 'select';
 			}
-			if (fieldData.type === 'string') {
+			if (fieldData.type === 'varchar') {
 				return 'text';
 			}
 			if (fieldData.type === 'date') {
 				return 'date';
 			}
-			if (fieldData.type === 'positiveInt' || fieldData.type === 'decimal') {
+			if (fieldData.type === 'int' || fieldData.type === 'numeric') {
 				return 'zip';
 			}
 		},
@@ -273,7 +273,7 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 					return dosh.models.Stream.prototype.getStreamTypes().STREAM_TYPES;
 				}
 			}
-			if (fieldData.type === 'foreignKey') {
+			if (fieldData.foreignModel !== undefined) {
 				var transferStreams = _.filter(currentStreams, function(stream) {
 					return _.includes(['deposit-account', 'line-of-credit'], stream.streamType);
 				});
@@ -429,15 +429,15 @@ var StreamField = React.createClass({displayName: "StreamField",
 		var self = this,
 			value = evt.target.value;
 
-		if (_.includes(['boolean', 'nullBoolean'], self.props.fieldData.type)) {
+		if (self.props.fieldData.type === 'boolean') {
 			value = !!(evt.target.checked);
 		}
 
 		this.setState({value: value});
 
-		if (_.includes(['int', 'positiveInt'], self.props.fieldData.type)) {
+		if (_.includes(['int', 'smallint'], self.props.fieldData.type)) {
 			value = parseInt(value, 10);
-		} else if (self.props.fieldData.type === 'decimal') {
+		} else if (self.props.fieldData.type === 'numeric') {
 			value = parseFloat(value);
 		}
 

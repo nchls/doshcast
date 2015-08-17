@@ -21,6 +21,7 @@
     "express-session": "*",
     "lodash": "*",
     "moment": "*",
+    "pg": "^4.4.1",
     "mongodb": "~1.4",
     "mongoskin": "~1.4",
     "q": "*",
@@ -35,7 +36,7 @@
     "gulp-react": "*",
     "gulp-sass": "*",
     "gulp-uglify": "*",
-    "neat": "*"
+    "neat": "*",
   },
   "private": true
 }

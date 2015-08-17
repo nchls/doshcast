@@ -65,7 +65,7 @@ class StreamMutable extends Model
 
 		# bill, loan, income, deposit, loc
 		orgName:
-			type: 'string'
+			type: 'varchar'
 			isMutable: true
 			label: 'Bank name',
 			otherLabels:
@@ -80,11 +80,12 @@ class StreamMutable extends Model
 				'income'
 			]
 			validation:
+				canBeNull: true
 				maxLength: 50
 
 		# bill, loan, income, transfer, loc
 		amount:
-			type: 'decimal'
+			type: 'numeric'
 			isMutable: true
 			label: 'Minimum payment'
 			otherLabels:
@@ -99,11 +100,12 @@ class StreamMutable extends Model
 				'income'
 			]
 			validation:
+				canBeNull: true
 				maxDigits: 9
 				decimalPlaces: 2
 
 		recurrence:
-			type: 'string'
+			type: 'enum'
 			choices: RECURRENCE_TYPES
 			isMutable: true
 			label: 'Payment recurrence'
@@ -117,10 +119,12 @@ class StreamMutable extends Model
 				'line-of-credit'
 				'transfer'
 			]
+			validation:
+				canBeNull: true
 
 		# deposit, loan, loc
 		balance:
-			type: 'decimal'
+			type: 'numeric'
 			isMutable: true
 			label: 'Starting balance'
 			reviseLabel: 'Balance'
@@ -130,6 +134,7 @@ class StreamMutable extends Model
 				'line-of-credit'
 			]
 			validation:
+				canBeNull: true
 				maxDigits: 14
 				decimalPlaces: 2
 
@@ -137,7 +142,7 @@ class StreamMutable extends Model
 		# to do: interest rate tiers
 		# to do: unpredictable return, e.g. stocks
 		interestRate:
-			type: 'decimal'
+			type: 'numeric'
 			isMutable: true
 			label: 'Interest rate'
 			showFor: [
@@ -148,11 +153,12 @@ class StreamMutable extends Model
 			input:
 				suffix: '%'
 			validation:
+				canBeNull: true
 				maxDigits: 6
 				decimalPlaces: 4
 
 		compounding:
-			type: 'string'
+			type: 'enum'
 			choices: COMPOUNDING_TYPES
 			isMutable: true
 			label: 'Compounding'
@@ -161,33 +167,38 @@ class StreamMutable extends Model
 				'loan'
 				'line-of-credit'
 			]
+			validation:
+				canBeNull: true
 
 		# loan, loc
 		creditLimit:
-			type: 'positiveInt'
+			type: 'int'
 			isMutable: true
 			label: 'Credit limit'
 			showFor: [
 				'line-of-credit'
 			]
 			validation:
+				canBeNull: true
 				maxDigits: 10
 				decimalPlaces: 2
 
 		# loan-credit
 		isAlwaysPaidOff:
-			type: 'nullBoolean'
+			type: 'boolean'
 			isMutable: true
 			label: 'Balance is paid off every period'
 			helpText: 'Check if you do not carry a balance across billing periods.'
 			showFor: [
 				'line-of-credit'
 			]
+			validation:
+				canBeNull: true
 
 		# bill, loc, transfer
 		fromAccount:
-			type: 'foreignKey'
-			model: 'Stream'
+			type: 'uuid'
+			foreignModel: 'Stream'
 			isMutable: true
 			label: 'Draw from account'
 			showFor: [
@@ -196,17 +207,21 @@ class StreamMutable extends Model
 				'line-of-credit'
 				'transfer'
 			]
+			validation:
+				canBeNull: true
 
 		# income, transfer
 		toAccount:
-			type: 'foreignKey'
-			model: 'Stream'
+			type: 'uuid'
+			foreignModel: 'Stream'
 			isMutable: true
 			label: 'Deposit to account'
 			showFor: [
 				'income'
 				'transfer'
 			]
+			validation:
+				canBeNull: true
 
 	schema: _.assign({}, localSchema, Model::schema)
 
@@ -268,7 +283,7 @@ class Stream extends StreamMutable
 	localSchema =
 
 		name:
-			type: 'string'
+			type: 'varchar'
 			label: 'Account Name'
 			otherLabels:
 				transfer: 'Transfer name'
@@ -278,8 +293,8 @@ class Stream extends StreamMutable
 				maxLength: 40
 
 		owner:
-			type: 'foreignKey'
-			model: 'User'
+			type: 'uuid'
+			foreignModel: 'User'
 			validation:
 				required: true
 
@@ -290,19 +305,19 @@ class Stream extends StreamMutable
 				required: true
 
 		order:
-			type: 'positiveInt'
+			type: 'smallint'
 			default: 50
 			validation:
 				required: true
 
 		streamType:
-			type: 'string'
+			type: 'enum'
 			choices: TYPES
 			validation:
 				required: true
 
 		streamSubtype:
-			type: 'string'
+			type: 'enum'
 			choices: SUBTYPES
 			label: 'Account type'
 			validation:
@@ -320,6 +335,8 @@ class Stream extends StreamMutable
 				'loan'
 				'line-of-credit'
 			]
+			validation:
+				canBeNull: true
 
 		# loan, bill, loc, transfer, income
 		firstPaymentDate:
@@ -335,11 +352,13 @@ class Stream extends StreamMutable
 				'transfer'
 				'income'
 			]
+			validation:
+				canBeNull: true
 
 		# loan, bill
 		# always the same payment amount
 		isRegular:
-			type: 'nullBoolean'
+			type: 'boolean'
 			default: true
 			label: 'Payment amount is regular'
 			helpText: 'Check if the payment is roughly the same amount every period.'
@@ -349,16 +368,21 @@ class Stream extends StreamMutable
 				'bill'
 				'income'
 			]
+			validation:
+				canBeNull: true
 
 		# bill
 		# fluctuates based on season, e.g. heat
 		isSeasonal:
-			type: 'nullBoolean'
+			type: 'boolean'
 			label: 'Payment amount is seasonal'
 			helpText: 'Check if the payment amount fluctuates per season. For example, heating bills.'
 			showFor: [
 				'bill'
 			]
+			default: false
+			validation:
+				canBeNull: true
 
 	schema: _.assign({}, localSchema, StreamMutable::schema)
 

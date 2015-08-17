@@ -52,7 +52,7 @@
 
     localSchema = {
       orgName: {
-        type: 'string',
+        type: 'varchar',
         isMutable: true,
         label: 'Bank name',
         otherLabels: {
@@ -62,11 +62,12 @@
         },
         showFor: ['deposit-account', 'loan', 'bill', 'line-of-credit', 'income'],
         validation: {
+          canBeNull: true,
           maxLength: 50
         }
       },
       amount: {
-        type: 'decimal',
+        type: 'numeric',
         isMutable: true,
         label: 'Minimum payment',
         otherLabels: {
@@ -76,12 +77,13 @@
         },
         showFor: ['loan', 'bill', 'line-of-credit', 'transfer', 'income'],
         validation: {
+          canBeNull: true,
           maxDigits: 9,
           decimalPlaces: 2
         }
       },
       recurrence: {
-        type: 'string',
+        type: 'enum',
         choices: RECURRENCE_TYPES,
         isMutable: true,
         label: 'Payment recurrence',
@@ -89,21 +91,25 @@
           income: 'Income recurrence',
           transfer: 'Transfer recurrence'
         },
-        showFor: ['loan', 'bill', 'income', 'line-of-credit', 'transfer']
+        showFor: ['loan', 'bill', 'income', 'line-of-credit', 'transfer'],
+        validation: {
+          canBeNull: true
+        }
       },
       balance: {
-        type: 'decimal',
+        type: 'numeric',
         isMutable: true,
         label: 'Starting balance',
         reviseLabel: 'Balance',
         showFor: ['deposit-account', 'loan', 'line-of-credit'],
         validation: {
+          canBeNull: true,
           maxDigits: 14,
           decimalPlaces: 2
         }
       },
       interestRate: {
-        type: 'decimal',
+        type: 'numeric',
         isMutable: true,
         label: 'Interest rate',
         showFor: ['deposit-account', 'loan', 'line-of-credit'],
@@ -111,47 +117,61 @@
           suffix: '%'
         },
         validation: {
+          canBeNull: true,
           maxDigits: 6,
           decimalPlaces: 4
         }
       },
       compounding: {
-        type: 'string',
+        type: 'enum',
         choices: COMPOUNDING_TYPES,
         isMutable: true,
         label: 'Compounding',
-        showFor: ['deposit-account', 'loan', 'line-of-credit']
+        showFor: ['deposit-account', 'loan', 'line-of-credit'],
+        validation: {
+          canBeNull: true
+        }
       },
       creditLimit: {
-        type: 'positiveInt',
+        type: 'int',
         isMutable: true,
         label: 'Credit limit',
         showFor: ['line-of-credit'],
         validation: {
+          canBeNull: true,
           maxDigits: 10,
           decimalPlaces: 2
         }
       },
       isAlwaysPaidOff: {
-        type: 'nullBoolean',
+        type: 'boolean',
         isMutable: true,
         label: 'Balance is paid off every period',
         helpText: 'Check if you do not carry a balance across billing periods.',
-        showFor: ['line-of-credit']
+        showFor: ['line-of-credit'],
+        validation: {
+          canBeNull: true
+        }
       },
       fromAccount: {
-        type: 'foreignKey',
-        model: 'Stream',
+        type: 'uuid',
+        foreignModel: 'Stream',
         isMutable: true,
         label: 'Draw from account',
-        showFor: ['loan', 'bill', 'line-of-credit', 'transfer']
+        showFor: ['loan', 'bill', 'line-of-credit', 'transfer'],
+        validation: {
+          canBeNull: true
+        }
       },
       toAccount: {
-        type: 'foreignKey',
-        model: 'Stream',
+        type: 'uuid',
+        foreignModel: 'Stream',
         isMutable: true,
         label: 'Deposit to account',
-        showFor: ['income', 'transfer']
+        showFor: ['income', 'transfer'],
+        validation: {
+          canBeNull: true
+        }
       }
     };
 
@@ -201,7 +221,7 @@
 
     localSchema = {
       name: {
-        type: 'string',
+        type: 'varchar',
         label: 'Account Name',
         otherLabels: {
           transfer: 'Transfer name'
@@ -213,8 +233,8 @@
         }
       },
       owner: {
-        type: 'foreignKey',
-        model: 'User',
+        type: 'uuid',
+        foreignModel: 'User',
         validation: {
           required: true
         }
@@ -227,21 +247,21 @@
         }
       },
       order: {
-        type: 'positiveInt',
+        type: 'smallint',
         "default": 50,
         validation: {
           required: true
         }
       },
       streamType: {
-        type: 'string',
+        type: 'enum',
         choices: TYPES,
         validation: {
           required: true
         }
       },
       streamSubtype: {
-        type: 'string',
+        type: 'enum',
         choices: SUBTYPES,
         label: 'Account type',
         validation: {
@@ -255,7 +275,10 @@
         otherHelpText: {
           loan: 'More accurately, the date the loan began to accrue interest.'
         },
-        showFor: ['deposit-account', 'loan', 'line-of-credit']
+        showFor: ['deposit-account', 'loan', 'line-of-credit'],
+        validation: {
+          canBeNull: true
+        }
       },
       firstPaymentDate: {
         type: 'date',
@@ -264,23 +287,33 @@
           transfer: 'Date of first transfer',
           income: 'Date of first deposit'
         },
-        showFor: ['loan', 'bill', 'line-of-credit', 'transfer', 'income']
+        showFor: ['loan', 'bill', 'line-of-credit', 'transfer', 'income'],
+        validation: {
+          canBeNull: true
+        }
       },
       isRegular: {
-        type: 'nullBoolean',
+        type: 'boolean',
         "default": true,
         label: 'Payment amount is regular',
         helpText: 'Check if the payment is roughly the same amount every period.',
         otherHelpText: {
           income: 'Check if the income is roughly the same amount every period.'
         },
-        showFor: ['bill', 'income']
+        showFor: ['bill', 'income'],
+        validation: {
+          canBeNull: true
+        }
       },
       isSeasonal: {
-        type: 'nullBoolean',
+        type: 'boolean',
         label: 'Payment amount is seasonal',
         helpText: 'Check if the payment amount fluctuates per season. For example, heating bills.',
-        showFor: ['bill']
+        showFor: ['bill'],
+        "default": false,
+        validation: {
+          canBeNull: true
+        }
       }
     };
 

@@ -27,27 +27,30 @@
 
     localSchema = {
       revised: {
-        type: 'foreignKey',
-        model: 'Stream',
+        type: 'uuid',
+        foreignModel: 'Stream',
         validation: {
           required: true
         }
       },
       effectiveDate: {
-        type: 'dateTime',
+        type: 'date',
         validation: {
           required: true
         }
       },
       isClosed: {
-        type: 'nullBoolean',
+        type: 'boolean',
         label: 'Account is closed',
         otherLabels: {
           transfer: 'Transfer is no longer active',
           income: 'Income source is no longer active',
           loan: 'Loan is forgiven'
         },
-        isRevisionOnly: true
+        isRevisionOnly: true,
+        validation: {
+          canBeNull: true
+        }
       }
     };
 

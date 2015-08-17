@@ -17,15 +17,17 @@ class ManualEntry extends Model
 			type: 'date'
 			validation:
 				required: true
+
 		amount:
-			type: 'decimal'
-			maxDigits: 9
-			decimalPlaces: 2
+			type: 'numeric'
 			validation:
 				required: true
+				maxDigits: 9
+				decimalPlaces: 2
+
 		stream:
-			type: 'foreignKey'
-			model: 'Stream'
+			type: 'uuid'
+			foreignModel: 'Stream'
 			validation:
 				required: true
 

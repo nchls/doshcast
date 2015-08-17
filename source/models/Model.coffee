@@ -8,12 +8,14 @@ class Model
 
 	schema:
 		created:
-			type: 'dateTime'
+			type: 'timestamp'
+			default: 'now'
 			validation:
 				required: true
 
 		modified:
-			type: 'dateTime'
+			type: 'timestamp'
+			default: 'now'
 			validation:
 				required: true
 
@@ -29,7 +31,7 @@ class Model
 		obj = JSON.parse(json)
 		for own key, value of obj
 			if key of @schema
-				if @schema[key].type in ['date', 'dateTime']
+				if @schema[key].type in ['date', 'timestamp']
 					output[key] = new Date(value)
 					continue
 				output[key] = value

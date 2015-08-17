@@ -16,13 +16,15 @@
 
     Model.prototype.schema = {
       created: {
-        type: 'dateTime',
+        type: 'timestamp',
+        "default": 'now',
         validation: {
           required: true
         }
       },
       modified: {
-        type: 'dateTime',
+        type: 'timestamp',
+        "default": 'now',
         validation: {
           required: true
         }
@@ -48,7 +50,7 @@
         if (!hasProp.call(obj, key)) continue;
         value = obj[key];
         if (key in this.schema) {
-          if ((ref = this.schema[key].type) === 'date' || ref === 'dateTime') {
+          if ((ref = this.schema[key].type) === 'date' || ref === 'timestamp') {
             output[key] = new Date(value);
             continue;
           }

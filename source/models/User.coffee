@@ -14,28 +14,36 @@ class User extends Model
 	localSchema =
 
 		email:
-			type: 'string'
+			type: 'varchar'
 			label: 'E-mail address',
 			validation:
 				required: true
+				maxLength: 60
 				regex: /.+@.+\..+/i
 
 		password:
-			type: 'password'
+			type: 'varchar'
 			label: 'Password'
 			validation:
 				required: true
 				minLength: 7
 				# limit to prevent DOS attacks
 				maxLength: 160
+			dbValidation:
+				maxLength: 500
+
+		salt:
+			type: 'varchar'
+			validation:
+				maxLength: 200
 
 		passwordSchema:
-			type: 'positiveInt'
+			type: 'smallint'
 			validation:
 				required: true
 
 		registrationIp:
-			type: 'string'
+			type: 'inet'
 			validation:
 				required: true
 
@@ -45,7 +53,7 @@ class User extends Model
 				required: true
 
 		lastLogin:
-			type: 'dateTime'
+			type: 'timestamp'
 			validation:
 				required: true
 
