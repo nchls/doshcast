@@ -11,8 +11,6 @@ var allEnums = [],
 init = function() {
 	var output = '';
 	
-	output += 'create extension if not exists "uuid-ossp";\n';
-
 	_.forEach([User, Stream, StreamRevision, ManualEntry], function(model) {
 		output += getSQL(model) + '\n';
 	})
@@ -34,7 +32,7 @@ getSQL = function(model) {
 	});
 	output += enums.join('\n') + '\n';
 
-	columns.push('"id" uuid primary key default uuid_generate_v4()');
+	columns.push('"id" varchar (14) primary key');
 	_.forEach(model.prototype.schema, function(field, fieldName) {
 		var validation = field.dbValidation || field.validation || {};
 

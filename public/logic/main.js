@@ -1,7 +1,6 @@
 (function() {
   util.onReady(function() {
-    window.$document = $(document);
-    return React.initializeTouchEvents(true);
+    return window.$document = $(document);
   });
 
 }).call(this);

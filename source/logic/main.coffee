@@ -2,11 +2,6 @@
 
 util.onReady( ->
 	window.$document = $(document)
-
-	React.initializeTouchEvents(true)
-
-	#React.render(React.createElement(App, null), document.getElementById('app'))
-	#React.createElement(Router, null)
 )
 
 

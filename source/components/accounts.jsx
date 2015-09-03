@@ -66,7 +66,7 @@ var StreamsGroup = React.createClass({
 			<h3>{StreamsList.getTypeLabel(self.props.type)}</h3>
 			<ul>
 				{self.props.streams.map( function(stream) {
-					return <StreamsListItem key={stream._id} stream={stream}/>;
+					return <StreamsListItem key={stream.id} stream={stream}/>;
 				})}
 			</ul>
 		</li>;
@@ -77,18 +77,18 @@ var StreamsListItem = React.createClass({
 	render: function() {
 		var self = this;
 		return <li className="item">
-			<Link to="accounts-edit" params={{streamId: self.props.stream._id}}>
+			<Link to="accounts-edit" params={{streamId: self.props.stream.id}}>
 				<div className="streamName">{self.props.stream.name}</div>
 				<div className="streamType">{StreamsList.getSubtypeLabel(self.props.stream.streamSubtype)}</div>
 			</Link>
 			<ul className="stream-options">
-				<Link to="accounts-edit" params={{streamId: self.props.stream._id}}>
+				<Link to="accounts-edit" params={{streamId: self.props.stream.id}}>
 					Edit base data
 				</Link>
-				<Link to="accounts-revise" params={{streamId: self.props.stream._id}}>
+				<Link to="accounts-revise" params={{streamId: self.props.stream.id}}>
 					Add revision
 				</Link>
-				<Link to="accounts-history" params={{streamId: self.props.stream._id}}>
+				<Link to="accounts-history" params={{streamId: self.props.stream.id}}>
 					View history
 				</Link>
 			</ul>
@@ -139,7 +139,7 @@ var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 		return {
 			mode: 'edit',
 			params: params,
-			stream: _.find(dosh.state.streams, {_id: params.streamId})
+			stream: _.find(dosh.state.streams, {id: params.streamId})
 		};
 	},
 
@@ -149,7 +149,7 @@ var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 
 	handleStreamsUpdate: function() {
 		this.setState({
-			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
+			stream: _.find(dosh.state.streams, {id: this.state.params.streamId})
 		});
 	},
 
@@ -187,7 +187,7 @@ var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 		return {
 			mode: 'revise',
 			params: params,
-			stream: _.find(dosh.state.streams, {_id: params.streamId})
+			stream: _.find(dosh.state.streams, {id: params.streamId})
 		};
 	},
 
@@ -197,7 +197,7 @@ var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 
 	handleStreamsUpdate: function() {
 		this.setState({
-			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
+			stream: _.find(dosh.state.streams, {id: this.state.params.streamId})
 		});
 	},
 
@@ -278,7 +278,7 @@ var StreamForm = React.createClass({
 					return _.includes(['deposit-account', 'line-of-credit'], stream.streamType);
 				});
 				return _.map(transferStreams, function(stream) {
-					return [stream._id, stream.name];
+					return [stream.id, stream.name];
 				});
 			}
 		},
@@ -357,7 +357,7 @@ var StreamForm = React.createClass({
 				} else {
 					// Replace stream in state
 					newStreams = _.cloneDeep(dosh.state.streams);
-					newStreams[_.findIndex(newStreams, {_id: self.state.stream._id})] = self.state.stream;
+					newStreams[_.findIndex(newStreams, {id: self.state.stream.id})] = self.state.stream;
 					dosh.store.set({streams: newStreams});
 					self.transitionTo('accounts');
 				}

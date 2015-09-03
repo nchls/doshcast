@@ -21,7 +21,7 @@
       manuals = _.clone(data.manuals);
       revisions = _.clone(data.revisions);
       streams = _.clone(data.streams);
-      streams = _.sortBy(streams, ['order', 'class', 'streamType', 'streamSubtype', '_id']);
+      streams = _.sortBy(streams, ['order', 'class', 'streamType', 'streamSubtype', 'id']);
       streams = classifyStreams(streams);
       streams = setStreamColumns(streams);
       dataStart = getStreamsStart(streams);
@@ -133,14 +133,14 @@
       for (streamIdx in streams) {
         stream = streams[streamIdx];
         if (stream.recurrence) {
-          transactionDates[stream._id] = [];
+          transactionDates[stream.id] = [];
           recurrence = stream.recurrence.split('-')[1];
           delta = timeDeltas[recurrence];
           if (recurrence !== 'irregularly') {
             checkDateYmd = stream.firstPaymentDate;
             checkDate = moment(checkDateYmd);
             while (checkDate.isBefore(endDate) || checkDateYmd === endDateYmd) {
-              transactionDates[stream._id].push([checkDateYmd, checkDate]);
+              transactionDates[stream.id].push([checkDateYmd, checkDate]);
               checkDate = checkDate.clone().add(delta[0], delta[1]);
               checkDateYmd = checkDate.format('YYYY-MM-DD');
             }
@@ -158,11 +158,11 @@
       initialValues = {};
       for (streamIdx in streams) {
         stream = streams[streamIdx];
-        initialValues[stream._id] = {};
+        initialValues[stream.id] = {};
         for (i = 0, len = mutableFields.length; i < len; i++) {
           field = mutableFields[i];
           if (field in stream) {
-            initialValues[stream._id][field] = stream[field];
+            initialValues[stream.id][field] = stream[field];
           }
         }
       }
@@ -193,12 +193,12 @@
         for (streamIdx in streams) {
           stream = streams[streamIdx];
           streamEntry = {
-            id: stream._id
+            id: stream.id
           };
-          current = currentValues[stream._id];
+          current = currentValues[stream.id];
           if ((ref = stream["class"]) === 'transaction' || ref === 'hybrid') {
             amount = null;
-            ref1 = transactionDates[stream._id];
+            ref1 = transactionDates[stream.id];
             for (j = 0, len1 = ref1.length; j < len1; j++) {
               transDate = ref1[j];
               if (transDate[0] === ymd) {
@@ -230,8 +230,8 @@
               streamEntry.carriedBalance = null;
             }
             if (startDate === ymd || startDate < ymd) {
-              if (manuals != null ? manuals[stream._id] : void 0) {
-                ref4 = manuals[stream._id];
+              if (manuals != null ? manuals[stream.id] : void 0) {
+                ref4 = manuals[stream.id];
                 for (manualId in ref4) {
                   manual = ref4[manualId];
                   if (manual.date.isSame(day)) {

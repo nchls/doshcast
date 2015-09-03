@@ -5,7 +5,6 @@
   "author": "Ian Nicholas",
   "homepage": "https://bitbucket.org/aplomb/doshcast",
   "scripts": {
-    "gulp": "gulp",
     "server": "nodemon --watch app.js app.js",
     "db": "mongod --dbpath /Dev/DoshCast/data"
   },
@@ -21,7 +20,7 @@
     "express-session": "*",
     "lodash": "*",
     "moment": "*",
-    "pg": "^4.4.1",
+    "pg": "~4.4",
     "mongodb": "~1.4",
     "mongoskin": "~1.4",
     "q": "*",
@@ -37,6 +36,7 @@
     "gulp-sass": "*",
     "gulp-uglify": "*",
     "neat": "*",
+    "shortid": "^2.2.2"
   },
   "private": true
 }

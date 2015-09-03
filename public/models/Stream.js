@@ -154,22 +154,24 @@
         }
       },
       fromAccount: {
-        type: 'uuid',
+        type: 'varchar',
         foreignModel: 'Stream',
         isMutable: true,
         label: 'Draw from account',
         showFor: ['loan', 'bill', 'line-of-credit', 'transfer'],
         validation: {
+          maxLength: 14,
           canBeNull: true
         }
       },
       toAccount: {
-        type: 'uuid',
+        type: 'varchar',
         foreignModel: 'Stream',
         isMutable: true,
         label: 'Deposit to account',
         showFor: ['income', 'transfer'],
         validation: {
+          maxLength: 14,
           canBeNull: true
         }
       }
@@ -233,9 +235,10 @@
         }
       },
       owner: {
-        type: 'uuid',
+        type: 'varchar',
         foreignModel: 'User',
         validation: {
+          maxLength: 14,
           required: true
         }
       },

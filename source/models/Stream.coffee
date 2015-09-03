@@ -197,7 +197,7 @@ class StreamMutable extends Model
 
 		# bill, loc, transfer
 		fromAccount:
-			type: 'uuid'
+			type: 'varchar'
 			foreignModel: 'Stream'
 			isMutable: true
 			label: 'Draw from account'
@@ -208,11 +208,12 @@ class StreamMutable extends Model
 				'transfer'
 			]
 			validation:
+				maxLength: 14
 				canBeNull: true
 
 		# income, transfer
 		toAccount:
-			type: 'uuid'
+			type: 'varchar'
 			foreignModel: 'Stream'
 			isMutable: true
 			label: 'Deposit to account'
@@ -221,6 +222,7 @@ class StreamMutable extends Model
 				'transfer'
 			]
 			validation:
+				maxLength: 14
 				canBeNull: true
 
 	schema: _.assign({}, localSchema, Model::schema)
@@ -293,9 +295,10 @@ class Stream extends StreamMutable
 				maxLength: 40
 
 		owner:
-			type: 'uuid'
+			type: 'varchar'
 			foreignModel: 'User'
 			validation:
+				maxLength: 14
 				required: true
 
 		isActive:

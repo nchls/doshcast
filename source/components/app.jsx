@@ -76,6 +76,6 @@ util.onReady(function() {
 	);
 
 	Router.run(routes, Router.HistoryLocation, function(Handler) {
-		React.render(<Handler/>, document.getElementById('app'));
+		ReactDOM.render(<Handler/>, document.getElementById('app'));
 	});
 });

@@ -26,9 +26,10 @@ class ManualEntry extends Model
 				decimalPlaces: 2
 
 		stream:
-			type: 'uuid'
+			type: 'varchar'
 			foreignModel: 'Stream'
 			validation:
+				maxLength: 14
 				required: true
 
 	schema: _.assign({}, localSchema, Model::schema)

@@ -1,17 +1,17 @@
-var User, db, mongoskin, pbkdf2, q;
+var User, db, pbkdf2, q, shortid;
 
 q = require('q');
 
-mongoskin = require('mongoskin');
+shortid = require('shortid');
 
 pbkdf2 = require('easy-pbkdf2')({
   DEFAULT_HASH_ITERATIONS: 128000,
   SALT_SIZE: 64
 });
 
-User = require('./../public/models/User').User;
+db = require('../source/db/db');
 
-db = mongoskin.db('mongodb://127.0.0.1:27017/dosh');
+User = require('./../public/models/User').User;
 
 module.exports = {
   createUser: function(req, res) {
@@ -41,17 +41,15 @@ module.exports = {
       }
       user.password = passwordHash;
       user.salt = salt;
-      return db.collection('users').insert(user, function(err, result) {
-        if (err) {
-          res.status(500).send({
-            isError: true,
-            errorCode: 50,
-            msg: 'Error in user database insert.'
-          });
-          return;
-        }
+      return db.query(User, "insert into \"User\" (\n	id,\n	email,\n	password,\n	\"passwordSchema\",\n	\"registrationIp\",\n	\"isVerified\",\n	\"lastLogin\",\n	salt\n) values ($1,$2,$3,$4,$5,$6,$7);", [shortid.generate(), user.email, user.password, user.passwordSchema, user.registrationIp, user.isVerified, user.lastLogin, user.salt]).then(function(result) {
         return res.status(200).send({
           isError: false
+        });
+      })["catch"](function(err) {
+        res.status(500).send({
+          isError: true,
+          errorCode: 50,
+          msg: 'Error in user database insert.'
         });
       });
     });
@@ -76,18 +74,9 @@ module.exports = {
       return;
     }
     user = User.prototype.jsonToObject(req.body.user);
-    return db.collection('users').findOne({
-      email: user.email
-    }, function(err, dbUser) {
-      if (err) {
-        res.status(500).send({
-          isError: true,
-          errorCode: 50,
-          msg: 'Error in user lookup.'
-        });
-        return;
-      }
-      if (!dbUser) {
+    return db.query(User, 'select * from "User" where email=$1', [user.email]).then(function(result) {
+      var dbUser;
+      if (result.rows.length === 0) {
         res.status(401).send({
           isError: true,
           errorCode: 42,
@@ -95,6 +84,7 @@ module.exports = {
         });
         return;
       }
+      dbUser = result.rows[0];
       return pbkdf2.verify(dbUser.salt, dbUser.password, user.password, function(err, valid) {
         if (err) {
           res.status(500).send({
@@ -116,6 +106,12 @@ module.exports = {
         return res.status(200).send({
           isError: false
         });
+      });
+    })["catch"](function(err) {
+      res.status(500).send({
+        isError: true,
+        errorCode: 50,
+        msg: 'Error in user lookup.'
       });
     });
   },

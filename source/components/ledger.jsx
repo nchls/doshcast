@@ -138,7 +138,7 @@ var Ledger = React.createClass({
 				<tr>
 					<th className="date" rowSpan="2">Date</th>
 					{this.state.streams.map(function(stream) {
-						return <th className="stream" key={stream._id} colSpan={stream.columns.length} rowSpan={(stream.columns.length === 1 ? 2 : 1)}>
+						return <th className="stream" key={stream.id} colSpan={stream.columns.length} rowSpan={(stream.columns.length === 1 ? 2 : 1)}>
 							{stream.name}
 						</th>;
 					})}

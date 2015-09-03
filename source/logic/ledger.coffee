@@ -17,7 +17,7 @@
 		revisions = _.clone(data.revisions)
 		streams = _.clone(data.streams)
 
-		streams = _.sortBy(streams, ['order', 'class', 'streamType', 'streamSubtype', '_id'])
+		streams = _.sortBy(streams, ['order', 'class', 'streamType', 'streamSubtype', 'id'])
 		streams = classifyStreams(streams)
 
 		streams = setStreamColumns(streams)
@@ -129,7 +129,7 @@
 		for streamIdx, stream of streams
 			if stream.recurrence
 				# Initialize this stream's list of dates
-				transactionDates[stream._id] = []
+				transactionDates[stream.id] = []
 
 				recurrence = stream.recurrence.split('-')[1]
 				delta = timeDeltas[recurrence]
@@ -138,7 +138,7 @@
 					checkDateYmd = stream.firstPaymentDate
 					checkDate = moment(checkDateYmd)
 					while checkDate.isBefore(endDate) or checkDateYmd is endDateYmd
-						transactionDates[stream._id].push([checkDateYmd, checkDate])
+						transactionDates[stream.id].push([checkDateYmd, checkDate])
 						# move to the next transaction date
 						checkDate = checkDate.clone().add(delta[0], delta[1])
 						checkDateYmd = checkDate.format('YYYY-MM-DD')
@@ -153,10 +153,10 @@
 		perf.start 'getInitialValues'
 		initialValues = {}
 		for streamIdx, stream of streams
-			initialValues[stream._id] = {}
+			initialValues[stream.id] = {}
 			for field in mutableFields
 				if field of stream
-					initialValues[stream._id][field] = stream[field]
+					initialValues[stream.id][field] = stream[field]
 
 		perf.end 'getInitialValues'
 		return initialValues
@@ -188,14 +188,14 @@
 			for streamIdx, stream of streams
 
 				streamEntry =
-					id: stream._id
+					id: stream.id
 
-				current = currentValues[stream._id]
+				current = currentValues[stream.id]
 
 				if stream.class in ['transaction', 'hybrid']
 
 					amount = null
-					for transDate in transactionDates[stream._id]
+					for transDate in transactionDates[stream.id]
 						if transDate[0] is ymd
 							amount = current.amount
 
@@ -232,8 +232,8 @@
 
 					if startDate is ymd or startDate < ymd
 
-						if manuals?[stream._id]
-							for manualId, manual of manuals[stream._id]
+						if manuals?[stream.id]
+							for manualId, manual of manuals[stream.id]
 								if manual.date.isSame(day)
 									current.balance = manual.amount
 

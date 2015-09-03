@@ -66,7 +66,7 @@ var StreamsGroup = React.createClass({displayName: "StreamsGroup",
 			React.createElement("h3", null, StreamsList.getTypeLabel(self.props.type)), 
 			React.createElement("ul", null, 
 				self.props.streams.map( function(stream) {
-					return React.createElement(StreamsListItem, {key: stream._id, stream: stream});
+					return React.createElement(StreamsListItem, {key: stream.id, stream: stream});
 				})
 			)
 		);
@@ -77,18 +77,18 @@ var StreamsListItem = React.createClass({displayName: "StreamsListItem",
 	render: function() {
 		var self = this;
 		return React.createElement("li", {className: "item"}, 
-			React.createElement(Link, {to: "accounts-edit", params: {streamId: self.props.stream._id}}, 
+			React.createElement(Link, {to: "accounts-edit", params: {streamId: self.props.stream.id}}, 
 				React.createElement("div", {className: "streamName"}, self.props.stream.name), 
 				React.createElement("div", {className: "streamType"}, StreamsList.getSubtypeLabel(self.props.stream.streamSubtype))
 			), 
 			React.createElement("ul", {className: "stream-options"}, 
-				React.createElement(Link, {to: "accounts-edit", params: {streamId: self.props.stream._id}}, 
+				React.createElement(Link, {to: "accounts-edit", params: {streamId: self.props.stream.id}}, 
 					"Edit base data"
 				), 
-				React.createElement(Link, {to: "accounts-revise", params: {streamId: self.props.stream._id}}, 
+				React.createElement(Link, {to: "accounts-revise", params: {streamId: self.props.stream.id}}, 
 					"Add revision"
 				), 
-				React.createElement(Link, {to: "accounts-history", params: {streamId: self.props.stream._id}}, 
+				React.createElement(Link, {to: "accounts-history", params: {streamId: self.props.stream.id}}, 
 					"View history"
 				)
 			)
@@ -139,7 +139,7 @@ var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 		return {
 			mode: 'edit',
 			params: params,
-			stream: _.find(dosh.state.streams, {_id: params.streamId})
+			stream: _.find(dosh.state.streams, {id: params.streamId})
 		};
 	},
 
@@ -149,7 +149,7 @@ var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 
 	handleStreamsUpdate: function() {
 		this.setState({
-			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
+			stream: _.find(dosh.state.streams, {id: this.state.params.streamId})
 		});
 	},
 
@@ -187,7 +187,7 @@ var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 		return {
 			mode: 'revise',
 			params: params,
-			stream: _.find(dosh.state.streams, {_id: params.streamId})
+			stream: _.find(dosh.state.streams, {id: params.streamId})
 		};
 	},
 
@@ -197,7 +197,7 @@ var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 
 	handleStreamsUpdate: function() {
 		this.setState({
-			stream: _.find(dosh.state.streams, {_id: this.state.params.streamId})
+			stream: _.find(dosh.state.streams, {id: this.state.params.streamId})
 		});
 	},
 
@@ -278,7 +278,7 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 					return _.includes(['deposit-account', 'line-of-credit'], stream.streamType);
 				});
 				return _.map(transferStreams, function(stream) {
-					return [stream._id, stream.name];
+					return [stream.id, stream.name];
 				});
 			}
 		},
@@ -357,7 +357,7 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 				} else {
 					// Replace stream in state
 					newStreams = _.cloneDeep(dosh.state.streams);
-					newStreams[_.findIndex(newStreams, {_id: self.state.stream._id})] = self.state.stream;
+					newStreams[_.findIndex(newStreams, {id: self.state.stream.id})] = self.state.stream;
 					dosh.store.set({streams: newStreams});
 					self.transitionTo('accounts');
 				}

@@ -1,55 +1,54 @@
 q = require('q')
 moment = require('moment')
-mongoskin = require('mongoskin')
+shortid = require('shortid')
+
+db = require('../source/db/db')
+User = require('./../public/models/User').User
 Stream = require('./../public/models/Stream').Stream
 ManualEntry = require('./../public/models/ManualEntry').ManualEntry
 StreamRevision = require('./../public/models/StreamRevision').StreamRevision
-
-db = mongoskin.db('mongodb://127.0.0.1:27017/dosh')
-
-dbq = (collection, method, criteria) ->
-	deferred = q.defer()
-
-	db.collection(collection)[method](criteria).toArray( (err, result) ->
-		if err
-			deferred.reject(err)
-
-		deferred.resolve(
-			collection: collection
-			result: result
-		)
-	)
-
-	return deferred.promise
 
 
 module.exports =
 
 	getData: (req, res) ->
 
-		userId = mongoskin.helper.toObjectID(req.session.user._id)
+		userId = req.session.user.id
 
 		q.all([
-			dbq('streams', 'find', {owner: userId})
-			dbq('manuals', 'find', {owner: userId})
-			dbq('revisions', 'find', {owner: userId})
-			dbq('users', 'find', {_id: userId})
+
+			db.query(Stream, 'select * from "Stream" where owner=$1', [userId])
+			db.query(ManualEntry, 'select * from "ManualEntry" inner join "Stream" on "ManualEntry".stream="Stream".id and "Stream".owner=$1', [userId])
+			db.query(StreamRevision, 'select * from "StreamRevision" inner join "Stream" on "StreamRevision".revised="Stream".id and "Stream".owner=$1', [userId])
+			db.query(User, 'select email from "User" where id=$1 limit 1', [userId])
+
 		]).then( (responses) ->
-			output = {}
-			for response in responses
-				if response.collection isnt 'users'
-					output[response.collection] = response.result
-				else
-					output.user = response.result[0].email
+
+			output = 
+				streams: responses[0].rows
+				manuals: responses[1].rows
+				revisions: responses[2].rows
+				user: responses[3].rows[0].email
+
+			for collection in [output.streams, output.manuals, output.revisions]
+				for row in collection
+					delete row.owner
+					delete row.created
+					delete row.modified
+
 			res.status(200).send(
 				isError: false
 				result: output
 			)
+
 		).catch( (err) ->
+
 			res.status(500).send(
 				isError: true
 				msg: 'Error in database select.'
 			)
+			console.log(err)
+
 		)
 
 
@@ -86,7 +85,7 @@ module.exports =
 			)
 			return
 
-		userId = mongoskin.helper.toObjectID(req.session.user._id)
+		userId = req.session.user.id
 
 		obj = model::jsonToObject(data)
 
@@ -94,17 +93,18 @@ module.exports =
 		obj.modified = ymd
 
 		if mode is 'add'
-			obj.created = ymd
+			obj.id = shortid.generate()
 			obj.owner = userId
+			obj.created = ymd
 
 			if collection is 'streams'
 				obj.isActive = true
 
 		else
-			streamId = mongoskin.helper.toObjectID(obj._id)
+			streamId = obj.id
 
 			# Don't trust these from the client
-			delete obj._id
+			delete obj.id
 			delete obj.owner
 			delete obj.created
 
@@ -112,49 +112,47 @@ module.exports =
 
 		if mode is 'add'
 
-			db.collection('streams').insert(obj, (err, result) ->
+			insertion = db.insert(model, model.name, obj)
 
-				if err
-					res.status(500).send(
-						isError: true
-						errorCode: 50
-						msg: 'Error in database insert.'
-					)
-					console.log('data: ', data)
-					console.log('message: ', err.errmsg)
-					return
+			insertion.done( (result) ->
+				res.status(200).send(result.rows[0])
+			)
 
-				res.status(200).send(result[0])
-
+			insertion.catch( (err) ->
+				res.status(500).send(
+					isError: true
+					errorCode: 50
+					msg: 'Error in database insert.'
+				)
+				console.log('message: ', err)
+				return
 			)
 
 		else
 
-			db.collection('streams').update({_id: streamId, owner: userId}, {$set: obj}, (err, result) ->
+			update = db.update(model, model.name, {id: streamId, owner: userId}, obj)
 
-				if err
-					res.status(500).send(
-						isError: true
-						errorCode: 50
-						msg: 'Error in database update.'
-					)
-					console.log('data: ', data)
-					console.log('message: ', err.errmsg)
-					return
-
-				if result isnt 1
+			update.done( (result) ->
+				if result.rowCount isnt 1
 					res.status(500).send(
 						isError: true
 						errorCode: 51
 						msg: 'Error in database update.'
 					)
+					console.log(result)
 					return
 
 				res.status(200).send(
 					isError: false
 				)
-
 			)
 
-
-
+			update.catch( (err) ->
+				res.status(500).send(
+					isError: true
+					errorCode: 50
+					msg: 'Error in database update.'
+				)
+				console.log('message: ', err)
+				return
+			)

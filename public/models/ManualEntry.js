@@ -41,9 +41,10 @@
         }
       },
       stream: {
-        type: 'uuid',
+        type: 'varchar',
         foreignModel: 'Stream',
         validation: {
+          maxLength: 14,
           required: true
         }
       }

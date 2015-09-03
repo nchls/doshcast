@@ -1,12 +1,12 @@
 q = require('q')
-mongoskin = require('mongoskin')
+shortid = require('shortid')
 pbkdf2 = require('easy-pbkdf2')({
 	DEFAULT_HASH_ITERATIONS: 128000
 	SALT_SIZE: 64
 })
-User = require('./../public/models/User').User
 
-db = mongoskin.db('mongodb://127.0.0.1:27017/dosh')
+db = require('../source/db/db')
+User = require('./../public/models/User').User
 
 module.exports =
 
@@ -42,9 +42,35 @@ module.exports =
 			user.password = passwordHash
 			user.salt = salt
 
-			db.collection('users').insert(user, (err, result) ->
+			db.query(User, """
+				insert into "User" (
+					id,
+					email,
+					password,
+					"passwordSchema",
+					"registrationIp",
+					"isVerified",
+					"lastLogin",
+					salt
+				) values ($1,$2,$3,$4,$5,$6,$7);""", [
+					shortid.generate()
+					user.email
+					user.password
+					user.passwordSchema
+					user.registrationIp
+					user.isVerified
+					user.lastLogin
+					user.salt
+				])
 
-				if err
+				.then( (result) ->
+
+					res.status(200).send(
+						isError: false
+					)
+
+				).catch( (err) ->
+
 					res.status(500).send(
 						isError: true
 						errorCode: 50
@@ -52,11 +78,7 @@ module.exports =
 					)
 					return
 
-				res.status(200).send(
-					isError: false
 				)
-
-			)
 
 		)
 
@@ -82,9 +104,48 @@ module.exports =
 
 		user = User::jsonToObject(req.body.user)
 
-		db.collection('users').findOne({email: user.email}, (err, dbUser) ->
+		db.query(User, 'select * from "User" where email=$1', [user.email])
 
-			if err
+			.then( (result) ->
+
+				if result.rows.length is 0
+					res.status(401).send(
+						isError: true
+						errorCode: 42
+						msg: 'User not found.'
+					)
+					return
+
+				dbUser = result.rows[0]
+
+				pbkdf2.verify(dbUser.salt, dbUser.password, user.password, (err, valid) ->
+
+					if err
+						res.status(500).send(
+							isError: true
+							errorCode: 50
+							msg: 'Error in user authentication.'
+						)
+						return
+
+					if not valid
+						res.status(401).send(
+							isError: true
+							errorCode: 43
+							msg: 'Incorrect password.'
+						)
+						return
+
+					req.session.user = dbUser
+
+					res.status(200).send(
+						isError: false
+					)
+
+				)
+
+			).catch( (err) ->
+
 				res.status(500).send(
 					isError: true
 					errorCode: 50
@@ -92,41 +153,7 @@ module.exports =
 				)
 				return
 
-			if not dbUser
-				res.status(401).send(
-					isError: true
-					errorCode: 42
-					msg: 'User not found.'
-				)
-				return
-
-			pbkdf2.verify(dbUser.salt, dbUser.password, user.password, (err, valid) ->
-
-				if err
-					res.status(500).send(
-						isError: true
-						errorCode: 50
-						msg: 'Error in user authentication.'
-					)
-					return
-
-				if not valid
-					res.status(401).send(
-						isError: true
-						errorCode: 43
-						msg: 'Incorrect password.'
-					)
-					return
-
-				req.session.user = dbUser
-
-				res.status(200).send(
-					isError: false
-				)
-
-			)
-
-		)
+			);
 
 
 	logoutUser: (req, res) ->

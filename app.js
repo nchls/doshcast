@@ -15,6 +15,8 @@ var app = express();
 
 var postParser = bodyParser.urlencoded({extended: false});
 
+app.disable('x-powered-by');
+
 app.use(express.static('public'));
 
 app.use(session({
