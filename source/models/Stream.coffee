@@ -8,8 +8,8 @@ else
 	_ = window._
 
 class StreamMutable extends Model
-	constructor: (created, modified, @orgName, @amount, @recurrence, @balance, @interestRate, @compounding, @creditLimit, @isAlwaysPaidOff, @fromAccount, @toAccount) ->
-		super created, modified
+	constructor: (props) ->
+		@[prop] = val for prop, val of props
 
 	RECURRENCE_TYPES:
 		RECURRENCE_TYPES = [
@@ -228,8 +228,8 @@ class StreamMutable extends Model
 	schema: _.assign({}, localSchema, Model::schema)
 
 class Stream extends StreamMutable
-	constructor: (created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, @name, @owner, @isActive, @order, @streamType, @streamSubtype, @startDate, @firstPaymentDate, @isRegular, @isSeasonal) ->
-		super created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount
+	constructor: (props) ->
+		@[prop] = val for prop, val of props
 
 	STREAM_TYPES =
 		STREAM_TYPES: [

@@ -30,6 +30,20 @@
       },
       doshFormat: function(fig) {
         return fig = (fig.toFixed(2)) + '';
+      },
+      instantiateObjects: function(objects, klass) {
+        var obj;
+        return [
+          (function() {
+            var i, len, results;
+            results = [];
+            for (i = 0, len = objects.length; i < len; i++) {
+              obj = objects[i];
+              results.push(new klass(obj));
+            }
+            return results;
+          })()
+        ];
       }
     };
     metrics = {};

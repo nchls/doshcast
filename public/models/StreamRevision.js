@@ -18,11 +18,12 @@
 
     extend(StreamRevision, superClass);
 
-    function StreamRevision(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, revised, effectiveDate, isClosed) {
-      this.revised = revised;
-      this.effectiveDate = effectiveDate;
-      this.isClosed = isClosed;
-      StreamRevision.__super__.constructor.call(this, created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount);
+    function StreamRevision(props) {
+      var prop, val;
+      for (prop in props) {
+        val = props[prop];
+        this[prop] = val;
+      }
     }
 
     localSchema = {

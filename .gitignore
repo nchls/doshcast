@@ -1,6 +1,6 @@
 app-private.js
 node_modules/
-**/bower/
+public/bower/
 .tmp
 data
 dist

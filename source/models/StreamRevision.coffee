@@ -8,8 +8,8 @@ else
 	_ = window._
 
 class StreamRevision extends StreamMutable
-	constructor: (created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, @revised, @effectiveDate, @isClosed) ->
-		super created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount
+	constructor: (props) ->
+		@[prop] = val for prop, val of props
 
 	localSchema =
 

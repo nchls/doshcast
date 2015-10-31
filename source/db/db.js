@@ -4,9 +4,7 @@ var pg = require('pg'),
 
 var appPrivate = require('../../app-private');
 
-var conString = 'postgres://' + appPrivate.dbUser + ':' + appPrivate.dbPass + '@localhost/dosh';
-
-console.log('constring', conString);
+var conString = 'postgres://' + appPrivate.db.user + ':' + appPrivate.db.pass + '@' + appPrivate.db.host + '/' + appPrivate.db.name;
 
 var query = function(model, sql, parameters) {
 	var deferred = q.defer();

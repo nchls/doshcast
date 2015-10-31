@@ -4,7 +4,8 @@ else
 	global = window.util.namespacer('dosh.models')
 
 class Model
-	constructor: (@created, @modified) ->
+	constructor: (props) ->
+		@[prop] = val for prop, val of props
 
 	schema:
 		created:

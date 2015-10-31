@@ -27,6 +27,10 @@
 		doshFormat: (fig) ->
 			fig = (fig.toFixed 2) + ''
 
+		instantiateObjects: (objects, klass) ->
+			return [new klass(obj) for obj in objects]
+
+
 	metrics = {}
 
 	global.perf =

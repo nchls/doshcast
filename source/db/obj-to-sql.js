@@ -63,7 +63,7 @@ getSQL = function(model) {
 			columnDef.push('not null');
 		}
 
-		if (field.default) {
+		if (field.default !== undefined) {
 			columnDef.push('default ' + getDefault(field));
 		}
 

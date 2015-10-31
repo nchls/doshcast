@@ -8,8 +8,8 @@ else
 	_ = window._
 
 class User extends Model
-	constructor: (created, modified, @email, @password, @registrationIp, @isActive, @lastLogin) ->
-		super created, modified
+	constructor: (props) ->
+		@[prop] = val for prop, val of props
 
 	localSchema =
 

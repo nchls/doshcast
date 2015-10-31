@@ -18,13 +18,12 @@
 
     extend(User, superClass);
 
-    function User(created, modified, email, password, registrationIp, isActive, lastLogin) {
-      this.email = email;
-      this.password = password;
-      this.registrationIp = registrationIp;
-      this.isActive = isActive;
-      this.lastLogin = lastLogin;
-      User.__super__.constructor.call(this, created, modified);
+    function User(props) {
+      var prop, val;
+      for (prop in props) {
+        val = props[prop];
+        this[prop] = val;
+      }
     }
 
     localSchema = {

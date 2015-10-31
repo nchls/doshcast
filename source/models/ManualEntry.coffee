@@ -8,8 +8,8 @@ else
 	_ = window._
 
 class ManualEntry extends Model
-	constructor: (created, modified, @entryDate, @amount, @stream) ->
-		super created, modified
+	constructor: (props) ->
+		@[prop] = val for prop, val of props
 
 	localSchema =
 

@@ -18,11 +18,12 @@
 
     extend(ManualEntry, superClass);
 
-    function ManualEntry(created, modified, entryDate, amount, stream) {
-      this.entryDate = entryDate;
-      this.amount = amount;
-      this.stream = stream;
-      ManualEntry.__super__.constructor.call(this, created, modified);
+    function ManualEntry(props) {
+      var prop, val;
+      for (prop in props) {
+        val = props[prop];
+        this[prop] = val;
+      }
     }
 
     localSchema = {

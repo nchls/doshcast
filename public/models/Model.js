@@ -9,9 +9,12 @@
   }
 
   Model = (function() {
-    function Model(created, modified) {
-      this.created = created;
-      this.modified = modified;
+    function Model(props) {
+      var prop, val;
+      for (prop in props) {
+        val = props[prop];
+        this[prop] = val;
+      }
     }
 
     Model.prototype.schema = {

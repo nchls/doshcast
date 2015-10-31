@@ -18,18 +18,12 @@
 
     extend(StreamMutable, superClass);
 
-    function StreamMutable(created, modified, orgName1, amount1, recurrence1, balance1, interestRate1, compounding1, creditLimit1, isAlwaysPaidOff1, fromAccount1, toAccount1) {
-      this.orgName = orgName1;
-      this.amount = amount1;
-      this.recurrence = recurrence1;
-      this.balance = balance1;
-      this.interestRate = interestRate1;
-      this.compounding = compounding1;
-      this.creditLimit = creditLimit1;
-      this.isAlwaysPaidOff = isAlwaysPaidOff1;
-      this.fromAccount = fromAccount1;
-      this.toAccount = toAccount1;
-      StreamMutable.__super__.constructor.call(this, created, modified);
+    function StreamMutable(props) {
+      var prop, val;
+      for (prop in props) {
+        val = props[prop];
+        this[prop] = val;
+      }
     }
 
     StreamMutable.prototype.RECURRENCE_TYPES = RECURRENCE_TYPES = [['recur-daily', 'Daily'], ['recur-weekly', 'Weekly'], ['recur-biweekly', 'Every two weeks'], ['recur-monthly', 'Monthly'], ['recur-semiannually', 'Every six months'], ['recur-annually', 'Annually'], ['recur-irregularly', 'Irregularly']];
@@ -188,18 +182,12 @@
 
     extend(Stream, superClass);
 
-    function Stream(created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount, name, owner, isActive, order, streamType, streamSubtype, startDate, firstPaymentDate, isRegular, isSeasonal) {
-      this.name = name;
-      this.owner = owner;
-      this.isActive = isActive;
-      this.order = order;
-      this.streamType = streamType;
-      this.streamSubtype = streamSubtype;
-      this.startDate = startDate;
-      this.firstPaymentDate = firstPaymentDate;
-      this.isRegular = isRegular;
-      this.isSeasonal = isSeasonal;
-      Stream.__super__.constructor.call(this, created, modified, orgName, amount, recurrence, balance, interestRate, compounding, creditLimit, isAlwaysPaidOff, fromAccount, toAccount);
+    function Stream(props) {
+      var prop, val;
+      for (prop in props) {
+        val = props[prop];
+        this[prop] = val;
+      }
     }
 
     STREAM_TYPES = {
