@@ -24,11 +24,7 @@ var App = React.createClass(_.merge({}, EventListenerMixin, {
 	handleUserUpdate: function() {
 		if (dosh.state.user !== null) {
 			return $.getJSON('/api/getData').done(function(response) {
-				var instances = {
-					streams: [],
-					revisions: [],
-					manuals: []
-				};
+				var instances = {};
 
 				// Transform objects to class instances
 				_.forEach([
@@ -36,6 +32,7 @@ var App = React.createClass(_.merge({}, EventListenerMixin, {
 					['revisions', dosh.models.StreamRevision],
 					['manuals', dosh.models.ManualEntry]
 				], function(collection) {
+					instances[collection[0]] = [];
 					_.forEach(response.result[collection[0]], function(obj) {
 						instances[collection[0]].push(new collection[1](obj));
 					});

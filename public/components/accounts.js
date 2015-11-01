@@ -1,17 +1,49 @@
+var global = window;
+
 var AccountsPage = React.createClass({displayName: "AccountsPage",
 	getInitialState: function() {
-		return {};
+		return {
+			dialogMode: null,
+			dialogStream: null
+		};
+	},
+
+	componentWillMount: function() {
+		global.events.addListener('dialogRequested', this.handleDialogRequest);
+	},
+
+	handleClickAdd: function(evt) {
+		if (evt.button === 0) { // left mouse click
+			evt.preventDefault();
+			global.events.emitEvent('dialogRequested', ['add', {}]);
+		}
+	},
+
+	handleDialogRequest: function(mode, stream) {
+		this.setState({
+			dialogMode: mode,
+			dialogStream: stream
+		});
+	},
+
+	handleDialogDismiss: function() {
+		this.setState({
+			dialogMode: null,
+			dialogStream: {}
+		});
 	},
 
 	render: function() {
+		var self = this;
 		return React.createElement("div", {className: "accounts padded"}, 
 			React.createElement("h2", null, "Accounts"), 
 			React.createElement("div", {className: "actionBar"}, 
-				React.createElement(Link, {className: "btn", to: "accounts-add", params: {mode:'add'}}, 
+				React.createElement("a", {className: "btn", onClick: self.handleClickAdd, href: "/accounts/add"}, 
 					React.createElement("i", {className: "fa fa-plus"}), " Add Account"
 				)
 			), 
-			React.createElement(StreamsList, null)
+			React.createElement(StreamsList, null), 
+			self.state.dialogMode !== null ? React.createElement(StreamDialog, {mode: self.state.dialogMode, stream: self.state.dialogStream, handleDismiss: self.handleDialogDismiss}) : null
 		);
 	}
 });
@@ -48,7 +80,6 @@ var StreamsList = React.createClass(_.merge({}, EventListenerMixin, {
 	},
 
 	render: function() {
-		console.log('StreamsList render');
 		var self = this,
 			streamsByType = _.pairs(_.groupBy(self.state.streams, 'streamType'));
 		return React.createElement("ul", {className: "streams-list"}, 
@@ -74,21 +105,40 @@ var StreamsGroup = React.createClass({displayName: "StreamsGroup",
 });
 
 var StreamsListItem = React.createClass({displayName: "StreamsListItem",
+	handleClick: function(evt, mode) {
+		if (evt.button === 0) { // left mouse click
+			evt.preventDefault();
+			global.events.emitEvent('dialogRequested', [mode, this.props.stream]);
+		}
+	},
+
+	handleEdit: function(evt) {
+		this.handleClick(evt, 'edit');
+	},
+
+	handleRevise: function(evt) {
+		this.handleClick(evt, 'revise');
+	},
+
+	handleHistory: function(evt) {
+		this.handleClick(evt, 'history');
+	},
+
 	render: function() {
 		var self = this;
 		return React.createElement("li", {className: "item"}, 
-			React.createElement(Link, {to: "accounts-edit", params: {streamId: self.props.stream.id}}, 
+			React.createElement("a", {href: '/accounts/edit/' + self.props.stream.id, onClick: self.handleEdit}, 
 				React.createElement("div", {className: "streamName"}, self.props.stream.name), 
 				React.createElement("div", {className: "streamType"}, StreamsList.getSubtypeLabel(self.props.stream.streamSubtype))
 			), 
 			React.createElement("ul", {className: "stream-options"}, 
-				React.createElement(Link, {to: "accounts-edit", params: {streamId: self.props.stream.id}}, 
+				React.createElement(Link, {to: "accounts-edit", onClick: self.handleEdit, params: {streamId: self.props.stream.id}}, 
 					"Edit base data"
 				), 
-				React.createElement(Link, {to: "accounts-revise", params: {streamId: self.props.stream.id}}, 
+				React.createElement(Link, {to: "accounts-revise", onClick: self.handleRevise, params: {streamId: self.props.stream.id}}, 
 					"Add revision"
 				), 
-				React.createElement(Link, {to: "accounts-history", params: {streamId: self.props.stream.id}}, 
+				React.createElement(Link, {to: "accounts-history", onClick: self.handleHistory, params: {streamId: self.props.stream.id}}, 
 					"View history"
 				)
 			)
@@ -110,20 +160,14 @@ var AddStream = React.createClass(_.merge({}, EventListenerMixin, {
 	},
 
 	render: function() {
+		/*
+		<div className="actionBar">
+			<Link className="btn secondary" to="accounts">
+				<i className="fa fa-arrow-left"></i> Accounts
+			</Link>
+		</div>
+		*/
 		return React.createElement("div", {className: "accounts-form padded"}, 
-			React.createElement("h2", null, this.state.mode === 'add' ? 'Add' : 'Edit', " Account"), 
-			React.createElement("div", {className: "actionBar"}, 
-				React.createElement("div", null, 
-					React.createElement(Link, {className: "btn secondary", to: "accounts"}, 
-						React.createElement("i", {className: "fa fa-arrow-left"}), " Accounts"
-					), 
-					(this.state.mode !== 'add' ?
-						React.createElement("button", {className: "btn tertiary small"}, 
-							React.createElement("i", {className: "fa fa-trash-o"}), " Delete Account"
-						)
-					: null)
-				)
-			), 
 			React.createElement(StreamForm, {action: "add", handleSubmit: this.handleSubmit, stream: this.state.stream})
 		);
 	}
@@ -159,17 +203,6 @@ var EditStream = React.createClass(_.merge({}, EventListenerMixin, {
 
 	render: function() {
 		return React.createElement("div", {className: "accounts-form padded"}, 
-			React.createElement("h2", null, "Edit Account"), 
-			React.createElement("div", {className: "actionBar"}, 
-				React.createElement("div", null, 
-					React.createElement(Link, {className: "btn secondary", to: "accounts"}, 
-						React.createElement("i", {className: "fa fa-arrow-left"}), " Accounts"
-					), 
-					React.createElement("button", {className: "btn tertiary small"}, 
-						React.createElement("i", {className: "fa fa-trash-o"}), " Delete Account"
-					)
-				)
-			), 
 			(this.state.stream ? 
 				React.createElement(StreamForm, {action: "edit", handleSubmit: this.handleSubmit, stream: this.state.stream})
 			: null)
@@ -207,14 +240,6 @@ var AddStreamRevision = React.createClass(_.merge({}, EventListenerMixin, {
 
 	render: function() {
 		return React.createElement("div", {className: "accounts-form padded"}, 
-			React.createElement("h2", null, "Add Account Revision"), 
-			React.createElement("div", {className: "actionBar"}, 
-				React.createElement("div", null, 
-					React.createElement(Link, {className: "btn secondary", to: "accounts"}, 
-						React.createElement("i", {className: "fa fa-arrow-left"}), " Accounts"
-					)
-				)
-			), 
 			(this.state.stream ? 
 				React.createElement(StreamForm, {action: "revise", handleSubmit: this.handleSubmit, stream: this.state.stream})
 			: null)
@@ -227,6 +252,23 @@ var ViewStreamHistory = React.createClass(_.merge({}, EventListenerMixin, {
 		return React.createElement("p", null, "History!");
 	}
 }));
+
+var StreamDialog = React.createClass({displayName: "StreamDialog",
+	handleSubmit: function() {
+		this.props.handleDismiss();
+	},
+
+	render: function() {
+		return React.createElement("div", {className: "dialog"}, 
+			React.createElement("div", {className: "inner"}, 
+				React.createElement("div", {className: "scrollable"}, 
+					React.createElement(StreamForm, {action: this.props.mode, handleSubmit: this.handleSubmit, stream: this.props.stream})
+				), 
+				React.createElement(CloseButton, {closeAction: this.props.handleDismiss})
+			)
+		);
+	}
+});
 
 var StreamForm = React.createClass({displayName: "StreamForm",
 	mixins: [ReactRouter.Navigation],
@@ -372,6 +414,11 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 		var self = this,
 			fields = StreamForm.getStreamFields();
 		return React.createElement("form", {className: "streamForm", onSubmit: self.handleSubmit}, 
+			React.createElement("h2", null, 
+				self.props.action === 'add' ? 'Add Account' : null, 
+				self.props.action === 'edit' ? 'Edit Account' : null, 
+				self.props.action === 'revise' ? 'Add Account Revision' : null
+			), 
 			fields.map( function(field) {
 				var fieldId = field[0],
 					fieldData = field[1],

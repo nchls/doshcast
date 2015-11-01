@@ -26,6 +26,7 @@
     "cookies-js": "*",
     "fontawesome": "*",
     "bourbon": "*",
+    "eventEmitter": "*",
     "lodash": "*",
     "moment": "*",
     "normalize.css": "*",

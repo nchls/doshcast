@@ -145,9 +145,9 @@ var AuthControls = React.createClass(_.merge({}, EventListenerMixin, {
 		}
 		return <div className="auth">
 			<LoginButton clickHandler={this.handleLoginClick} isPanelOpen={this.state.openPanel === 'login'}/>
-			{this.state.openPanel === 'login' ? <LoginPanel submitHandler={this.handleLoginSubmit} dismissHandler={this.handlePanelDismiss}/> : null}
+			{this.state.openPanel === 'login' ? <LoginPanel submitHandler={this.handleLoginSubmit} handleDismiss={this.handlePanelDismiss}/> : null}
 			<RegisterButton clickHandler={this.handleRegisterClick} isPanelOpen={this.state.openPanel === 'register'}/>
-			{this.state.openPanel === 'register' ? <RegisterPanel submitHandler={this.handleRegisterSubmit} dismissHandler={this.handlePanelDismiss}/> : null}
+			{this.state.openPanel === 'register' ? <RegisterPanel submitHandler={this.handleRegisterSubmit} handleDismiss={this.handlePanelDismiss}/> : null}
 		</div>;
 	}
 }));
@@ -169,7 +169,7 @@ var LoginPanel = React.createClass({
 		var self = this;
 		self.clickHandler = function(evt) {
 			if ($(evt.target).closest('.log-in-panel').length === 0) {
-				self.props.dismissHandler();
+				self.props.handleDismiss();
 			}
 		};
 		window.$document.on('click', self.clickHandler);
@@ -206,7 +206,7 @@ var LoginPanel = React.createClass({
 					<i className="fa fa-sign-in"></i> Log In
 				</button>
 			</div>
-			<CloseButton closeAction={this.props.dismissHandler}/>
+			<CloseButton closeAction={this.props.handleDismiss}/>
 		</form>;
 	}
 });
@@ -228,7 +228,7 @@ var RegisterPanel = React.createClass({
 		var self = this;
 		self.clickHandler = function(evt) {
 			if ($(evt.target).closest('.register-panel').length === 0) {
-				self.props.dismissHandler();
+				self.props.handleDismiss();
 			}
 		};
 		window.$document.on('click', self.clickHandler);
@@ -265,7 +265,7 @@ var RegisterPanel = React.createClass({
 					<i className="fa fa-user"></i> Register
 				</button>
 			</div>
-			<CloseButton closeAction={this.props.dismissHandler}/>
+			<CloseButton closeAction={this.props.handleDismiss}/>
 		</form>;
 	}
 });

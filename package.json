@@ -5,8 +5,7 @@
   "author": "Ian Nicholas",
   "homepage": "https://bitbucket.org/aplomb/doshcast",
   "scripts": {
-    "server": "nodemon --watch app.js app.js",
-    "db": "mongod --dbpath /Dev/DoshCast/data"
+    "server": "nodemon --watch app.js app.js"
   },
   "main": "app.js",
   "repository": {
@@ -21,8 +20,6 @@
     "lodash": "*",
     "moment": "*",
     "pg": "~4.4",
-    "mongodb": "~1.4",
-    "mongoskin": "~1.4",
     "q": "*",
     "react": "*",
     "secure-filters": "*"

@@ -145,9 +145,9 @@ var AuthControls = React.createClass(_.merge({}, EventListenerMixin, {
 		}
 		return React.createElement("div", {className: "auth"}, 
 			React.createElement(LoginButton, {clickHandler: this.handleLoginClick, isPanelOpen: this.state.openPanel === 'login'}), 
-			this.state.openPanel === 'login' ? React.createElement(LoginPanel, {submitHandler: this.handleLoginSubmit, dismissHandler: this.handlePanelDismiss}) : null, 
+			this.state.openPanel === 'login' ? React.createElement(LoginPanel, {submitHandler: this.handleLoginSubmit, handleDismiss: this.handlePanelDismiss}) : null, 
 			React.createElement(RegisterButton, {clickHandler: this.handleRegisterClick, isPanelOpen: this.state.openPanel === 'register'}), 
-			this.state.openPanel === 'register' ? React.createElement(RegisterPanel, {submitHandler: this.handleRegisterSubmit, dismissHandler: this.handlePanelDismiss}) : null
+			this.state.openPanel === 'register' ? React.createElement(RegisterPanel, {submitHandler: this.handleRegisterSubmit, handleDismiss: this.handlePanelDismiss}) : null
 		);
 	}
 }));
@@ -169,7 +169,7 @@ var LoginPanel = React.createClass({displayName: "LoginPanel",
 		var self = this;
 		self.clickHandler = function(evt) {
 			if ($(evt.target).closest('.log-in-panel').length === 0) {
-				self.props.dismissHandler();
+				self.props.handleDismiss();
 			}
 		};
 		window.$document.on('click', self.clickHandler);
@@ -206,7 +206,7 @@ var LoginPanel = React.createClass({displayName: "LoginPanel",
 					React.createElement("i", {className: "fa fa-sign-in"}), " Log In"
 				)
 			), 
-			React.createElement(CloseButton, {closeAction: this.props.dismissHandler})
+			React.createElement(CloseButton, {closeAction: this.props.handleDismiss})
 		);
 	}
 });
@@ -228,7 +228,7 @@ var RegisterPanel = React.createClass({displayName: "RegisterPanel",
 		var self = this;
 		self.clickHandler = function(evt) {
 			if ($(evt.target).closest('.register-panel').length === 0) {
-				self.props.dismissHandler();
+				self.props.handleDismiss();
 			}
 		};
 		window.$document.on('click', self.clickHandler);
@@ -265,7 +265,7 @@ var RegisterPanel = React.createClass({displayName: "RegisterPanel",
 					React.createElement("i", {className: "fa fa-user"}), " Register"
 				)
 			), 
-			React.createElement(CloseButton, {closeAction: this.props.dismissHandler})
+			React.createElement(CloseButton, {closeAction: this.props.handleDismiss})
 		);
 	}
 });

@@ -212,7 +212,7 @@ button.close {
     color: #f00; }
 
 .padded {
-  margin: 0 1%; }
+  margin: 0 1vw; }
 
 .auto-rows {
   display: inline-block;
@@ -238,6 +238,33 @@ button.close {
   box-shadow: 0 0.25em 0.5em 0 rgba(0, 0, 0, 0.3);
   padding: 1em; }
 
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3vh 3vw;
+  background: rgba(0, 0, 0, 0.3); }
+  .dialog > .inner {
+    position: relative;
+    background: #fff;
+    box-shadow: 0 0 5em #000;
+    overflow: auto;
+    max-height: 100%;
+    display: flex; }
+    .dialog > .inner > .scrollable {
+      padding: 1em 2em 1em 1em;
+      overflow: auto;
+      max-height: 100%; }
+  .dialog .close {
+    right: 1em; }
+  .dialog h2 {
+    margin-top: 0; }
+
 .loading-mask {
   position: absolute;
   top: 0;
@@ -262,7 +289,7 @@ button.close {
   background-image: -webkit-linear-gradient(top, #424B59, #2B313A);
   background-image: linear-gradient(to bottom, #424B59, #2B313A);
   box-shadow: 0 -0.75em 0.5em 1em rgba(0, 0, 0, 0.3);
-  padding: 0 1%; }
+  padding: 0 1vw; }
   .topBar a {
     color: #dcb;
     text-shadow: 0 0.04em 0.1em #000; }
