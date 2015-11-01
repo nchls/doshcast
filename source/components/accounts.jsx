@@ -28,8 +28,7 @@ var AccountsPage = React.createClass({
 
 	handleDialogDismiss: function() {
 		this.setState({
-			dialogMode: null,
-			dialogStream: {}
+			dialogMode: null
 		});
 	},
 
@@ -443,9 +442,9 @@ var StreamForm = React.createClass({
 				return <StreamField key={fieldId} fieldId={fieldId} value={fieldValue} fieldData={fieldData} inputType={inputType} helpText={helpText} label={label} isRequired={isRequired} handleStreamUpdate={self.handleStreamUpdate} />;
 			})}
 			<div className="actionBar">
-				<Link className="btn secondary" to="accounts">
+				<button className="btn secondary">
 					Cancel
-				</Link>
+				</button>
 				{(self.props.action === 'add' ? 
 					<button className="btn">
 						<i className="fa fa-plus"></i> Add Account

@@ -315,6 +315,7 @@ button.close {
 		> .scrollable {
 			padding: 1em 2em 1em 1em;
 			overflow: auto;
+			min-width: 23em;
 			max-height: 100%;
 		}
 	}
@@ -323,6 +324,9 @@ button.close {
 	}
 	h2 {
 		margin-top: 0;
+	}
+	.streamForm .helpText {
+		max-width: 18em;
 	}
 }
 
@@ -513,13 +517,13 @@ button.close {
 		&:hover {
 			border-color: #aaa;
 		}
-		@media screen and (min-width:30em) {
+		@media screen and (min-width:40em) {
 			width: 48%;
 		}
-		@media screen and (min-width:45em) {
+		@media screen and (min-width:60em) {
 			width: 31%;
 		}
-		@media screen and (min-width:70em) {
+		@media screen and (min-width:80em) {
 			width: 23%;
 		}
 
@@ -564,6 +568,7 @@ button.close {
 	.helpText {
 		margin: 0.2em 0 0;
 		max-width: 24em;
+		display: inline-block;
 	}
 
 	input:not([type="checkbox"]):not([type="radio"]),

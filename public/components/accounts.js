@@ -28,8 +28,7 @@ var AccountsPage = React.createClass({displayName: "AccountsPage",
 
 	handleDialogDismiss: function() {
 		this.setState({
-			dialogMode: null,
-			dialogStream: {}
+			dialogMode: null
 		});
 	},
 
@@ -443,7 +442,7 @@ var StreamForm = React.createClass({displayName: "StreamForm",
 				return React.createElement(StreamField, {key: fieldId, fieldId: fieldId, value: fieldValue, fieldData: fieldData, inputType: inputType, helpText: helpText, label: label, isRequired: isRequired, handleStreamUpdate: self.handleStreamUpdate});
 			}), 
 			React.createElement("div", {className: "actionBar"}, 
-				React.createElement(Link, {className: "btn secondary", to: "accounts"}, 
+				React.createElement("button", {className: "btn secondary"}, 
 					"Cancel"
 				), 
 				(self.props.action === 'add' ? 

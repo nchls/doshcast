@@ -259,11 +259,14 @@ button.close {
     .dialog > .inner > .scrollable {
       padding: 1em 2em 1em 1em;
       overflow: auto;
+      min-width: 23em;
       max-height: 100%; }
   .dialog .close {
     right: 1em; }
   .dialog h2 {
     margin-top: 0; }
+  .dialog .streamForm .helpText {
+    max-width: 18em; }
 
 .loading-mask {
   position: absolute;
@@ -403,13 +406,13 @@ button.close {
     border: solid 0.2em #ccc; }
     .stream-group > ul .item:hover {
       border-color: #aaa; }
-    @media screen and (min-width: 30em) {
+    @media screen and (min-width: 40em) {
       .stream-group > ul .item {
         width: 48%; } }
-    @media screen and (min-width: 45em) {
+    @media screen and (min-width: 60em) {
       .stream-group > ul .item {
         width: 31%; } }
-    @media screen and (min-width: 70em) {
+    @media screen and (min-width: 80em) {
       .stream-group > ul .item {
         width: 23%; } }
     .stream-group > ul .item > a {
@@ -439,7 +442,8 @@ button.close {
 
 .streamForm .helpText {
   margin: 0.2em 0 0;
-  max-width: 24em; }
+  max-width: 24em;
+  display: inline-block; }
 
 .streamForm input:not([type="checkbox"]):not([type="radio"]),
 .streamForm select,
