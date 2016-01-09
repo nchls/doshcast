@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "react": "*",
-    "react-router": "*",
+    "react-router": "~0.13",
     "zeptojs": "*",
     "cookies-js": "*",
     "fontawesome": "*",
